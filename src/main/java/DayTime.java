@@ -6,6 +6,7 @@ public class DayTime {
 
     private String endtime;
 
+    //4 digit int 1200 = 12:00 pm
     private int militarystart;
 
     private int militaryend; //could represent 12:45 AM as 0045 and 3:50 PM as 1550.... 11:59 PM = 2359
