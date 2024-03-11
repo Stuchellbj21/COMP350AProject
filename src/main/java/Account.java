@@ -9,7 +9,7 @@ public class Account {
 
     private int passwordhash;
 
-    private CourseCode major;
+    private Major major;
 
     private Schedule currentsched;
 
@@ -20,7 +20,7 @@ public class Account {
     //getters + setters not added yet
 
     //this could be done as a setter for major
-    public boolean change_major(CourseCode newmajor) {return false;}
+    public boolean change_major(Major newmajor) {return false;}
 
     public boolean change_password(String newpassword) {return false;}
 

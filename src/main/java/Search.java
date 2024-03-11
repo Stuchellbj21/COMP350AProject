@@ -10,6 +10,8 @@ public class Search {
 
     private String searchstr;
 
+    private List<String> search_str_list;
+
     //getters + setters yet to be added
 
     public List<Course> search(String ss) {return null;} //sets searchstr to ss and performs a new search on searchstr and gives results
