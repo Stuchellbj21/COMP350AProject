@@ -6,6 +6,8 @@ public class Account {
     //has schedules in it
 
     // This is a test for learning how to use pull requests
+
+    // this is another test
     private String username;
 
     private int passwordhash;
