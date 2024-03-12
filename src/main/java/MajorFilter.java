@@ -1,5 +1,5 @@
 public class MajorFilter {
-    private CourseCode major;
+    private Major major;
 
     //is Course.major == major true? for apply
 }

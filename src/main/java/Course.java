@@ -5,7 +5,9 @@ public class Course {
 
     private char section;
 
-    private CourseCode coursecode;
+    private Major coursecode;
+
+    private int coursenum; //3 digit number representing which course (350 in COMP 350)
 
     private int credits;
 
@@ -15,7 +17,7 @@ public class Course {
 
     private String professor;
 
-    private Set<CourseCode> requiredby; //a set of all majors that require taking this course
+    private Set<Major> requiredby; //a set of all majors that require taking this course
 
     private Set<DayTime> times;
 

@@ -1,6 +1,5 @@
 import java.util.List;
 
-//Comment from Ben
 public class Schedule {
     private String name;
 
