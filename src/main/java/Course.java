@@ -48,8 +48,12 @@ public class Course {
 
 
     // this checks two classes to determine if time is the same, later will be accessed in search and schedule to prevent
-    public boolean time_overlaps_with(Course other) {
-        return (other.times == this.times);
+    public boolean times_overlap_with(Course other) {
+        //do I have to do an n^2? It seems like it
+        for(DayTime thisdt : this.times) {
+            for(DayTime otherdt : other.times) if(thisdt.equals(otherdt) || thisdt.overlaps(otherdt)) return true;
+        }
+        return false;
     }
 
     // determines if two courses are the same course
