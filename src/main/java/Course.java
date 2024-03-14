@@ -23,11 +23,25 @@ public class Course {
 
     private Set<DayTime> times;
 
+    // Constructors
+    public Course(){
+
+    }
+
+    public Course(String name, char section, Major major, int courseNum,
+                  int credits, int numstudents, int capacity, String professor,
+                  int year, String semester){
+        this.name = name;     this.section = section;      this.major = major;
+        this.coursenum = courseNum;     this.credits = credits;
+        this.numstudents = numstudents;     this.capacity = capacity;
+        this.professor = professor;      this.year = year;     this.semester = semester;
+    }
+
     //getters + setters yet to be added
     public String getName(){ return name;}
     public void setName(String name){ this.name = name;}
     public char getSection(){ return section;}
-    public void setName(char section){ this.section = section;}
+    public void setSection(char section){ this.section = section;}
     public Major getMajor(){ return major;}
     public void setMajor(Major major){ this.major = major;}
     public int getCourseNum(){ return coursenum;}
@@ -48,8 +62,12 @@ public class Course {
 
 
     // this checks two classes to determine if time is the same, later will be accessed in search and schedule to prevent
-    public boolean time_overlaps_with(Course other) {
-        return (other.times == this.times);
+    public boolean times_overlap_with(Course other) {
+        //do I have to do an n^2? It seems like it
+        for(DayTime thisdt : this.times) {
+            for(DayTime otherdt : other.times) if(thisdt.equals(otherdt) || thisdt.overlaps(otherdt)) return true;
+        }
+        return false;
     }
 
     // determines if two courses are the same course
