@@ -1,5 +1,5 @@
+import java.lang.StringBuilder;
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.*;
 
 public class Course {
@@ -21,7 +21,22 @@ public class Course {
 
     private Set<Major> requiredby; //a set of all majors that require taking this course
 
-    private Set<DayTime> times;
+    private List<DayTime> times;
+
+    public Course(String name,char section,Major major,int coursenum,int credits,int numstudents,int capacity,String professor,int year,String semester,Set<Major> requiredby,List<DayTime> times) {
+        this.name = name;
+        this.section = section;
+        this.major = major;
+        this.coursenum = coursenum;
+        this.credits = credits;
+        this.numstudents = numstudents;
+        this.capacity = capacity;
+        this.professor = professor;
+        this.year = year;
+        this.semester = semester;
+        this.requiredby = requiredby;
+        this.times = times;
+    }
 
     //getters + setters yet to be added
     public String getName(){ return name;}
@@ -56,5 +71,17 @@ public class Course {
     public boolean equals(Course other) {
         return (other.section == this.section && other.major == this.major && other.coursenum == this.coursenum
         && other.year == this.year && other.semester.equals(this.semester));
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(semester);
+        HashMap<Character,String> days = new HashMap<>();
+        for(DayTime dt : times) days.put(dt.get_day(),String.valueOf(dt.get_day()));
+        sb.append(' ').append(year).append(": ").append(major.name()).append(' ').append(coursenum).append(' ').append(section).append(" - ").append(name).append(" - ");
+        sb.append(days.getOrDefault('M',"")).append(days.getOrDefault('T',"")).append(days.getOrDefault('W',"")).append(days.getOrDefault('R',"")).append(days.getOrDefault('F',"")).append(" ");
+        if(!times.isEmpty()) sb.append(times.get(0).get_start_time()).append(" - ").append(times.get(0).get_end_time());
+        else sb.append("(no times listed)");
+        return sb.append(' ').append(numstudents).append("/").append(capacity).toString();
     }
 }
