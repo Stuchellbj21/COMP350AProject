@@ -10,7 +10,9 @@ public class TestCourse {
     Course Blank;
     @Test
     public void  gettersTest() throws Exception{
+        // Create filled Course
         Course = new Course("Software Engineering", 'A', Major.COMP, 350, 3, 30, 30, "John Hutchins", 2024, "Spring");
+        // Test gets for Course variables
         if(Course.getName().equals("Software Engineering")) { }else{throw new Exception("failed name get");}
         if(Course.getSection()!= 'A') { throw new Exception("failed section get");}
         if(Course.getMajor()!= Major.COMP) { throw new Exception("failed major get");}
@@ -24,11 +26,15 @@ public class TestCourse {
     }
     @Test
     public void  settersTest() throws Exception{
+        // Create filled Course
         Course = new Course("Software Engineering", 'A', Major.COMP, 350, 3, 30, 30, "John Hutchins", 2024, "Spring");
+        // Create empty Course
         Course Blank = new Course();
+        // Set Blank's variables to equal
         Blank.setName(Course.getName());    Blank.setSection(Course.getSection());    Blank.setMajor(Course.getMajor());
         Blank.setCourseNum(Course.getCourseNum());    Blank.setCredits(Course.getCredits());    Blank.setNumstudents(Course.getNumstudents());
         Blank.setCapacity(Course.getCapacity());    Blank.setProfessor(Course.getProfessor());    Blank.setYear(Course.getYear());   Blank.setSemester(Course.getSemester());
+        // Compare now filled Blank to Course
         if(Blank.getName().equals("Software Engineering")) { }else{throw new Exception("failed name get");}
         if(Blank.getSection()!= 'A') { throw new Exception("failed section get");}
         if(Blank.getMajor()!= Major.COMP) { throw new Exception("failed major get");}
@@ -43,8 +49,11 @@ public class TestCourse {
 
     @Test
     public void  equalsTest() throws Exception{
+        // Create Equal Course
         Course other = new Course("Software Engineering", 'A', Major.COMP, 350, 3, 30, 30, "John Hutchins", 2024, "Spring");
+        // Create Equal Course
         Course course = new Course("Software Engineering", 'A', Major.COMP, 350, 3, 30, 30, "John Hutchins", 2024, "Spring");
+        // Compare get statements on two classes
         if(other.getMajor() != course.getMajor()){ throw new Exception("failed major comparison");}
         if(other.getCourseNum() != course.getCourseNum()){ throw new Exception("failed courseNum comparison");}
         if(other.getSection() != course.getSection()){ throw new Exception("failed Section comparison");}
