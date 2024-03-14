@@ -1,3 +1,5 @@
 public enum Major {
-    //COMP,HIST,WRIT,.... will contain all possible course codes
+        ACCT, ART, ASTR, BIOL, CHEM, CMIN, COMM, COMP, DESI, ECON, EDUC, ELEE, ENGL, ENGR, ENTR, EXER,
+        FNCE, FREN, GEOL, GREK, HEBR, HIST, HUMA, INBS, MARK, MATH, MECE, MNGT, MUSI, NURS, PHIL, PHYE,
+        PHYS, POLS, PSYC, RELI, ROBO, SCIC, SEDU, SOCI, SOCW, SPAN, SSFT, THEA, WRIT
 }

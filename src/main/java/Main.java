@@ -1,4 +1,5 @@
 import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     //this is where we will keep our JFrame
@@ -15,7 +16,39 @@ public class Main {
     private List<String> accounts; //list of all account names (which are directory names)
 
     //account has a schedule instance that is worked on
-    public void run() {}
+    public static void run() {
+        Scanner scnr = new Scanner(System.in);
+//        System.out.println("What is your account name?");
+//        String account_name = scnr.next();
+//        if(accounts.contains(account_name)){
+//            System.out.println("What is your password?");
+//            String password = scnr.next();
+//        }
+//        else {
+//            System.out.println("Account does not exist. Would you like to make an account? Choose 'y' or 'n'.");
+//            String user_choice = scnr.next();
+//            user_choice.toLowerCase();
+//            if (user_choice.equals("y") || user_choice.equals("n")){
+//                //create account process
+//            }
+//        }
+        System.out.println("Would you like to create a new schedule? Enter 'y' for yes or 'n' for no.");
+        String user_input = (String) scnr.next();
+        String yes_choice = "y";
+        String no_choice = "n";
+        while (!(user_input.equalsIgnoreCase(yes_choice)) && !(user_input.equalsIgnoreCase(no_choice))) {
+            System.out.println("Invalid input. Please try again.");
+            user_input = (String) scnr.next();
+        }
+        if (user_input.equals("y")) {
+            //create new schedule
+        }
+        else {
+            System.out.println("No class created.");
+        }
+    }
 
-    public static void main(String[] args) {}
+    public static void main(String[] args) {
+        run();
+    }
 }
