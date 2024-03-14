@@ -116,7 +116,7 @@ public class Main {
 //                //create account process
 //            }
 //        }
-        /*REMOVE BLOCK COMMENT and comments in schedtest class!!!!System.out.println("Would you like to create a new schedule? Enter 'y' for yes or 'n' for no.");
+        System.out.println("Would you like to create a new schedule? Enter 'y' for yes or 'n' for no.");
         String user_input = (String) scnr.next();
         String yes_choice = "y";
         String no_choice = "n";
@@ -129,7 +129,7 @@ public class Main {
         }
         else {
             System.out.println("No class created.");
-        }*/
+        }
     }
 
     public static void main(String[] args) {
