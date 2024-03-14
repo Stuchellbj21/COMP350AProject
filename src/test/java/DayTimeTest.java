@@ -30,4 +30,16 @@ public class DayTimeTest {
         assertEquals(d.to_military_time("11:16 AM"),1116);
         assertEquals(d.to_military_time("5:17 PM"),1717);
     }
+
+    @Test
+    public void test_overlaps() {
+        DayTime d1 = new DayTime(); //8:00-8:50 M
+        DayTime d2 = new DayTime("8:50 AM","9:00 AM", 'M');
+        assertTrue(d1.overlaps(d2));
+        d2.set_day('T');
+        assertFalse(d1.overlaps(d2));
+        d1.set_day('T'); //both Tuesday
+        d2.set_start("8:51 AM");
+        assertFalse(d1.overlaps(d2));
+    }
 }

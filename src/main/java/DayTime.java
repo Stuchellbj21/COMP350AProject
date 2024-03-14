@@ -49,6 +49,24 @@ public class DayTime {
         return t;
     }
 
+    public void set_day(char day) {this.day = day;}
+
+    public char get_day() {return day;}
+
+    public int get_militarystart() {return militarystart;}
+
+    public int get_militaryend() {return militaryend;}
+
+    public void set_start(String s) {
+        starttime = put_in_correct_format(s);
+        militarystart = to_military_time(starttime);
+    }
+
+    public void set_end(String e) {
+        endtime = put_in_correct_format(e);
+        militaryend = to_military_time(endtime);
+    }
+
     //TODO: put getters + setters if necessary
 
     public int to_military_time(String time) {
@@ -75,7 +93,7 @@ public class DayTime {
     }
 
     public boolean overlaps(DayTime other) {
-        return (this.militarystart >= other.militarystart && this.militarystart <= other.militaryend) || (this.militaryend >= other.militarystart && this.militaryend <= other.militaryend);
+        return day == other.day && ((this.militarystart >= other.militarystart && this.militarystart <= other.militaryend) || (this.militaryend >= other.militarystart && this.militaryend <= other.militaryend));
     }
 
     @Override
