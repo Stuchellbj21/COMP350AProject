@@ -5,6 +5,7 @@ public class Account {
     //we make a directory storing all accounts.... each account is a subdirectory of this directory that
     //has schedules in it
 
+    //Make getters and setters
     private String username;
 
     private int passwordhash;
