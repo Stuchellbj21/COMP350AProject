@@ -101,7 +101,9 @@ public class Main {
         }
         csvscn.close();
 
-        Scanner scnr = new Scanner(System.in)
+        System.out.println("Would you like to create an account? Answer y or n");
+
+        Scanner scnr = new Scanner(System.in);
         System.out.println("Would you like to create a new schedule? Enter 'y' for yes or 'n' for no.");
         String user_input = (String) scnr.next();
         String yes_choice = "y";
