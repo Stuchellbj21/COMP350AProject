@@ -1,9 +1,5 @@
-import java.util.HashSet;
+import java.util.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.List;
-import java.util.Scanner;
 import java.io.FileInputStream;
 
 public class Main {
@@ -141,6 +137,8 @@ public class Main {
                             if (user_choice.equalsIgnoreCase("y")){
                                 System.out.println("Please enter your major.");
                                 //Process for creating and setting a major
+                                List<Major> major_list = Arrays.asList(Major.values());
+                                System.out.println(major_list);
                             }
                             else {
                                 System.out.println("No major entered.");
