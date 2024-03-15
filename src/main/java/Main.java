@@ -41,7 +41,12 @@ public class Main {
             user_input = (String) scnr.next();
         }
         if (user_input.equals("y")) {
-            //create new schedule
+            System.out.println("What would you like the schedule to be called?");
+            String sched_name = scnr.next();
+            String file_name = sched_name + ".txt";
+            System.out.println(file_name);
+            Schedule newSched = new Schedule(sched_name);
+            System.out.println(newSched);
         }
         else {
             System.out.println("No class created.");
