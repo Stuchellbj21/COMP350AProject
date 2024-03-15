@@ -57,6 +57,10 @@ public class DayTime {
 
     public int get_militaryend() {return militaryend;}
 
+    public String get_start_time() {return starttime;}
+
+    public String get_end_time() {return endtime;}
+
     public void set_start(String s) {
         starttime = put_in_correct_format(s);
         militarystart = to_military_time(starttime);
