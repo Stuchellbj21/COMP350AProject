@@ -1,5 +1,4 @@
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Search {
     private List<Course> searchresults;
@@ -12,9 +11,24 @@ public class Search {
 
     private List<String> search_str_list;
 
+    Search() {
+        searchstr = "";
+        search_str_list = new ArrayList<>();
+        activefilters = new HashSet<>();
+        filteredresults = new ArrayList<>();
+        searchresults = new ArrayList<>();
+    }
+
     //getters + setters yet to be added
 
-    public List<Course> search(String ss) {return null;} //sets searchstr to ss and performs a new search on searchstr and gives results
+    public List<Course> search(String ss) {
+        searchstr = ss;
+        search_str_list.clear();
+        Collections.addAll(search_str_list,ss.split("\\s+"));
+        HashMap<Course,Integer> coursetoweight = new HashMap<>();
+        for
+
+    } //sets searchstr to ss and performs a new search on searchstr and gives results
 
     public List<Course> activate_new_filter(Filter f) {return null;}
 

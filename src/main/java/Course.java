@@ -4,6 +4,9 @@ import java.util.*;
 
 public class Course {
     private String name;
+
+    private Set<String> id;
+
     private char section;
     private Major major;
     private int coursenum; //3 digit number representing which course (350 in COMP 350)
