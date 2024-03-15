@@ -101,9 +101,60 @@ public class Main {
         }
         csvscn.close();
 
-        System.out.println("Would you like to create an account? Answer y or n");
-
         Scanner scnr = new Scanner(System.in);
+        System.out.println("Do you have an account? y or no.");
+        String user_choice = scnr.next();
+        String curr_username;
+        String curr_password;
+        if ((!(user_choice.equalsIgnoreCase("y"))) && (!(user_choice.equalsIgnoreCase("n")))){
+            System.out.println("Invalid entry. Please re-enter either y or n.");
+            user_choice = scnr.next();
+        }
+        else {
+            if (user_choice.equalsIgnoreCase("y")){
+                System.out.println("Please enter your username.");
+                curr_username = scnr.next();
+                System.out.println("Please enter your password.");
+                curr_password = scnr.next();
+            }
+            else {
+                System.out.println("Would you like to create an account? Answer y or n");
+                user_choice = scnr.next();
+                String user_name;
+                if ((!(user_choice.equalsIgnoreCase("y"))) && (!(user_choice.equalsIgnoreCase("n")))){
+                    System.out.println("Invalid entry. Please re-enter either y or n.");
+                    user_choice = scnr.next();
+                }
+                else {
+                    if (user_choice.equalsIgnoreCase("y")){
+                        System.out.println("What would you like to set as your username?");
+                        user_name = scnr.next();
+                        System.out.println("What would you like to set as your password?");
+                        user_name = scnr.next();
+                        System.out.println("Would you like to add a major to your account? Enter y or n.");
+                        user_choice = scnr.next();
+                        if ((!(user_choice.equalsIgnoreCase("y"))) && (!(user_choice.equalsIgnoreCase("n")))){
+                            System.out.println("Invalid entry. Please re-enter either y or n.");
+                            user_choice = scnr.next();
+                        }
+                        else {
+                            if (user_choice.equalsIgnoreCase("y")){
+                                System.out.println("Please enter your major.");
+                                //Process for creating and setting a major
+                            }
+                            else {
+                                System.out.println("No major entered.");
+                            }
+                        }
+                    }
+                    else {
+                        System.out.println("No account created.");
+                    }
+                }
+            }
+        }
+
+
         System.out.println("Would you like to create a new schedule? Enter 'y' for yes or 'n' for no.");
         String user_input = (String) scnr.next();
         String yes_choice = "y";
