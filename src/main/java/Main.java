@@ -101,21 +101,7 @@ public class Main {
         }
         csvscn.close();
 
-        Scanner scnr = new Scanner(System.in);
-//        System.out.println("What is your account name?");
-//        String account_name = scnr.next();
-//        if(accounts.contains(account_name)){
-//            System.out.println("What is your password?");
-//            String password = scnr.next();
-//        }
-//        else {
-//            System.out.println("Account does not exist. Would you like to make an account? Choose 'y' or 'n'.");
-//            String user_choice = scnr.next();
-//            user_choice.toLowerCase();
-//            if (user_choice.equals("y") || user_choice.equals("n")){
-//                //create account process
-//            }
-//        }
+        Scanner scnr = new Scanner(System.in)
         System.out.println("Would you like to create a new schedule? Enter 'y' for yes or 'n' for no.");
         String user_input = (String) scnr.next();
         String yes_choice = "y";
