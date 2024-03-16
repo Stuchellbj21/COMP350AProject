@@ -21,7 +21,7 @@ public class Main {
     private List<String> accounts; //list of all account names (which are directory names)
 
     //account has a schedule instance that is worked on
-    public static void run() throws IOException {
+    public static void populate_allcourses() throws IOException {
         FileInputStream fis = new FileInputStream("2020-2021.csv");
         Scanner csvscn = new Scanner(fis);
         allcourses = new ArrayList<>();
@@ -100,7 +100,10 @@ public class Main {
             inline.close();
         }
         csvscn.close();
+    }
 
+    public static void run() throws IOException {
+        populate_allcourses();
         Scanner scnr = new Scanner(System.in);
         System.out.println("Do you have an account? y or no.");
         String user_choice = scnr.next();
