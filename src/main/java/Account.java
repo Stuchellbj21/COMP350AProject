@@ -17,16 +17,20 @@ public class Account {
 
     private Search search;
 
+    public Account(){
+        this.username = "empty";
+    }
+
     //Constructor without major
-    public Account(String username,int passwordhash){
+    public Account(String username,String passwordhash){
         this.username = username;
-        this.passwordhash = passwordhash;
+        this.passwordhash = passwordhash.hashCode();
     }
 
     //Constructor with major
-    public Account(String username,int passwordhash,Major major){
+    public Account(String username,String passwordhash,Major major){
         this.username = username;
-        this.passwordhash = passwordhash;
+        this.passwordhash = passwordhash.hashCode();
         this.major = major;
     }
 
@@ -65,12 +69,35 @@ public class Account {
 
     public boolean delete_account() {return false;}
 
-    private boolean verify_password(String passwordattempt) {
+    public boolean verify_password(String passwordattempt) {
         int passwordhash = passwordattempt.hashCode();
         return this.passwordhash == passwordhash;
     }
 
     private boolean has_schedule (String schedname){
         return schednames.contains(schedname);
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Major getMajor() {
+        return major;
+    }
+
+    public void setMajor(Major major) {
+        this.major = major;
+    }
+
+    public void printAcct(){
+        System.out.println("Account:");
+        System.out.println("Name: " + this.username);
+        System.out.println("Password: " + this.passwordhash);
+        System.out.println("Major: " + this.major);
     }
 }
