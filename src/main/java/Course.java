@@ -44,15 +44,23 @@ public class Course {
         this.requiredby = requiredby;
         this.times = times;
         id = new HashSet<>();
+        populate_id();
+    }
+
+    private void populate_id() {
         add_time_strs_to_id();
-        Collections.addAll(id,days_to_str(),String.valueOf(section),major.name(),String.valueOf(coursenum),professor.split("\\s+")[1],String.valueOf(year),semester);
-        Collections.addAll(id,name.split("\\s+"));
+        //make sure everything is uppercase so works with search
+        Collections.addAll(id,days_to_str().toUpperCase(),String.valueOf(section).toUpperCase(),
+                major.name().toUpperCase(),String.valueOf(coursenum).toUpperCase(),
+                professor.split("\\s+")[1].toUpperCase(),String.valueOf(year).toUpperCase(),
+                semester.toUpperCase());
+        String[] names = name.split("\\s+");
+        for (int i = 0; i < names.length; i++) names[i] = names[i].toUpperCase();
+        Collections.addAll(id,names);
     }
 
     // Constructors
-    public Course(){
-
-    }
+    public Course(){}
 
     public Set<String> get_id() {return id;}
 
@@ -86,7 +94,7 @@ public class Course {
         String stwithoutm = get_without_meridiem(st,startst), etwithoutm = get_without_meridiem(et,startet);
         //time identifiers for 09:00 AM-12:00 PM MWF and 03:00 PM-06:00 PM R -> 9,9:00,9:00-12:00,9-12:00,9-12,9:00-12,AM
         id.add(stwithoutm); //add 9:00
-        id.add(st.substring(st.length()-2)); //add AM
+        id.add(st.substring(st.length()-2).toUpperCase()); //add AM (uppercase for search)
         String shortet = null;
         if(et.startsWith("00",3)) shortet = et.substring(startet,2);
         //add '9' and range permutations that go with it as start
