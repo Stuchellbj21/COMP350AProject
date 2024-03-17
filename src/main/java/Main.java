@@ -1,9 +1,5 @@
-import java.util.HashSet;
+import java.util.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.List;
-import java.util.Scanner;
 import java.io.FileInputStream;
 
 public class Main {
@@ -18,13 +14,15 @@ public class Main {
     //we will have a directory in which we store all of the account directories
     //within each account directory there will be csv/txt/other files which represent the saved
     //schedules for those accounts
-    private List<String> accounts; //list of all account names (which are directory names)
+    public static List<String> accounts; //list of all account names (which are directory names)
 
     //account has a schedule instance that is worked on
     public static void run() throws IOException {
         FileInputStream fis = new FileInputStream("2020-2021.csv");
         Scanner csvscn = new Scanner(fis);
         allcourses = new ArrayList<>();
+        accounts = new ArrayList<>();
+        List<Account> session_accounts = new ArrayList<>();
         //skip the descriptors with nextLine()
         csvscn.nextLine();
         while(csvscn.hasNextLine()) {
@@ -102,6 +100,7 @@ public class Main {
         csvscn.close();
 
         Scanner scnr = new Scanner(System.in);
+        Account curr_account;
         System.out.println("Do you have an account? y or no.");
         String user_choice = scnr.next();
         String curr_username;
@@ -114,36 +113,272 @@ public class Main {
             if (user_choice.equalsIgnoreCase("y")){
                 System.out.println("Please enter your username.");
                 curr_username = scnr.next();
-                System.out.println("Please enter your password.");
-                curr_password = scnr.next();
+                boolean hasAccount = false;
+                int acct_indx = 0;
+                for (int i = 0; i < accounts.size(); i++){
+                    if (accounts.get(i).equals(curr_username)){
+                        acct_indx = i;
+                        hasAccount = true;
+                    }
+                }
+                if (hasAccount) {
+                    Account compare = new Account();
+                    for (int i = 0; i < session_accounts.size(); i++){
+                        if (session_accounts.get(i).getUsername() == curr_username){
+                            compare = session_accounts.get(i);
+                        }
+                    }
+                    System.out.println("Please enter your password.");
+                    curr_password = scnr.next();
+                    if(compare.verify_password(curr_password)){
+                        System.out.println("Correct password.");
+                    }
+                    else {
+                        while(!(compare.verify_password(curr_password)) || !(curr_password.equalsIgnoreCase("x"))){
+                            System.out.println("Incorrect password. Please re-enter. Select x if you would like to exit.");
+                            curr_password = scnr.next();
+                        }
+                        if (compare.verify_password(curr_password)){
+                            System.out.println("Successfully logged in.");
+                        }
+                        else {
+                            System.out.println("Goodbye!");
+                        }
+                    }
+                }
             }
             else {
+                String new_username;
+                String new_password;
+                Major new_major = Major.NULL;
                 System.out.println("Would you like to create an account? Answer y or n");
                 user_choice = scnr.next();
                 String user_name;
-                if ((!(user_choice.equalsIgnoreCase("y"))) && (!(user_choice.equalsIgnoreCase("n")))){
+                if ((!(user_choice.equalsIgnoreCase("y"))) && (!(user_choice.equalsIgnoreCase("n")))) {
                     System.out.println("Invalid entry. Please re-enter either y or n.");
                     user_choice = scnr.next();
                 }
                 else {
-                    if (user_choice.equalsIgnoreCase("y")){
+                    if (user_choice.equalsIgnoreCase("y")) {
                         System.out.println("What would you like to set as your username?");
-                        user_name = scnr.next();
+                        new_username = scnr.next();
                         System.out.println("What would you like to set as your password?");
-                        user_name = scnr.next();
+                        new_password = scnr.next();
                         System.out.println("Would you like to add a major to your account? Enter y or n.");
                         user_choice = scnr.next();
-                        if ((!(user_choice.equalsIgnoreCase("y"))) && (!(user_choice.equalsIgnoreCase("n")))){
+                        if ((!(user_choice.equalsIgnoreCase("y"))) && (!(user_choice.equalsIgnoreCase("n")))) {
                             System.out.println("Invalid entry. Please re-enter either y or n.");
                             user_choice = scnr.next();
                         }
                         else {
-                            if (user_choice.equalsIgnoreCase("y")){
-                                System.out.println("Please enter your major.");
-                                //Process for creating and setting a major
-                            }
-                            else {
+                            if (user_choice.equalsIgnoreCase("y")) {
+                                System.out.println("Please type your major from list.");
+                                List<Major> major_list = Arrays.asList(Major.values());
+                                for (int i = 0; i < major_list.size(); i++) {
+                                    System.out.print(major_list.get(i) + " ");
+                                }
+                                System.out.println();
+                                String major_choice = scnr.next().toUpperCase();
+                                boolean major_found = false;
+                                while (!major_found) {
+                                    switch (major_choice) {
+                                        case "ACCT":
+                                            new_major = Major.ACCT;
+                                            major_found = true;
+                                            break;
+                                        case "ART":
+                                            new_major = Major.ART;
+                                            major_found = true;
+                                            break;
+                                        case "ASTR":
+                                            new_major = Major.ASTR;
+                                            major_found = true;
+                                            break;
+                                        case "BOIL":
+                                            new_major = Major.BIOL;
+                                            major_found = true;
+                                            break;
+                                        case "CHEM":
+                                            new_major = Major.CHEM;
+                                            major_found = true;
+                                            break;
+                                        case "CMIN":
+                                            new_major = Major.CMIN;
+                                            major_found = true;
+                                            break;
+                                        case "COMM":
+                                            new_major = Major.COMM;
+                                            major_found = true;
+                                            break;
+                                        case "COMP":
+                                            new_major = Major.COMP;
+                                            major_found = true;
+                                            break;
+                                        case "DESI":
+                                            new_major = Major.DESI;
+                                            major_found = true;
+                                            break;
+                                        case "ECON":
+                                            new_major = Major.ECON;
+                                            major_found = true;
+                                            break;
+                                        case "EDUC":
+                                            new_major = Major.EDUC;
+                                            major_found = true;
+                                            break;
+                                        case "ELEE":
+                                            new_major = Major.ELEE;
+                                            major_found = true;
+                                            break;
+                                        case "ENGL":
+                                            new_major = Major.ENGL;
+                                            major_found = true;
+                                            break;
+                                        case "ENGR":
+                                            new_major = Major.ENGR;
+                                            major_found = true;
+                                            break;
+                                        case "ENTR":
+                                            new_major = Major.ENTR;
+                                            major_found = true;
+                                            break;
+                                        case "EXER":
+                                            new_major = Major.EXER;
+                                            major_found = true;
+                                            break;
+                                        case "FNCE":
+                                            new_major = Major.FNCE;
+                                            major_found = true;
+                                            break;
+                                        case "FREN":
+                                            new_major = Major.FREN;
+                                            major_found = true;
+                                            break;
+                                        case "GEOL":
+                                            new_major = Major.GEOL;
+                                            major_found = true;
+                                            break;
+                                        case "GREK":
+                                            new_major = Major.GREK;
+                                            major_found = true;
+                                            break;
+                                        case "HEBR":
+                                            new_major = Major.HEBR;
+                                            major_found = true;
+                                            break;
+                                        case "HIST":
+                                            new_major = Major.HIST;
+                                            major_found = true;
+                                            break;
+                                        case "HUMA":
+                                            new_major = Major.HUMA;
+                                            major_found = true;
+                                            break;
+                                        case "INBS":
+                                            new_major = Major.INBS;
+                                            major_found = true;
+                                            break;
+                                        case "MARK":
+                                            new_major = Major.MARK;
+                                            major_found = true;
+                                            break;
+                                        case "MECE":
+                                            new_major = Major.MECE;
+                                            major_found = true;
+                                            break;
+                                        case "MNGT":
+                                            new_major = Major.MNGT;
+                                            major_found = true;
+                                            break;
+                                        case "MUSI":
+                                            new_major = Major.MUSI;
+                                            major_found = true;
+                                            break;
+                                        case "NURS":
+                                            new_major = Major.NURS;
+                                            major_found = true;
+                                            break;
+                                        case "PHIL":
+                                            new_major = Major.PHIL;
+                                            major_found = true;
+                                            break;
+                                        case "PHYE":
+                                            new_major = Major.PHYE;
+                                            major_found = true;
+                                            break;
+                                        case "PHYS":
+                                            new_major = Major.PHYS;
+                                            major_found = true;
+                                            break;
+                                        case "POLS":
+                                            new_major = Major.POLS;
+                                            major_found = true;
+                                            break;
+                                        case "PSYC":
+                                            new_major = Major.PSYC;
+                                            major_found = true;
+                                            break;
+                                        case "RELI":
+                                            new_major = Major.RELI;
+                                            major_found = true;
+                                            break;
+                                        case "ROBO":
+                                            new_major = Major.ROBO;
+                                            major_found = true;
+                                            break;
+                                        case "SCIC":
+                                            new_major = Major.SCIC;
+                                            major_found = true;
+                                            break;
+                                        case "SEDU":
+                                            new_major = Major.SEDU;
+                                            major_found = true;
+                                            break;
+                                        case "SOCI":
+                                            new_major = Major.SOCI;
+                                            major_found = true;
+                                            break;
+                                        case "SOCW":
+                                            new_major = Major.SOCW;
+                                            major_found = true;
+                                            break;
+                                        case "SPAN":
+                                            new_major = Major.SPAN;
+                                            major_found = true;
+                                            break;
+                                        case "SSFT":
+                                            new_major = Major.SSFT;
+                                            major_found = true;
+                                            break;
+                                        case "THEA":
+                                            new_major = Major.THEA;
+                                            major_found = true;
+                                            break;
+                                        case "WRIT":
+                                            new_major = Major.WRIT;
+                                            major_found = true;
+                                            break;
+                                        case "LATN":
+                                            new_major = Major.LATN;
+                                            major_found = true;
+                                            break;
+                                    }
+                                }
+                                ;
+                                Account user_account = new Account(new_username, new_password, new_major);
+                                session_accounts.add(user_account);
+                                System.out.println("Account successfully created!");
+                                System.out.println();
+                                user_account.printAcct();
+                                System.out.println();
+                            } else {
                                 System.out.println("No major entered.");
+                                Account user_account = new Account(new_username, new_password);
+                                session_accounts.add(user_account);
+                                System.out.println("Account successfully created!");
+                                System.out.println();
+                                user_account.printAcct();
+                                System.out.println();
                             }
                         }
                     }
@@ -173,6 +408,25 @@ public class Main {
         }
         else {
             System.out.println("No class created.");
+        }
+
+        for (int i = 0; i < 30; i++) {
+            if(i == 0 || i == 29) {
+                for (int j = 0; j < 60; j++){
+                    System.out.print("_");
+                }
+            }
+            else {
+                for (int k = 0; k < 60; k++){
+                    if (k % 5 == 0){
+                        System.out.print("|");
+                    }
+                    else {
+                        System.out.print(" ");
+                    }
+                }
+            }
+            System.out.println();
         }
     }
 

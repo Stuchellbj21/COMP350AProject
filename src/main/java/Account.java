@@ -5,7 +5,6 @@ public class Account {
     //we make a directory storing all accounts.... each account is a subdirectory of this directory that
     //has schedules in it
 
-    //Make getters and setters
     private String username;
 
     private int passwordhash;
@@ -18,22 +17,87 @@ public class Account {
 
     private Search search;
 
+    public Account(){
+        this.username = "empty";
+    }
+
+    //Constructor without major
+    public Account(String username,String passwordhash){
+        this.username = username;
+        this.passwordhash = passwordhash.hashCode();
+    }
+
+    //Constructor with major
+    public Account(String username,String passwordhash,Major major){
+        this.username = username;
+        this.passwordhash = passwordhash.hashCode();
+        this.major = major;
+    }
+
     //getters + setters not added yet
 
     //this could be done as a setter for major
-    public boolean change_major(Major newmajor) {return false;}
+    public boolean change_major(Major newmajor) {
+        this.major = newmajor;
+        return true;
+    }
 
-    public boolean change_password(String newpassword) {return false;}
+    public boolean change_password(String newpassword) {
+        passwordhash = newpassword.hashCode();
+        return true;
+    }
 
-    public boolean change_username(String newname) {return false;}
+    public boolean change_username(String newname) {
+        this.username = newname;
+        return true;
+    }
 
-    public boolean save_schedule() {return false;}
+    public boolean save_schedule(String sched_name) {
+        schednames.add(sched_name);
+        return true;
+    }
 
-    public boolean load_schedule(String schedname) {return false;} //default is to work with new Schedule
+    public boolean load_schedule(String schedname) {
+        currentsched = new Schedule(schedname);
+        return true;
+    } //default is to work with new Schedule
 
-    public boolean delete_schedule(String schedname) {return false;}
+    public boolean delete_schedule(String schedname) {
+        schednames.remove(schedname);
+        return true;
+    }
 
     public boolean delete_account() {return false;}
 
-    private boolean verify_password(String passwordattempt) {return false;}
+    public boolean verify_password(String passwordattempt) {
+        int passwordhash = passwordattempt.hashCode();
+        return this.passwordhash == passwordhash;
+    }
+
+    private boolean has_schedule (String schedname){
+        return schednames.contains(schedname);
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Major getMajor() {
+        return major;
+    }
+
+    public void setMajor(Major major) {
+        this.major = major;
+    }
+
+    public void printAcct(){
+        System.out.println("Account:");
+        System.out.println("Name: " + this.username);
+        System.out.println("Password: " + this.passwordhash);
+        System.out.println("Major: " + this.major);
+    }
 }
