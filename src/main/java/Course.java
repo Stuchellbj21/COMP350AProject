@@ -107,7 +107,7 @@ public class Course {
 
     private String days_to_str() {
         HashMap<Character,String> days = new HashMap<>();
-        for(DayTime dt : times) days.put(dt.get_day(),String.valueOf(dt.get_day()));
+        for(DayTime dt : times) days.put(dt.get_day(),String.valueOf(dt.get_day()).toUpperCase());
         StringBuilder sb = new StringBuilder();
         return sb.append(days.getOrDefault('M',"")).append(days.getOrDefault('T',"")).append(days.getOrDefault('W',"")).append(days.getOrDefault('R',"")).append(days.getOrDefault('F',"")).toString();
     }
@@ -163,10 +163,11 @@ public class Course {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(semester);
-        sb.append(' ').append(year).append(": ").append(major.name()).append(' ').append(coursenum).append(' ').append(section).append(" - ").append(name).append(" - ");
-        sb.append(days_to_str()).append(" ");
+        sb.append(' ').append(year).append(": ").append(professor).append(" - ").append(major.name());
+        sb.append(' ').append(coursenum).append(' ').append(section).append(" - ");
+        sb.append(name).append(" - ").append(days_to_str()).append(" ");
         if(!times.isEmpty()) sb.append(times.get(0).get_start_time()).append(" - ").append(times.get(0).get_end_time());
         else sb.append("(no times listed)");
-        return sb.append(' ').append(numstudents).append("/").append(capacity).toString();
+        return sb.append(" (").append(numstudents).append("/").append(capacity).append(')').toString();
     }
 }
