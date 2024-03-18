@@ -54,28 +54,54 @@ public class Course {
 
     //getters + setters yet to be added
     public String getName(){ return name;}
+    
     public void setName(String name){ this.name = name;}
+    
     public char getSection(){ return section;}
+    
     public void setSection(char section){ this.section = section;}
+    
     public Major getMajor(){ return major;}
+    
     public void setMajor(Major major){ this.major = major;}
+    
     public int getCourseNum(){ return coursenum;}
+    
     public void setCourseNum(int coursenum){ this.coursenum = coursenum;}
+    
     public int getCredits(){ return credits;}
+    
     public void setCredits(int credits){ this.credits = credits;}
+    
     public int getNumstudents(){ return numstudents;}
+    
     public void setNumstudents(int numstudents){ this.numstudents = numstudents;}
+    
     public int getCapacity(){ return capacity;}
+    
     public void setCapacity(int capacity){ this.capacity = capacity;}
+    
     public String getProfessor(){ return professor;}
+  
     public void setProfessor(String professor){ this.professor = professor;}
 
     public int getYear(){ return year;}
+    
     public void setYear(int year){ this.year = year;}
+    
     public String getSemester(){ return semester;}
+    
     public void setSemester(String semester){ this.semester = semester;}
 
     public Set<Major> getRequiredby() {return requiredby;}
+  
+    public List<DayTime> getTimes() {
+        return times;
+    }
+    
+    public void setTimes(List<DayTime> times) {
+        this.times = times;
+    }
 
     // this checks two classes to determine if time is the same, later will be accessed in search and schedule to prevent
     public boolean times_overlap_with(Course other) {
