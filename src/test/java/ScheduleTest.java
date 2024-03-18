@@ -47,4 +47,12 @@ public class ScheduleTest {
         s.remove_course(s.get_courses().getFirst());
         assertEquals(0, s.get_courses().size());
     }
+
+    @Test
+    public void test_load() {
+        Schedule s = new Schedule("Accounts\\NateDog(0_0)\\Schedule1");
+        System.out.println(s.show_attributes());
+        Schedule s2 = new Schedule("Accounts\\NateDog(0_0)\\Schedule2");
+        System.out.println(s2.show_attributes());
+    }
 }
