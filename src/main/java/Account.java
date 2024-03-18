@@ -57,9 +57,9 @@ public class Account {
         return true;
     }
 
-    public boolean load_schedule(String schedname) {
+    public Schedule load_schedule(String schedname) {
         currentsched = new Schedule(schedname);
-        return true;
+        return currentsched;
     } //default is to work with new Schedule
 
     public boolean delete_schedule(String schedname) {
@@ -74,7 +74,7 @@ public class Account {
         return this.passwordhash == passwordhash;
     }
 
-    private boolean has_schedule (String schedname){
+    public boolean has_schedule (String schedname){
         return schednames.contains(schedname);
     }
 
