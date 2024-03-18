@@ -1,5 +1,8 @@
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Schedule {
     private String name;
@@ -121,6 +124,24 @@ public class Schedule {
         }
         courses.remove(course);
         return true;
+    }
+
+    public void save() {
+
+    }
+
+    //fname doesn't have extension
+    public void load(String fname) throws IOException {
+        FileInputStream fis = new FileInputStream(fname+"csv");
+        Scanner fscn = new Scanner(fis);
+        //skip descriptor line
+        fscn.nextLine();
+        while(fscn.hasNextLine()) {
+            Scanner parser = new Scanner(fscn.nextLine());
+            parser.useDelimiter(",");
+
+            //name,section,major,coursenum,credits,numstudents,capacity,professor,year,semester,times(start-end-day|start-end-day|start-end-day|....),requiredby(m1-m2-m3-m4-....)
+        }
     }
 
     /**
