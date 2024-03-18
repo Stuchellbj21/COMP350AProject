@@ -74,7 +74,12 @@ public class Course {
     public void setYear(int year){ this.year = year;}
     public String getSemester(){ return semester;}
     public void setSemester(String semester){ this.semester = semester;}
-
+    public List<DayTime> getTimes() {
+        return times;
+    }
+    public void setTimes(List<DayTime> times) {
+        this.times = times;
+    }
 
     // this checks two classes to determine if time is the same, later will be accessed in search and schedule to prevent
     public boolean times_overlap_with(Course other) {
