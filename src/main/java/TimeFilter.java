@@ -12,11 +12,14 @@ public class TimeFilter extends Filter {
 
     @Override
     public void apply(List<Course> courses) {
+        System.out.println(this.time.get_militarystart());
         // first loop runs backwards to avoid concurrent modification exceptions
-        for (int i = courses.size()-1; i >= 0 ; i--) {
+        for (int i = courses.size()-1; i >= 0; i--) {
             for (int j = 0; j < courses.get(i).getTimes().size(); j++) {
-                if (!courses.get(i).getTimes().get(j).equals(time)) {
+                if (courses.get(i).getTimes().isEmpty() ||
+                        courses.get(i).getTimes().get(j).get_militarystart() != (time.get_militarystart())) {
                     courses.remove(courses.get(i));
+                    break;
                 }
             }
         }
