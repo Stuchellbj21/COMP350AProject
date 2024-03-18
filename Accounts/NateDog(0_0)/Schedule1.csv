@@ -2,4 +2,5 @@ name,semester,year,credits
 schedule1,fall,2024,15
 
 name,section,major,coursenum,credits,numstudents,capacity,professor,year,semester,times(start-end-day|start-end-day|start-end-day|....),requiredby(m1-m2-m3-m4-....)
-automata theory,A,COMP,314,3,25,40,Brian Dellinger,2020,Spring,10:00 AM-10:50 AM-M|10:00 AM-10:50 AM-W|10:00 AM-10:50 AM-F,COMP
+automata theory,A,COMP,314,3,25,40,Brian Dellinger,2020,Spring,10:00 AM-10:50 AM-M-10:00 AM-10:50 AM-W-10:00 AM-10:50 AM-F,COMP-HIST-ART
+automata theory,B,COMP,314,3,25,40,Brian Dellinger,2020,Spring,10:00 AM-10:50 AM-M-10:00 AM-10:50 AM-W-10:00 AM-10:50 AM-F,COMP-HIST-ART
