@@ -1,9 +1,16 @@
 import java.lang.StringBuilder;
-import java.util.ArrayList;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 
 public class Course {
     private String name;
+
+    private Set<String> id;
+
     private char section;
     private Major major;
     private int coursenum; //3 digit number representing which course (350 in COMP 350)
@@ -36,11 +43,73 @@ public class Course {
         this.semester = semester;
         this.requiredby = requiredby;
         this.times = times;
+        id = new HashSet<>();
+        populate_id();
+    }
+
+    private void populate_id() {
+        add_time_strs_to_id();
+        //make sure everything is uppercase so works with search
+        Collections.addAll(id,days_to_str().toUpperCase(),String.valueOf(section).toUpperCase(),
+                major.name().toUpperCase(),String.valueOf(coursenum).toUpperCase(),
+                professor.split("\\s+")[1].toUpperCase(),String.valueOf(year).toUpperCase(),
+                semester.toUpperCase());
+        String[] names = name.split("\\s+");
+        for (int i = 0; i < names.length; i++) names[i] = names[i].toUpperCase();
+        Collections.addAll(id,names);
     }
 
     // Constructors
-    public Course(){
+    public Course(){}
 
+    public Set<String> get_id() {return id;}
+
+    private void add_time_strs_to_id() {
+        //first 2/1 char of starttime + whole starttime + starttime with no meridiem
+        if(!times.isEmpty()) {
+            String st = times.get(0).get_start_time();
+            String et = times.get(0).get_end_time();
+            //09:00 AM-12:00 PM MWF and 03:00 PM-06:00 PM R -> 9,9:00,9:00-12:00,9-12:00,9-12,9:00-12,AM
+            add_times_and_ranges(st,et);
+        }
+    }
+
+    private int get_start_idx(String time) {
+        if(time.charAt(0) == '0') return 1;
+        return 0;
+    }
+
+    private void add_short_strt_strs(String st, int startst, String et, int startet, String shortet) {
+        if(st.startsWith("00",3)) {
+            String shortst = st.substring(startst,2);
+            id.add(shortst); // + '9'
+            id.add(shortst + '-' + et.substring(startet,et.indexOf(' '))); // + '9-12:00
+            if(shortet != null) id.add(shortst + '-' + shortet); // + '9-12'
+        }
+    }
+
+    private void add_times_and_ranges(String st,String et) {
+        //start for start index
+        int startst = get_start_idx(st),startet = get_start_idx(et);
+        String stwithoutm = get_without_meridiem(st,startst), etwithoutm = get_without_meridiem(et,startet);
+        //time identifiers for 09:00 AM-12:00 PM MWF and 03:00 PM-06:00 PM R -> 9,9:00,9:00-12:00,9-12:00,9-12,9:00-12,AM
+        id.add(stwithoutm); //add 9:00
+        id.add(st.substring(st.length()-2).toUpperCase()); //add AM (uppercase for search)
+        String shortet = null;
+        if(et.startsWith("00",3)) shortet = et.substring(startet,2);
+        //add '9' and range permutations that go with it as start
+        add_short_strt_strs(st,startst,et,startet,shortet); // + '9', '9-12:00', '9-12'
+        id.add(stwithoutm + '-' + etwithoutm); // + '9:00-12:00'
+        if(shortet != null) id.add(stwithoutm + '-' + shortet); // + '9:00-12'
+    }
+
+    private String get_without_meridiem(String time,int start) {return time.substring(start,time.indexOf(' '));}
+
+    private String days_to_str() {
+        HashMap<Character,String> days = new HashMap<>();
+        for(DayTime dt : times) days.put(dt.get_day(),String.valueOf(dt.get_day()).toUpperCase());
+        StringBuilder sb = new StringBuilder();
+        return sb.append(days.getOrDefault('M',"")).append(days.getOrDefault('T',"")).append(days.getOrDefault('W',"")).append(days.getOrDefault('R',"")).append(days.getOrDefault('F',"")).toString();
     }
 
     public Course(String name, char section, Major major, int courseNum,
@@ -121,12 +190,11 @@ public class Course {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(semester);
-        HashMap<Character,String> days = new HashMap<>();
-        for(DayTime dt : times) days.put(dt.get_day(),String.valueOf(dt.get_day()));
-        sb.append(' ').append(year).append(": ").append(major.name()).append(' ').append(coursenum).append(' ').append(section).append(" - ").append(name).append(" - ");
-        sb.append(days.getOrDefault('M',"")).append(days.getOrDefault('T',"")).append(days.getOrDefault('W',"")).append(days.getOrDefault('R',"")).append(days.getOrDefault('F',"")).append(" ");
+        sb.append(' ').append(year).append(": ").append(professor).append(" - ").append(major.name());
+        sb.append(' ').append(coursenum).append(' ').append(section).append(" - ");
+        sb.append(name).append(" - ").append(days_to_str()).append(" ");
         if(!times.isEmpty()) sb.append(times.get(0).get_start_time()).append(" - ").append(times.get(0).get_end_time());
         else sb.append("(no times listed)");
-        return sb.append(' ').append(numstudents).append("/").append(capacity).toString();
+        return sb.append(" (").append(numstudents).append("/").append(capacity).append(')').toString();
     }
 }

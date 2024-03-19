@@ -27,7 +27,7 @@ public class Main {
     }
 
     //account has a schedule instance that is worked on
-    public static void run() throws IOException {
+    public static void populate_allcourses() throws IOException {
         FileInputStream fis = new FileInputStream("2020-2021.csv");
         Scanner csvscn = new Scanner(fis);
         allcourses = new ArrayList<>();
@@ -108,8 +108,10 @@ public class Main {
             inline.close();
         }
         csvscn.close();
+    }
 
-
+    public static void run() throws IOException {
+        populate_allcourses();
         System.out.println("Welcome to SchedulEase!");
         boolean run = true;
         System.out.println("Input 's' for Sign-in | Input 'c' for Create Account | Input 'x' for Exit Application");
