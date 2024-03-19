@@ -80,8 +80,7 @@ public class Search {
     //thinking 3 digit num + Major strings could get weight 3, everything else aside from
     //section weight 2 and section weight 1.... I don't know
     //think I could work with enum.valueof() and other string stuff to do the above
-    public int get_weight(Course c) {
-        //TODO: MAKE THIS METHOD PRIVATE + ADD CHECK METHODS FOR MAJOR AND COURSENUM
+    private int get_weight(Course c) {
         int w = 0;
         for(String s : search_str_list) {
             if (c.get_id().contains(s)) {
