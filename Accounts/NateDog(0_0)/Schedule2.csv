@@ -1,0 +1,5 @@
+name,semester,year,credits
+Schedule2,Fall,2020,0
+
+name,section,major,coursenum,credits,numstudents,capacity,professor,year,semester,times(start-end-day|start-end-day|start-end-day|....),requiredby(m1-m2-m3-m4-....)
+--

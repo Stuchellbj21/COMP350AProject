@@ -1,5 +1,6 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 public class Schedule {
     private String name;
@@ -56,10 +57,10 @@ public class Schedule {
     }
 
     // constructor w/one parameter
-    public Schedule(String name) {
-        this.name = name;
-        courses = new ArrayList<>(); //create empty course list
-        // credits will be added as courses are added
+    public Schedule(String fname) {
+        courses = new ArrayList<>();
+        try {load(fname);}
+        catch(InputMismatchException | IOException error) {System.out.println(error.getMessage() + " " + error.getCause());}
     }
 
     // constructor with name and list of courses
@@ -121,6 +122,122 @@ public class Schedule {
         }
         courses.remove(course);
         return true;
+    }
+
+    public void save() {
+
+    }
+
+    //fname doesn't have extension
+    public void load(String fname) throws IOException {
+        FileInputStream fis = new FileInputStream(fname+".csv");
+        Scanner fscn = new Scanner(fis);
+        //skip descriptor line
+        if(!fscn.nextLine().equals("name,semester,year,credits")) throw new InputMismatchException("input file is not in the correct format");
+        //don't let user make/save partially filled schedules (all of name, semester, year, and credits must be given)
+        //a schedule may have an empty course list however
+        String data = fscn.nextLine();
+        //if(!data.equals("--")) {
+        Scanner parser = new Scanner(data);
+        parser.useDelimiter(",");
+        //could add if checks to all of the following
+        name = parser.next();
+        semester = parser.next();
+        year = parser.nextInt();
+        credits = parser.nextInt();
+        parser.close();
+        //else return false;
+        //get past descriptors
+        fscn.nextLine();
+        fscn.nextLine();
+        //read in courses
+        data = fscn.nextLine();
+        //'--' will denote that there are no courses
+        if(!data.equals("--")) {
+            boolean first = true;
+            while(fscn.hasNextLine()) {
+                //we've already got the new line for the first iteration
+                //but on later iterations we need to scan a new line
+                if(first) first = false;
+                else data = fscn.nextLine();
+                parser = new Scanner(data);
+                parser.useDelimiter(",");
+                //define defaults for all variables for Course
+                String cname = "", prof = "", csem = "";
+                char section = '_';
+                Major major = Major.COMP;
+                int coursenum = -1, ccredits = 0, numstudents = 0, capacity = 0, cyear = -1;
+                Set<Major> requiredby = new HashSet<>();
+                List<DayTime> daytimes = new ArrayList<>();
+                for (int i = 0; parser.hasNext(); i++) {
+                    data = parser.next();
+                    //shouldn't have to deal with blanks here (should have saved correctly)
+                    //name,section,major,coursenum,credits,numstudents,capacity,professor,year,semester,times(start-end-day-start-end-day-start-end-day-....),requiredby(m1-m2-m3-m4-....)
+                    switch (i) {
+                        //name
+                        case 0 -> cname = data;
+                        //section
+                        case 1 -> section = data.charAt(0);
+                        //major
+                        case 2 -> major = Major.valueOf(data);
+                        //coursenum
+                        case 3 -> coursenum = Integer.parseInt(data);
+                        //credits
+                        case 4 -> ccredits = Integer.parseInt(data);
+                        //numstudents
+                        case 5 -> numstudents = Integer.parseInt(data);
+                        //capacity
+                        case 6 -> capacity = Integer.parseInt(data);
+                        //prof
+                        case 7 -> prof = data;
+                        //year
+                        case 8 -> cyear = Integer.parseInt(data);
+                        //semester
+                        case 9 -> csem = data;
+                        //times
+                        case 10 -> load_daytimes(data, daytimes);
+                        //requiredby
+                        case 11 -> load_required_by(data, requiredby);
+                    }
+                }
+                courses.add(new Course(cname, section, major, coursenum, ccredits, numstudents, capacity, prof, cyear, csem, requiredby, daytimes));
+            }
+        }
+    }
+
+    public void load_daytimes(String data,List<DayTime> daytimes) {
+        if(!data.isBlank()) {
+            Scanner t = new Scanner(data);
+            t.useDelimiter("-");
+            while (t.hasNext()) {
+                String[] dt = new String[3];
+                for (int j = 0; j < dt.length; j++) dt[j] = t.next();
+                daytimes.add(new DayTime(dt[0], dt[1], dt[2].charAt(0)));
+            }
+        }
+    }
+
+    public void load_required_by(String data, Set<Major> requiredby) {
+        //I know I'm repeating myself a bit.... bad practice, but I don't
+        //want to take the time to fix it right now
+        if(!data.isBlank()) {
+            Scanner rb = new Scanner(data);
+            rb.useDelimiter("-");
+            while(rb.hasNext()) requiredby.add(Major.valueOf(rb.next()));
+        }
+    }
+
+    public String show_attributes() {
+        StringBuilder sb = new StringBuilder("name: ").append(name).append('\n').append("semester: ");
+        sb.append(semester).append(" ").append(year).append("\ncourses:\n");
+        if(courses.isEmpty()) sb.append("\tNone");
+        for(int i = 0; i < courses.size(); i++) {
+            sb.append(i+1).append(".\n\t").append(courses.get(i)).append("\n\tcredits: ");
+            sb.append(courses.get(i).getCredits()).append("\n\trequired by: ").append(courses.get(i).getRequiredby());
+            //if not on last course, add a '\n'
+            if(i < courses.size() - 1) sb.append('\n');
+        }
+        return sb.toString();
     }
 
     /**
