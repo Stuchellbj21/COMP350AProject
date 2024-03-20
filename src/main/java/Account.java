@@ -58,7 +58,7 @@ public class Account {
     }
 
     public Schedule load_schedule(String schedname) {
-        currentsched = new Schedule(schedname);
+        currentsched = new Schedule(username,schedname);
         return currentsched;
     } //default is to work with new Schedule
 

@@ -26,6 +26,26 @@ public class Main {
         return is_good;
     }
 
+    //used for schedule and account names alike.... user must pass this test in order
+    //to name something
+    /*
+    The following reserved characters:
+       < (less than)
+       > (greater than)
+       : (colon)
+       " (double quote)
+       / (forward slash)
+       \ (backslash)
+       | (vertical bar or pipe)
+       ? (question mark)
+       * (asterisk)
+    */
+    public static boolean is_valid_name(String name) {
+        for(char c : name.toCharArray())
+            if(c == '<' || c == '>' || c == ':' || c == '\"' || c == '/' || c == '\\' || c == '|' || c == '?' || c == '*') return false;
+        return true;
+    }
+
     //account has a schedule instance that is worked on
     public static void populate_allcourses() throws IOException {
         FileInputStream fis = new FileInputStream("2020-2021.csv");
@@ -759,7 +779,7 @@ public class Main {
                                 System.out.println("What would you like the schedule to be called?");
                                 String sched_name = scnr.next();
                                 String file_name = sched_name + ".txt";
-                                Schedule newSched = new Schedule(sched_name);
+                                Schedule newSched = new Schedule("",sched_name);
                                 System.out.println(newSched);
                             } else {
                                 in_account = false;
