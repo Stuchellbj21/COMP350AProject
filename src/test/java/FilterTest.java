@@ -320,6 +320,54 @@ public class FilterTest {
         assertEquals(0, courses.size()); //applying another filter should empty the course list
     }
     @Test
+    public void testSemesterFilter() {
+
+        //-----------------------------------------------------
+        Set<Major> majors1 = new HashSet<>();
+        majors1.add(Major.ACCT);
+        Set<Major> majors2 = new HashSet<>();
+        majors2.add(Major.PHIL);
+        Set<Major> majors3 = new HashSet<>();
+        majors3.add(Major.RELI);
+
+        List<DayTime> daytimes1 = new ArrayList<>();
+        daytimes1.add(new DayTime("9:00 AM","9:50 AM", 'M'));
+        daytimes1.add(new DayTime("9:00 AM","9:50 AM", 'W'));
+        daytimes1.add(new DayTime("9:00 AM","9:50 AM", 'F'));
+        List<DayTime> daytimes2 = new ArrayList<>();
+        daytimes2.add(new DayTime("9:30 AM","10:45 AM", 'T'));
+        daytimes2.add(new DayTime("9:30 AM","10:45 AM", 'R'));
+
+        Course c1 = new Course("PRINCIPLES OF ACCOUNTING I", 'A', Major.ACCT, 201, 3, 30, 30,
+                "Jennifer", 2020, "Fall", majors1, daytimes2); //TR, ACCT
+        Course c2 = new Course("INTRODUCTION TO ETHICS", 'A', Major.PHIL, 103, 2, 25, 30,
+                "West", 2021, "Spring", majors2, daytimes1); // MWF, PHIL
+        Course c3 = new Course("SHADOWS OF THE ANTICHRIST", 'A', Major.RELI, 301, 3, 15, 15,
+                "Truman", 2020, "Fall", majors3, daytimes1); //MWF, RELI
+        Course c4 = new Course("METAPHYSICS", 'A', Major.PHIL, 314, 2, 17, 20,
+                "Franklin", 2021, "Fall", majors2, daytimes2); //TR, PHIL
+        Course c5 = new Course("PRINCIPLES OF ACCOUNTING I", 'B', Major.ACCT, 201, 3, 25, 30,
+                "Jennifer", 2021, "Fall", majors1, daytimes1); //MWF, ACCT
+
+        List<Course> courses = new ArrayList<>();
+        courses.add(c1);
+        courses.add(c2);
+        courses.add(c3);
+        courses.add(c4);
+        courses.add(c5);
+        // --------------------------------------------------------
+
+        List<Course> expected = new ArrayList<>();
+        expected.add(c4);
+        expected.add(c5); // add two courses in Fall 2021 (c1 & c2 have either 2021 or Fall but not both)
+
+        SemesterFilter sf = new SemesterFilter(courses, "Fall", 2021);
+
+        assertEquals(expected.get(0), courses.get(0));
+        assertEquals(expected.get(1), courses.get(1));
+        assertEquals(expected.size(), courses.size()); // make sure there aren't more Courses that weren't checked
+    }
+    @Test
     public void testComboFilters1() {
 
         //-----------------------------------------------------
