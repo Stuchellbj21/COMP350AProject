@@ -197,4 +197,6 @@ public class Course {
         else sb.append("(no times listed)");
         return sb.append(" (").append(numstudents).append("/").append(capacity).append(')').toString();
     }
+
+    public boolean isFull() {return numstudents >= capacity;}
 }
