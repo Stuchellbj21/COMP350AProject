@@ -415,8 +415,8 @@ public class Main {
                             } else if (account_act.equalsIgnoreCase("n")) {
                                 System.out.println("What would you like the schedule to be called?");
                                 String sched_name = scnr.next();
-                                String file_name = sched_name + ".txt";
-                                Schedule newSched = new Schedule(sched_name);
+                                String file_name = sched_name + ".csv";
+                                Schedule newSched = new Schedule(user_account.getUsername(),sched_name);
                                 System.out.println(newSched);
                             } else {
                                 in_account = false;
@@ -832,8 +832,8 @@ public class Main {
                             } else if (account_act.equalsIgnoreCase("n")) {
                                 System.out.println("What would you like the schedule to be called?");
                                 String sched_name = scnr.next();
-                                String file_name = sched_name + ".txt";
-                                Schedule newSched = new Schedule(sched_name);
+                                String file_name = sched_name + ".csv";
+                                Schedule newSched = new Schedule(user_account.getUsername(),sched_name);
                                 System.out.println(newSched);
                             } else {
                                 in_account = false;
