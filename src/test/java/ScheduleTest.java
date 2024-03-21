@@ -55,7 +55,7 @@ public class ScheduleTest {
     public void test_load() {
         Schedule s = new Schedule("NateDog(0_0)","Schedule1");
         System.out.println(s.show_attributes());
-        Schedule s2 = new Schedule("NateDog(0_0)","Schedule2");
+        Schedule s2 = new Schedule("NateDog(0_0)","Schedule2.csv");
         System.out.println(s2.show_attributes());
     }
 
