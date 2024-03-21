@@ -7,11 +7,11 @@ public class TimeFilter extends Filter {
     public TimeFilter(List<Course> courses, DayTime time) {
         super.filteron = FilterType.TIME;
         this.time = time;
-        apply(courses); // A filter is applied automatically when it is created
+        apply_to(courses); // A filter is applied automatically when it is created
     }
 
     @Override
-    public void apply(List<Course> courses) {
+    public void apply_to(List<Course> courses) {
         // first loop runs backwards to avoid concurrent modification exceptions
         for (int i = courses.size()-1; i >= 0; i--) {
             for (int j = 0; j < courses.get(i).getTimes().size(); j++) {
