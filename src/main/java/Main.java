@@ -144,6 +144,7 @@ public class Main {
     }
 
     public static void run() throws IOException {
+        //todo:have to make days given by user to days filter uppercase
         populate_allcourses();
         List<Account> session_accounts = new ArrayList<>();
         System.out.println("Welcome to SchedulEase!");

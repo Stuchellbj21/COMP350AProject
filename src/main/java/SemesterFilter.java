@@ -9,11 +9,11 @@ public class SemesterFilter extends Filter{
         super.filteron = FilterType.SEMESTER;
         this.semester = semester;
         this.year = year;
-        apply(courses); // A filter is applied automatically when it is created
+        apply_to(courses); // A filter is applied automatically when it is created
     }
 
     @Override
-    public void apply(List<Course> courses) {
+    public void apply_to(List<Course> courses) {
         //loop runs backwards to avoid concurrent modification exceptions
         for (int i = courses.size()-1; i >= 0; i--) {
             if(!courses.get(i).getSemester().equalsIgnoreCase(semester) || (courses.get(i).getYear() != year)) {

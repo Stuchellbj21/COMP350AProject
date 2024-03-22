@@ -3,6 +3,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,5 +36,15 @@ public class SearchTest {
         System.out.println(c.get_id());
         Search s = new Search("computer architecture/org a comp 325 david valentine 2020 fall mwf 9:00-9:50 AM");
         assertEquals(2+2+1+4+3+2+2+2+2+2+2,s.get_weight(c));
+    }
+
+    @Test
+    public void testApplyAllFilters() {
+        try{Main.populate_allcourses();}
+        catch(IOException ioe) {System.out.println(ioe.getMessage() + " " + ioe.getCause());}
+        Search s = new Search("writ 101 c");
+        System.out.println(s.to_str(10));
+        s.activate_new_filter(new DaysFilter(s.get_filteredresults(), Set.of('W','M','F')));
+        System.out.println(s.to_str(10));
     }
 }

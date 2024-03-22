@@ -164,7 +164,7 @@ public class Schedule {
 
     //fname doesn't have extension
     public void load(String accountname,String fname) throws IOException {
-        FileInputStream fis = new FileInputStream("Accounts" + '\\' + accountname + '\\' + fname + ".csv");
+        FileInputStream fis = new FileInputStream("Accounts" + '\\' + accountname + '\\' + fname + (fname.endsWith(".csv") ? "" : ".csv"));
         Scanner fscn = new Scanner(fis);
         //skip descriptor line
         if(!fscn.nextLine().equals("name,semester,year,credits")) throw new InputMismatchException("input file is not in the correct format");
@@ -263,7 +263,7 @@ public class Schedule {
 
     public String show_attributes() {
         StringBuilder sb = new StringBuilder("name: ").append(name).append('\n').append("semester: ");
-        sb.append(semester).append(" ").append(year).append("\ncourses:\n");
+        sb.append(semester).append(" ").append(year).append("\ncredits: ").append(credits).append("\ncourses:\n");
         if(courses.isEmpty()) sb.append("\tNone");
         for(int i = 0; i < courses.size(); i++) {
             sb.append(i+1).append(".\n\t").append(courses.get(i)).append("\n\tcredits: ");
