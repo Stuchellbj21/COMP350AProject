@@ -123,10 +123,24 @@ public class Main {
                 if (i > 17) break;
             }
             for (char d : days) daytimes.add(new DayTime(times[0], times[1], d));
-            allcourses.add(new Course(name, section, major, coursenum, credits, numstudents, capacity, prof, year, sem, requiredby, daytimes));
+            Course add = new Course(name, section, major, coursenum, credits, numstudents, capacity, prof, year, sem, requiredby, daytimes);
+            add_course(add);
             inline.close();
         }
         csvscn.close();
+    }
+
+    public static void add_course(Course add) {
+        if(!allcourses.isEmpty()) {
+            Course last = allcourses.getLast();
+            //if the course is the same as the one before, just merge the daytimes into the last course
+            if (add.getCourseNum() == last.getCourseNum() && add.getMajor() == last.getMajor()
+                    && add.getSection() == last.getSection() && add.getYear() == last.getYear()
+                    && add.getSemester().equalsIgnoreCase(last.getSemester())) last.getTimes().addAll(add.getTimes());
+                //otherwise, add the full course
+            else allcourses.add(add);
+        }
+        else allcourses.add(add);
     }
 
     public static void run() throws IOException {
