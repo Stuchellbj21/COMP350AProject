@@ -860,12 +860,12 @@ public class Main {
         dts1.add(new DayTime("8:00 AM","8:50 AM",'W'));
         dts1.add(new DayTime("8:00 AM","8:50 AM",'F'));
         ArrayList<DayTime> dts2 = new ArrayList<>();
-        dts2.add(new DayTime("8:00 AM","9:15 AM",'T'));
-        dts2.add(new DayTime("8:00 AM","9:15 AM",'R'));
+        dts2.add(new DayTime("2:00 PM","3:15 PM",'T'));
+        dts2.add(new DayTime("2:00 PM","3:15 PM",'R'));
         ArrayList<DayTime> dts3 = new ArrayList<>();
-        dts3.add(new DayTime("9:00 AM","9:50 AM",'M'));
-        dts3.add(new DayTime("9:00 AM","9:50 AM",'W'));
-        dts3.add(new DayTime("9:00 AM","9:50 AM",'F'));
+        dts3.add(new DayTime("3:00 PM","3:50 PM",'M'));
+        dts3.add(new DayTime("3:00 PM","3:50 PM",'W'));
+        dts3.add(new DayTime("3:00 PM","3:50 PM",'F'));
         ArrayList<DayTime> dts4 = new ArrayList<>();
         dts4.add(new DayTime("9:30 AM","10:45 AM",'T'));
         dts4.add(new DayTime("9:30 AM","10:45 AM",'R'));
