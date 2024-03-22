@@ -284,19 +284,19 @@ public class Schedule {
     }
 
     public void printSchedule() {
+        //Prints out the header for the schedule
         System.out.printf("%-13s", "");
-        System.out.printf("%-13s", "Monday");
-        System.out.printf("%-13s", "Tuesday");
-        System.out.printf("%-13s", "Wednesday");
-        System.out.printf("%-13s", "Thursday");
-        System.out.printf("%-13s", "Friday");
+        System.out.printf("%-13s", " Monday");
+        System.out.printf("%-13s", " Tuesday");
+        System.out.printf("%-13s", " Wednesday");
+        System.out.printf("%-13s", " Thursday");
+        System.out.printf("%-13s", " Friday");
         System.out.println();
         //Loops through each hour in a school day
         double hour = 8.0;
         for (int k = 0; k < 14; k++) {
             String time_of_day = "A.M.";
             int curr_day = 0;
-            ArrayList<Double> end_times = new ArrayList<Double>();
             while (curr_day < 5) {
                 double converted_hour = hour;
                 if (hour >= 12) {
@@ -306,7 +306,7 @@ public class Schedule {
                     converted_hour -= 12;
                 }
                 if (curr_day == 0) {
-                    System.out.printf("%12s", (int) converted_hour + ":00 " + time_of_day);
+                    System.out.printf("%12s", (int) converted_hour + ":00 " + time_of_day + "|");
                 }
                 //Loops through every course in the list of courses to check for printing
                 String print_for_day = "";
@@ -321,7 +321,6 @@ public class Schedule {
                         char day = curr_dt.get_day();
                         double start_time = curr_dt.get_militarystart();
                         double end_time = curr_dt.get_militaryend();
-                        double org_start_time = start_time;
                         String AM_PM = curr_dt.get_start_time();
                         String[] t = AM_PM.split(" ");
                         if (t[1].equals("AM")){
@@ -329,23 +328,23 @@ public class Schedule {
                         } else {
                             t[1] = "P.M.";
                         }
+                        //Checks to see if the class time is in the morning or evening
                         boolean morning;
                         if (t[1].equals("A.M.")){
                             morning = true;
                         } else {
                             morning = false;
                         }
-                        if (day == 'T' || day == 'R') {
-                            end_times.add(end_time);
+                        //Converts start_time from military time to decimal hour number
+                        if (start_time >= 1300) {
+                            start_time = start_time - 1200;
                         }
                         start_time = start_time / 100;
-                        if (start_time >= 12) {
-                            start_time -= 12;
+                        //Converts end_time from military time to decimal hour number
+                        if (end_time >= 1300) {
+                            end_time = end_time - 1200;
                         }
                         end_time = end_time / 100;
-                        if (end_time >= 12) {
-                            end_time -= 12;
-                        }
                         //Goes through each day for that hour
                         if (curr_day == 0) {
                             if (day == 'M' && (start_time == converted_hour)) {
@@ -358,15 +357,7 @@ public class Schedule {
                                 }
                             }
                         } else if (curr_day == 1) {
-                            if (day == 'T' && start_time == converted_hour) {
-                                if (morning && time_of_day.equals("A.M.")) {
-                                    print_for_day += "| " + curr.getMajor() + " " + curr.getCourseNum() + " " + curr.getSection()+" ";
-                                    printed = true;
-                                } else if (!morning && time_of_day.equals("P.M.")) {
-                                    print_for_day += "| " + curr.getMajor() + " " + curr.getCourseNum() + " " + curr.getSection()+" ";
-                                    printed = true;
-                                }
-                            } else if (day == 'T' && end_time - 1 == converted_hour) {
+                            if (day == 'T' && (start_time == converted_hour || end_time-0.45 == converted_hour)) {
                                 if (morning && time_of_day.equals("A.M.")) {
                                     print_for_day += "| " + curr.getMajor() + " " + curr.getCourseNum() + " " + curr.getSection()+" ";
                                     printed = true;
@@ -375,20 +366,12 @@ public class Schedule {
                                     printed = true;
                                 }
                             }
-                            else if (day == 'T' && start_time-0.3 == converted_hour) {
+                            else if (day == 'T' && (end_time-0.15 == converted_hour || start_time-0.3 == converted_hour)){
                                 if (morning && time_of_day.equals("A.M.")) {
                                     print_for_day += "|------------";
                                     printed = true;
                                 } else if (!morning && time_of_day.equals("P.M.")) {
                                     print_for_day += "|------------";
-                                    printed = true;
-                                }
-                            } else if (day == 'T' && end_time-0.45 == converted_hour) {
-                                if (morning && time_of_day.equals("A.M.")) {
-                                    print_for_day += "| " + curr.getMajor() + " " + curr.getCourseNum() + " " + curr.getSection()+" ";
-                                    printed = true;
-                                } else if (!morning && time_of_day.equals("P.M.")) {
-                                    print_for_day += "| " + curr.getMajor() + " " + curr.getCourseNum() + " " + curr.getSection()+" ";
                                     printed = true;
                                 }
                             }
@@ -403,15 +386,7 @@ public class Schedule {
                                 }
                             }
                         } else if (curr_day == 3) {
-                            if (day == 'R' && start_time == converted_hour) {
-                                if (morning && time_of_day.equals("A.M.")) {
-                                    print_for_day += "| " + curr.getMajor() + " " + curr.getCourseNum() + " " + curr.getSection()+" ";
-                                    printed = true;
-                                } else if (!morning && time_of_day.equals("P.M.")) {
-                                    print_for_day += "| " + curr.getMajor() + " " + curr.getCourseNum() + " " + curr.getSection()+" ";
-                                    printed = true;
-                                }
-                            } else if (day == 'R' && end_time - 1 == converted_hour) {
+                            if (day == 'R' && (start_time == converted_hour || end_time-0.45 == converted_hour)) {
                                 if (morning && time_of_day.equals("A.M.")) {
                                     print_for_day += "| " + curr.getMajor() + " " + curr.getCourseNum() + " " + curr.getSection()+" ";
                                     printed = true;
@@ -420,20 +395,12 @@ public class Schedule {
                                     printed = true;
                                 }
                             }
-                            else if (day == 'R' && start_time-0.3 == converted_hour) {
+                            else if (day == 'R' && (end_time-0.15 == converted_hour || start_time-0.3 == converted_hour)){
                                 if (morning && time_of_day.equals("A.M.")) {
                                     print_for_day += "|------------";
                                     printed = true;
                                 } else if (!morning && time_of_day.equals("P.M.")) {
                                     print_for_day += "|------------";
-                                    printed = true;
-                                }
-                            } else if (day == 'R' && end_time-0.45 == converted_hour) {
-                                if (morning && time_of_day.equals("A.M.")) {
-                                    print_for_day += "| " + curr.getMajor() + " " + curr.getCourseNum() + " " + curr.getSection()+" ";
-                                    printed = true;
-                                } else if (!morning && time_of_day.equals("P.M.")) {
-                                    print_for_day += "| " + curr.getMajor() + " " + curr.getCourseNum() + " " + curr.getSection()+" ";
                                     printed = true;
                                 }
                             }
@@ -454,19 +421,14 @@ public class Schedule {
                     System.out.printf("%-13s",print_for_day);
                 }
                 else {
-//                    System.out.printf("%-13s", "|");
                     System.out.print("|");
                     for (int i = 0; i < 12; i++){
-                        if (i == 0 || i % 2 == 0) {
-                            System.out.print(".");
-                        } else {
-                            System.out.print(" ");
-                        }
+                        System.out.print(" ");
                     }
                 }
                 curr_day++;
             }
-            System.out.print("|");
+            System.out.print("||");
             System.out.println();
             hour++;
         }
