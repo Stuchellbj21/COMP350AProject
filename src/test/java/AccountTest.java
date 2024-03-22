@@ -57,7 +57,7 @@ class AccountTest {
 
     @Test
     void testDeleteSchedule() throws Exception{
-        schednames.delete_schedule(sched_name);
+        delete_schedule(sched_name);
     }
 
     @Test

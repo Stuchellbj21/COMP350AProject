@@ -1,6 +1,7 @@
 import java.util.*;
 import java.io.IOException;
 import java.io.FileInputStream;
+import java.util.HashMap;
 
 public class Main {
     //this is where we will keep our JFrame
@@ -14,7 +15,7 @@ public class Main {
     //we will have a directory in which we store all of the account directories
     //within each account directory there will be csv/txt/other files which represent the saved
     //schedules for those accounts
-    public static List<String> accounts; //list of all account names (which are directory names)
+    public static HashMap<Integer, String> accounts; //list of all account names (which are directory names)
 
     public static boolean input_verification(List<String> good_inputs,String user_input){
         boolean is_good = false;
@@ -31,7 +32,7 @@ public class Main {
         FileInputStream fis = new FileInputStream("2020-2021.csv");
         Scanner csvscn = new Scanner(fis);
         allcourses = new ArrayList<>();
-        accounts = new ArrayList<>();
+        accounts = new HashMap<Integer, String>();
         List<Account> session_accounts = new ArrayList<>();
         //skip the descriptors with nextLine()
         csvscn.nextLine();
