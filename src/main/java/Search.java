@@ -20,10 +20,16 @@ public class Search {
     }
 
     Search(String ss) {
-        set_search_str(ss);
-        activefilters = new HashSet<>();
-        filteredresults = new ArrayList<>();
         searchresults = new ArrayList<>();
+        search(ss);
+        activefilters = new HashSet<>();
+    }
+
+    Search(String ss, Set<Filter> filters) {
+        searchresults = new ArrayList<>();
+        search(ss);
+        activefilters = filters;
+        apply_all_filters();
     }
 
     //getters + setters yet to be added
@@ -81,7 +87,6 @@ public class Search {
     //section weight 2 and section weight 1.... I don't know
     //think I could work with enum.valueof() and other string stuff to do the above
     public int get_weight(Course c) {
-        //TODO: MAKE THIS METHOD PRIVATE + ADD CHECK METHODS FOR MAJOR AND COURSENUM
         int w = 0;
         for(String s : search_str_list) {
             if (c.get_id().contains(s)) {
@@ -106,15 +111,43 @@ public class Search {
         catch(NumberFormatException nfe) {return false;}
     }
 
-    public List<Course> activate_new_filter(Filter f) {return null;}
+    public void apply_all_filters() {for(Filter f : activefilters) f.apply_to(filteredresults);}
+
+    public List<Course> activate_new_filter(Filter f) {
+        if(activefilters.add(f)) f.apply_to(filteredresults);;
+        return filteredresults;
+    }
 
     /*
     there will only be 1 filter of a given type active at a certain time, so we may want to modify the
     time filter (for example) which will not simply change the filteredresults, but will have to get
     filteredresults from the original results over again
      */
-    public List<Course> modify_filter(Filter f) {return null;}
+    //removes the filter of the same type as f if present, and activates f
+    public List<Course> modify_filter(Filter f) {
+        //no modification was made.... the requested change was already in place
+        if(activefilters.contains(f)) return filteredresults;
+        search(searchstr);
+        Filter rm = null;
+        for(Filter fil : activefilters) {
+            //if the filters are not of the same type, apply the filter in the collection of active filters
+            if(!(fil.equals(f))) fil.apply_to(filteredresults);
+            else rm = fil;
+        }
+        //if the filter to remove was found, remove it
+        if(rm != null) activefilters.remove(rm);
+        return activate_new_filter(f);
+    }
 
     //removes a filter and does something similar to modify_filter()
-    public List<Course> deactivate_filter(Filter f) {return null;}
+    public List<Course> deactivate_filter(Filter f) {
+        //if no change was made, just return og filtertedresults
+        if(!activefilters.remove(f)) return filteredresults;
+        //otherwise, perform new search, apply all filters, and return
+        search(searchstr);
+        apply_all_filters();
+        return filteredresults;
+    }
+
+    public List<Course> get_filteredresults() {return filteredresults;}
 }

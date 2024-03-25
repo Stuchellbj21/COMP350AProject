@@ -7,7 +7,7 @@ public abstract class Filter {
 
     //will change the list which is a reference type....
     //I think this will be called from the constructor
-    public abstract void apply(List<Course> courses);
+    public abstract void apply_to(List<Course> courses);
 
     public boolean equals(Filter other) {
         return (this.filteron == other.filteron);

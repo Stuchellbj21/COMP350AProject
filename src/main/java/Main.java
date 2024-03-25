@@ -26,6 +26,26 @@ public class Main {
         return is_good;
     }
 
+    //used for schedule and account names alike.... user must pass this test in order
+    //to name something
+    /*
+    The following reserved characters:
+       < (less than)
+       > (greater than)
+       : (colon)
+       " (double quote)
+       / (forward slash)
+       \ (backslash)
+       | (vertical bar or pipe)
+       ? (question mark)
+       * (asterisk)
+    */
+    public static boolean is_valid_name(String name) {
+        for(char c : name.toCharArray())
+            if(c == '<' || c == '>' || c == ':' || c == '\"' || c == '/' || c == '\\' || c == '|' || c == '?' || c == '*') return false;
+        return true;
+    }
+
     //account has a schedule instance that is worked on
     public static void populate_allcourses() throws IOException {
         FileInputStream fis = new FileInputStream("2020-2021.csv");
@@ -103,13 +123,28 @@ public class Main {
                 if (i > 17) break;
             }
             for (char d : days) daytimes.add(new DayTime(times[0], times[1], d));
-            allcourses.add(new Course(name, section, major, coursenum, credits, numstudents, capacity, prof, year, sem, requiredby, daytimes));
+            Course add = new Course(name, section, major, coursenum, credits, numstudents, capacity, prof, year, sem, requiredby, daytimes);
+            add_course(add);
             inline.close();
         }
         csvscn.close();
     }
 
+    public static void add_course(Course add) {
+        if(!allcourses.isEmpty()) {
+            Course last = allcourses.getLast();
+            //if the course is the same as the one before, just merge the daytimes into the last course
+            if (add.getCourseNum() == last.getCourseNum() && add.getMajor() == last.getMajor()
+                    && add.getSection() == last.getSection() && add.getYear() == last.getYear()
+                    && add.getSemester().equalsIgnoreCase(last.getSemester())) last.getTimes().addAll(add.getTimes());
+                //otherwise, add the full course
+            else allcourses.add(add);
+        }
+        else allcourses.add(add);
+    }
+
     public static void run() throws IOException {
+        //todo:have to make days given by user to days filter uppercase
         populate_allcourses();
         List<Account> session_accounts = new ArrayList<>();
         System.out.println("Welcome to SchedulEase!");
@@ -395,8 +430,8 @@ public class Main {
                             } else if (account_act.equalsIgnoreCase("n")) {
                                 System.out.println("What would you like the schedule to be called?");
                                 String sched_name = scnr.next();
-                                String file_name = sched_name + ".txt";
-                                Schedule newSched = new Schedule(sched_name);
+                                String file_name = sched_name + ".csv";
+                                Schedule newSched = new Schedule(user_account.getUsername(),sched_name);
                                 System.out.println(newSched);
                             } else {
                                 in_account = false;
@@ -759,7 +794,7 @@ public class Main {
                                 System.out.println("What would you like the schedule to be called?");
                                 String sched_name = scnr.next();
                                 String file_name = sched_name + ".txt";
-                                Schedule newSched = new Schedule(sched_name);
+                                Schedule newSched = new Schedule("",sched_name);
                                 System.out.println(newSched);
                             } else {
                                 in_account = false;
@@ -812,8 +847,8 @@ public class Main {
                             } else if (account_act.equalsIgnoreCase("n")) {
                                 System.out.println("What would you like the schedule to be called?");
                                 String sched_name = scnr.next();
-                                String file_name = sched_name + ".txt";
-                                Schedule newSched = new Schedule(sched_name);
+                                String file_name = sched_name + ".csv";
+                                Schedule newSched = new Schedule(user_account.getUsername(),sched_name);
                                 System.out.println(newSched);
                             } else {
                                 in_account = false;

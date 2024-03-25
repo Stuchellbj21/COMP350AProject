@@ -1,3 +1,5 @@
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.*;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -53,14 +55,17 @@ public class Schedule {
     // default constructor
     public Schedule() {
         name = "Blank Schedule";
+        semester = "Spring";
+        year = 2024;
         courses = new ArrayList<>();
+        credits = 0;
     }
 
     // constructor w/one parameter
-    public Schedule(String fname) {
+    public Schedule(String accountname, String name) {
         courses = new ArrayList<>();
-        try {load(fname);}
-        catch(InputMismatchException | IOException error) {System.out.println(error.getMessage() + " " + error.getCause());}
+        try {load(accountname, name);}
+        catch(InputMismatchException | IOException error) {System.out.println(error.getMessage() + ' ' + error.getCause());}
     }
 
     // constructor with name and list of courses
@@ -89,7 +94,7 @@ public class Schedule {
     //toString
     @Override
     public String toString() {
-        return name + ", " + semester + ", year";
+        return name + ", " + semester + ", " + year;
         // could also be ' semester + ", " + year + ", " + name '
     }
 
@@ -101,11 +106,15 @@ public class Schedule {
      * @return true if course is added, false if not
      */
     public boolean add_course(Course course) {
-        if (course == null) {
-            System.out.println("Cannot add null course");
-            return false;
+        for(Course c : courses) {
+            //if the times overlap or they are the same class as something already in the schedule or the course is full
+            //there's an issue
+            if(c.times_overlap_with(course)) throw new IllegalArgumentException("Error: you can't add a course that has a time overlap with another course in your schedule");
+            if(c.getCourseNum() == course.getCourseNum() && c.getMajor() == course.getMajor()) throw new IllegalArgumentException("Error: " + course.getMajor() + " " + course.getCourseNum() + " is already in your schedule");
+            if(course.isFull()) throw new IllegalArgumentException("Error: the course you tried to add is full already");
         }
         courses.add(course);
+        credits += course.getCredits();
         return true;
     }
 
@@ -116,21 +125,46 @@ public class Schedule {
      * @return true if course is removed, false if not
      */
     public boolean remove_course(Course course) {
-        if (courses.isEmpty()) {
-            System.out.println("Schedule is already empty");
-            return false;
-        }
+        if (courses.isEmpty()) throw new InputMismatchException("Error: cannot remove a course from an empty schedule");
+        if(!courses.contains(course)) throw new InputMismatchException("Error: your schedule does not contain that course");
         courses.remove(course);
+        credits -= course.getCredits();
         return true;
     }
 
-    public void save() {
-
+    public void save(String accountname) throws IOException {
+        //will save to <schedule name>.csv (may have to remove some punctuation or something)
+        //to get things to work right
+        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + name + ".csv");
+        PrintWriter pw = new PrintWriter(fos);
+        pw.println("name,semester,year,credits");
+        pw.println(name + ',' + semester + ',' + year + ',' + credits + '\n');
+        pw.println("name,section,major,coursenum,credits,numstudents,capacity,professor,year,semester,times(start-end-day-start-end-day-start-end-day-....),requiredby(m1-m2-m3-m4-....)");
+        if(courses.isEmpty()) pw.println("--");
+        else {
+            //name,section,major,coursenum,credits,numstudents,capacity,professor,year,semester,times(start-end-day-start-end-day-start-end-day-....),requiredby(m1-m2-m3-m4-....)
+            for(Course c : courses) {
+                StringBuilder course = new StringBuilder(c.getName()).append(',').append(c.getSection()).append(',').append(c.getMajor().name());
+                course.append(',').append(c.getCourseNum()).append(',').append(c.getCredits()).append(',').append(c.getNumstudents()).append(',');
+                course.append(c.getCapacity()).append(',').append(c.getProfessor()).append(',').append(c.getYear()).append(',').append(c.getSemester());
+                course.append(',');
+                for(DayTime dt : c.getTimes()) {
+                    course.append(dt.get_start_time()).append('-').append(dt.get_end_time()).append('-').append(dt.get_day());
+                    //think we actually want a compare by reference here
+                    if(dt != c.getTimes().getLast()) course.append('-');
+                }
+                course.append(',');
+                for(Major m : c.getRequiredby()) course.append(m.name()).append('-');
+                //don't include last hyphon of course set or last comma if no requiredby
+                pw.println(course.substring(0,course.length()-1));
+            }
+        }
+        pw.close();
     }
 
     //fname doesn't have extension
-    public void load(String fname) throws IOException {
-        FileInputStream fis = new FileInputStream(fname+".csv");
+    public void load(String accountname,String fname) throws IOException {
+        FileInputStream fis = new FileInputStream("Accounts" + '\\' + accountname + '\\' + fname + (fname.endsWith(".csv") ? "" : ".csv"));
         Scanner fscn = new Scanner(fis);
         //skip descriptor line
         if(!fscn.nextLine().equals("name,semester,year,credits")) throw new InputMismatchException("input file is not in the correct format");
@@ -229,7 +263,7 @@ public class Schedule {
 
     public String show_attributes() {
         StringBuilder sb = new StringBuilder("name: ").append(name).append('\n').append("semester: ");
-        sb.append(semester).append(" ").append(year).append("\ncourses:\n");
+        sb.append(semester).append(" ").append(year).append("\ncredits: ").append(credits).append("\ncourses:\n");
         if(courses.isEmpty()) sb.append("\tNone");
         for(int i = 0; i < courses.size(); i++) {
             sb.append(i+1).append(".\n\t").append(courses.get(i)).append("\n\tcredits: ");

@@ -7,11 +7,11 @@ public class DaysFilter extends Filter {
     public DaysFilter(List<Course> courses, Set<Character> days) {
         super.filteron = FilterType.DAYS;
         this.days = days;
-        apply(courses); // A filter is applied automatically when it is created
+        apply_to(courses); // A filter is applied automatically when it is created
     }
 
     @Override
-    public void apply(List<Course> courses) {
+    public void apply_to(List<Course> courses) {
 //        for (Course c : courses.reversed()) {
 //            for (DayTime dt : c.getTimes())
 //                // Todo: By this logic, the filter 'M' will weed out 'MWF' classes. Should we keep it that way?
