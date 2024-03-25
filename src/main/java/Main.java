@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.HashMap;
 import java.io.IOException;
 import java.io.FileInputStream;
 
@@ -14,7 +15,9 @@ public class Main {
     //we will have a directory in which we store all of the account directories
     //within each account directory there will be csv/txt/other files which represent the saved
     //schedules for those accounts
-    public static List<String> accounts; //list of all account names (which are directory names)
+    public static HashMap<Integer, String> accounts; //HashMap of all account numbers and names (which are directory names)
+    // Number associated with each user at account creation
+    public static int userNum = 0;
 
     public static boolean input_verification(List<String> good_inputs, String user_input) {
         boolean is_good = false;
@@ -51,7 +54,7 @@ public class Main {
         FileInputStream fis = new FileInputStream("2020-2021.csv");
         Scanner csvscn = new Scanner(fis);
         allcourses = new ArrayList<>();
-        accounts = new ArrayList<>();
+        accounts = new HashMap<Integer, String>();
         //skip the descriptors with nextLine()
         csvscn.nextLine();
         while (csvscn.hasNextLine()) {
@@ -386,8 +389,9 @@ public class Main {
                         }
                         //creates an account from user input
                         Account user_account = new Account(new_username, new_password, new_major);
+                        userNum = 1+userNum;
                         session_accounts.add(user_account);
-                        accounts.add(new_username);
+                        accounts.put(userNum, new_username);
                         System.out.println("Account successfully created!");
                         System.out.println();
                         boolean in_account = true;
@@ -441,7 +445,8 @@ public class Main {
                         System.out.println("No major entered.");
                         Account user_account = new Account(new_username, new_password);
                         session_accounts.add(user_account);
-                        accounts.add(new_username);
+                        userNum = userNum + 1;
+                        accounts.put(userNum, new_username);
                         System.out.println("Account successfully created!");
                         System.out.println();
                         boolean in_account = true;
@@ -750,7 +755,8 @@ public class Main {
                         }
                         Account user_account = new Account(new_username, new_password, new_major);
                         session_accounts.add(user_account);
-                        accounts.add(new_username);
+                        userNum = userNum + 1;
+                        accounts.put(userNum, new_username);
                         System.out.println("Account successfully created!");
                         System.out.println();
                         boolean in_account = true;
@@ -804,7 +810,8 @@ public class Main {
                         System.out.println("No major entered.");
                         Account user_account = new Account(new_username, new_password);
                         session_accounts.add(user_account);
-                        accounts.add(new_username);
+                        userNum = userNum + 1;
+                        accounts.put(userNum, new_username);
                         System.out.println("Account successfully created!");
                         System.out.println();
                         boolean in_account = true;
