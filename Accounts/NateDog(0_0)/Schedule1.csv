@@ -1,0 +1,6 @@
+name,semester,year,credits
+Schedule1,Fall,2024,6
+
+name,section,major,coursenum,credits,numstudents,capacity,professor,year,semester,times(start-end-day-start-end-day-start-end-day-....),requiredby(m1-m2-m3-m4-....)
+PRINCIPLES OF ACCOUNTING I,A,ACCT,201,3,30,30,Jennifer Stone,2020,Fall,09:00 AM-09:50 AM-M-09:00 AM-09:50 AM-W-09:00 AM-09:50 AM-F
+STUDY: POLITICAL WRITING,A,WRIT,390,3,6,10,Jay Cost,2020,Fall,06:30 PM-09:00 PM-W

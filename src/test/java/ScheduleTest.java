@@ -1,4 +1,7 @@
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.*;
 public class ScheduleTest {
     @Test
@@ -23,7 +26,7 @@ public class ScheduleTest {
     }
     @Test
     public void test_addCourse() {
-        Schedule s = new Schedule("Test");
+        Schedule s = new Schedule();
         for (int i = 0; i < 5; i++) {
             s.add_course(new Course());
         }
@@ -46,5 +49,26 @@ public class ScheduleTest {
         // make sure all elements are removed
         s.remove_course(s.get_courses().getFirst());
         assertEquals(0, s.get_courses().size());
+    }
+
+    @Test
+    public void test_load() {
+        Schedule s = new Schedule("NateDog(0_0)","Schedule1");
+        System.out.println(s.show_attributes());
+        Schedule s2 = new Schedule("NateDog(0_0)","Schedule2.csv");
+        System.out.println(s2.show_attributes());
+    }
+
+    @Test
+    public void test_save() {
+        try{Main.populate_allcourses();}
+        catch(IOException ioe) {System.out.println(ioe.getMessage() + " " + ioe.getCause());}
+        Schedule s = new Schedule("NateDog(0_0)","Schedule1");
+        s.remove_course(s.get_courses().getFirst());
+        s.remove_course(s.get_courses().getFirst());
+        s.add_course(Main.allcourses.getFirst());
+        s.add_course(Main.allcourses.getLast());
+        try{s.save("NateDog(0_0)");}
+        catch(IOException ioe) {System.out.println(ioe.getMessage() + " " + ioe.getCause());}
     }
 }

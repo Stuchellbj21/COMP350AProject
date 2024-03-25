@@ -8,11 +8,11 @@ public class NameFilter extends Filter {
     public NameFilter(List<Course> courses, String name) {
         super.filteron = FilterType.NAME;
         this.name = name;
-        apply(courses); // A filter is applied automatically when it is created
+        apply_to(courses); // A filter is applied automatically when it is created
     }
 
     @Override
-    public void apply(List<Course> courses) {
+    public void apply_to(List<Course> courses) {
 
         // loop runs backward to avoid concurrent modification error
         for (int i = courses.size()-1; i >= 0; i--) {

@@ -1,7 +1,6 @@
 import java.util.*;
 import java.io.IOException;
 import java.io.FileInputStream;
-import java.util.HashMap;
 
 public class Main {
     //this is where we will keep our JFrame
@@ -15,25 +14,44 @@ public class Main {
     //we will have a directory in which we store all of the account directories
     //within each account directory there will be csv/txt/other files which represent the saved
     //schedules for those accounts
-    public static HashMap<Integer, String> accounts; //list of all account names (which are directory names)
+    public static List<String> accounts; //list of all account names (which are directory names)
 
-    public static boolean input_verification(List<String> good_inputs,String user_input){
+    public static boolean input_verification(List<String> good_inputs, String user_input) {
         boolean is_good = false;
-        for (int i = 0; i < good_inputs.size(); i++){
-            if (user_input.equalsIgnoreCase(good_inputs.get(i))){
+        for (int i = 0; i < good_inputs.size(); i++) {
+            if (user_input.equalsIgnoreCase(good_inputs.get(i))) {
                 is_good = true;
             }
         }
         return is_good;
     }
 
+    //used for schedule and account names alike.... user must pass this test in order
+    //to name something
+    /*
+    The following reserved characters:
+       < (less than)
+       > (greater than)
+       : (colon)
+       " (double quote)
+       / (forward slash)
+       \ (backslash)
+       | (vertical bar or pipe)
+       ? (question mark)
+       * (asterisk)
+    */
+    public static boolean is_valid_name(String name) {
+        for(char c : name.toCharArray())
+            if(c == '<' || c == '>' || c == ':' || c == '\"' || c == '/' || c == '\\' || c == '|' || c == '?' || c == '*') return false;
+        return true;
+    }
+
     //account has a schedule instance that is worked on
-    public static void run() throws IOException {
+    public static void populate_allcourses() throws IOException {
         FileInputStream fis = new FileInputStream("2020-2021.csv");
         Scanner csvscn = new Scanner(fis);
         allcourses = new ArrayList<>();
-        accounts = new HashMap<Integer, String>();
-        List<Account> session_accounts = new ArrayList<>();
+        accounts = new ArrayList<>();
         //skip the descriptors with nextLine()
         csvscn.nextLine();
         while (csvscn.hasNextLine()) {
@@ -105,36 +123,57 @@ public class Main {
                 if (i > 17) break;
             }
             for (char d : days) daytimes.add(new DayTime(times[0], times[1], d));
-            allcourses.add(new Course(name, section, major, coursenum, credits, numstudents, capacity, prof, year, sem, requiredby, daytimes));
+            Course add = new Course(name, section, major, coursenum, credits, numstudents, capacity, prof, year, sem, requiredby, daytimes);
+            add_course(add);
             inline.close();
         }
         csvscn.close();
+    }
 
+    public static void add_course(Course add) {
+        if(!allcourses.isEmpty()) {
+            Course last = allcourses.getLast();
+            //if the course is the same as the one before, just merge the daytimes into the last course
+            if (add.getCourseNum() == last.getCourseNum() && add.getMajor() == last.getMajor()
+                    && add.getSection() == last.getSection() && add.getYear() == last.getYear()
+                    && add.getSemester().equalsIgnoreCase(last.getSemester())) last.getTimes().addAll(add.getTimes());
+                //otherwise, add the full course
+            else allcourses.add(add);
+        }
+        else allcourses.add(add);
+    }
 
+    public static void run() throws IOException {
+        //todo:have to make days given by user to days filter uppercase
+        populate_allcourses();
+        List<Account> session_accounts = new ArrayList<>();
         System.out.println("Welcome to SchedulEase!");
         boolean run = true;
         System.out.println("Input 's' for Sign-in | Input 'c' for Create Account | Input 'x' for Exit Application");
         Scanner scnr = new Scanner(System.in);
         String user_selection = scnr.next();
         List<String> good_inputs = Arrays.asList("s", "c", "x");
-        while (!(input_verification(good_inputs,user_selection))) {
+        //Runs until user gives correct input
+        while (!(input_verification(good_inputs, user_selection))) {
             System.out.println("Invalid Input - Only 's', 'c', or 'x' accepted. Please try again.");
             user_selection = scnr.next();
         }
+        //Registers if user wants to exit
         if (user_selection.equalsIgnoreCase("x")) {
             run = false;
         }
-        while (run) {
+        while (run) { //Runs an individual journey until the user asks to exit the program
             Account curr_account;
             String curr_username;
             String curr_password;
+            //Runs if the user wants to sign-in
             if (user_selection.equalsIgnoreCase("s")) {
-                if (accounts.isEmpty()) {
+                if (accounts.isEmpty()) { //if there are no accounts in the accounts list, user is prompted to create an account
                     System.out.println("No accounts exist. Please create account.");
                     String user_choice;
                     String new_username;
                     String new_password;
-                    Major new_major = Major.NULL;
+                    Major new_major = null;
                     System.out.println("What would you like to set as your username?");
                     new_username = scnr.next();
                     System.out.println("What would you like to set as your password?");
@@ -142,217 +181,323 @@ public class Main {
                     System.out.println("Would you like to add a major to your account? Enter y or n.");
                     user_choice = scnr.next();
                     good_inputs = Arrays.asList("y", "n");
-                    if (!(input_verification(good_inputs,user_choice))) {
+                    //Runs till user enters correct input
+                    while (!(input_verification(good_inputs, user_choice))) {
                         System.out.println("Invalid entry. Please re-enter either y or n.");
                         user_choice = scnr.next();
-                    } else {
-                        if (user_choice.equalsIgnoreCase("y")) {
-                            System.out.println("Please type your major from list.");
-                            List<Major> major_list = Arrays.asList(Major.values());
-                            for (int i = 0; i < major_list.size(); i++) {
-                                System.out.print(major_list.get(i) + " ");
+                    }
+                    //Gets user input for major choice
+                    if (user_choice.equalsIgnoreCase("y")) {
+                        System.out.println("Please type your major from list.");
+                        List<Major> major_list = Arrays.asList(Major.values());
+                        //prints out all the major options
+                        for (int i = 0; i < major_list.size(); i++) {
+                            System.out.print(major_list.get(i) + " ");
+                            if (i % 9 == 0){
+                                System.out.println();
                             }
-                            System.out.println();
-                            String major_choice = scnr.next().toUpperCase();
-                            boolean major_found = false;
-                            while (!major_found) {
-                                switch (major_choice) {
-                                    case "ACCT":
-                                        new_major = Major.ACCT;
-                                        major_found = true;
-                                        break;
-                                    case "ART":
-                                        new_major = Major.ART;
-                                        major_found = true;
-                                        break;
-                                    case "ASTR":
-                                        new_major = Major.ASTR;
-                                        major_found = true;
-                                        break;
-                                    case "BOIL":
-                                        new_major = Major.BIOL;
-                                        major_found = true;
-                                        break;
-                                    case "CHEM":
-                                        new_major = Major.CHEM;
-                                        major_found = true;
-                                        break;
-                                    case "CMIN":
-                                        new_major = Major.CMIN;
-                                        major_found = true;
-                                        break;
-                                    case "COMM":
-                                        new_major = Major.COMM;
-                                        major_found = true;
-                                        break;
-                                    case "COMP":
-                                        new_major = Major.COMP;
-                                        major_found = true;
-                                        break;
-                                    case "DESI":
-                                        new_major = Major.DESI;
-                                        major_found = true;
-                                        break;
-                                    case "ECON":
-                                        new_major = Major.ECON;
-                                        major_found = true;
-                                        break;
-                                    case "EDUC":
-                                        new_major = Major.EDUC;
-                                        major_found = true;
-                                        break;
-                                    case "ELEE":
-                                        new_major = Major.ELEE;
-                                        major_found = true;
-                                        break;
-                                    case "ENGL":
-                                        new_major = Major.ENGL;
-                                        major_found = true;
-                                        break;
-                                    case "ENGR":
-                                        new_major = Major.ENGR;
-                                        major_found = true;
-                                        break;
-                                    case "ENTR":
-                                        new_major = Major.ENTR;
-                                        major_found = true;
-                                        break;
-                                    case "EXER":
-                                        new_major = Major.EXER;
-                                        major_found = true;
-                                        break;
-                                    case "FNCE":
-                                        new_major = Major.FNCE;
-                                        major_found = true;
-                                        break;
-                                    case "FREN":
-                                        new_major = Major.FREN;
-                                        major_found = true;
-                                        break;
-                                    case "GEOL":
-                                        new_major = Major.GEOL;
-                                        major_found = true;
-                                        break;
-                                    case "GREK":
-                                        new_major = Major.GREK;
-                                        major_found = true;
-                                        break;
-                                    case "HEBR":
-                                        new_major = Major.HEBR;
-                                        major_found = true;
-                                        break;
-                                    case "HIST":
-                                        new_major = Major.HIST;
-                                        major_found = true;
-                                        break;
-                                    case "HUMA":
-                                        new_major = Major.HUMA;
-                                        major_found = true;
-                                        break;
-                                    case "INBS":
-                                        new_major = Major.INBS;
-                                        major_found = true;
-                                        break;
-                                    case "MARK":
-                                        new_major = Major.MARK;
-                                        major_found = true;
-                                        break;
-                                    case "MECE":
-                                        new_major = Major.MECE;
-                                        major_found = true;
-                                        break;
-                                    case "MNGT":
-                                        new_major = Major.MNGT;
-                                        major_found = true;
-                                        break;
-                                    case "MUSI":
-                                        new_major = Major.MUSI;
-                                        major_found = true;
-                                        break;
-                                    case "NURS":
-                                        new_major = Major.NURS;
-                                        major_found = true;
-                                        break;
-                                    case "PHIL":
-                                        new_major = Major.PHIL;
-                                        major_found = true;
-                                        break;
-                                    case "PHYE":
-                                        new_major = Major.PHYE;
-                                        major_found = true;
-                                        break;
-                                    case "PHYS":
-                                        new_major = Major.PHYS;
-                                        major_found = true;
-                                        break;
-                                    case "POLS":
-                                        new_major = Major.POLS;
-                                        major_found = true;
-                                        break;
-                                    case "PSYC":
-                                        new_major = Major.PSYC;
-                                        major_found = true;
-                                        break;
-                                    case "RELI":
-                                        new_major = Major.RELI;
-                                        major_found = true;
-                                        break;
-                                    case "ROBO":
-                                        new_major = Major.ROBO;
-                                        major_found = true;
-                                        break;
-                                    case "SCIC":
-                                        new_major = Major.SCIC;
-                                        major_found = true;
-                                        break;
-                                    case "SEDU":
-                                        new_major = Major.SEDU;
-                                        major_found = true;
-                                        break;
-                                    case "SOCI":
-                                        new_major = Major.SOCI;
-                                        major_found = true;
-                                        break;
-                                    case "SOCW":
-                                        new_major = Major.SOCW;
-                                        major_found = true;
-                                        break;
-                                    case "SPAN":
-                                        new_major = Major.SPAN;
-                                        major_found = true;
-                                        break;
-                                    case "SSFT":
-                                        new_major = Major.SSFT;
-                                        major_found = true;
-                                        break;
-                                    case "THEA":
-                                        new_major = Major.THEA;
-                                        major_found = true;
-                                        break;
-                                    case "WRIT":
-                                        new_major = Major.WRIT;
-                                        major_found = true;
-                                        break;
-                                    case "LATN":
-                                        new_major = Major.LATN;
-                                        major_found = true;
-                                        break;
+                        }
+                        System.out.println();
+                        String major_choice = scnr.next().toUpperCase();
+                        boolean major_found = false;
+                        while (!major_found) {
+                            switch (major_choice) {
+                                case "ACCT":
+                                    new_major = Major.ACCT;
+                                    major_found = true;
+                                    break;
+                                case "ART":
+                                    new_major = Major.ART;
+                                    major_found = true;
+                                    break;
+                                case "ASTR":
+                                    new_major = Major.ASTR;
+                                    major_found = true;
+                                    break;
+                                case "BOIL":
+                                    new_major = Major.BIOL;
+                                    major_found = true;
+                                    break;
+                                case "CHEM":
+                                    new_major = Major.CHEM;
+                                    major_found = true;
+                                    break;
+                                case "CMIN":
+                                    new_major = Major.CMIN;
+                                    major_found = true;
+                                    break;
+                                case "COMM":
+                                    new_major = Major.COMM;
+                                    major_found = true;
+                                    break;
+                                case "COMP":
+                                    new_major = Major.COMP;
+                                    major_found = true;
+                                    break;
+                                case "DESI":
+                                    new_major = Major.DESI;
+                                    major_found = true;
+                                    break;
+                                case "ECON":
+                                    new_major = Major.ECON;
+                                    major_found = true;
+                                    break;
+                                case "EDUC":
+                                    new_major = Major.EDUC;
+                                    major_found = true;
+                                    break;
+                                case "ELEE":
+                                    new_major = Major.ELEE;
+                                    major_found = true;
+                                    break;
+                                case "ENGL":
+                                    new_major = Major.ENGL;
+                                    major_found = true;
+                                    break;
+                                case "ENGR":
+                                    new_major = Major.ENGR;
+                                    major_found = true;
+                                    break;
+                                case "ENTR":
+                                    new_major = Major.ENTR;
+                                    major_found = true;
+                                    break;
+                                case "EXER":
+                                    new_major = Major.EXER;
+                                    major_found = true;
+                                    break;
+                                case "FNCE":
+                                    new_major = Major.FNCE;
+                                    major_found = true;
+                                    break;
+                                case "FREN":
+                                    new_major = Major.FREN;
+                                    major_found = true;
+                                    break;
+                                case "GEOL":
+                                    new_major = Major.GEOL;
+                                    major_found = true;
+                                    break;
+                                case "GREK":
+                                    new_major = Major.GREK;
+                                    major_found = true;
+                                    break;
+                                case "HEBR":
+                                    new_major = Major.HEBR;
+                                    major_found = true;
+                                    break;
+                                case "HIST":
+                                    new_major = Major.HIST;
+                                    major_found = true;
+                                    break;
+                                case "HUMA":
+                                    new_major = Major.HUMA;
+                                    major_found = true;
+                                    break;
+                                case "INBS":
+                                    new_major = Major.INBS;
+                                    major_found = true;
+                                    break;
+                                case "MARK":
+                                    new_major = Major.MARK;
+                                    major_found = true;
+                                    break;
+                                case "MECE":
+                                    new_major = Major.MECE;
+                                    major_found = true;
+                                    break;
+                                case "MNGT":
+                                    new_major = Major.MNGT;
+                                    major_found = true;
+                                    break;
+                                case "MUSI":
+                                    new_major = Major.MUSI;
+                                    major_found = true;
+                                    break;
+                                case "NURS":
+                                    new_major = Major.NURS;
+                                    major_found = true;
+                                    break;
+                                case "PHIL":
+                                    new_major = Major.PHIL;
+                                    major_found = true;
+                                    break;
+                                case "PHYE":
+                                    new_major = Major.PHYE;
+                                    major_found = true;
+                                    break;
+                                case "PHYS":
+                                    new_major = Major.PHYS;
+                                    major_found = true;
+                                    break;
+                                case "POLS":
+                                    new_major = Major.POLS;
+                                    major_found = true;
+                                    break;
+                                case "PSYC":
+                                    new_major = Major.PSYC;
+                                    major_found = true;
+                                    break;
+                                case "RELI":
+                                    new_major = Major.RELI;
+                                    major_found = true;
+                                    break;
+                                case "ROBO":
+                                    new_major = Major.ROBO;
+                                    major_found = true;
+                                    break;
+                                case "SCIC":
+                                    new_major = Major.SCIC;
+                                    major_found = true;
+                                    break;
+                                case "SEDU":
+                                    new_major = Major.SEDU;
+                                    major_found = true;
+                                    break;
+                                case "SOCI":
+                                    new_major = Major.SOCI;
+                                    major_found = true;
+                                    break;
+                                case "SOCW":
+                                    new_major = Major.SOCW;
+                                    major_found = true;
+                                    break;
+                                case "SPAN":
+                                    new_major = Major.SPAN;
+                                    major_found = true;
+                                    break;
+                                case "SSFT":
+                                    new_major = Major.SSFT;
+                                    major_found = true;
+                                    break;
+                                case "THEA":
+                                    new_major = Major.THEA;
+                                    major_found = true;
+                                    break;
+                                case "WRIT":
+                                    new_major = Major.WRIT;
+                                    major_found = true;
+                                    break;
+                                case "LATN":
+                                    new_major = Major.LATN;
+                                    major_found = true;
+                                    break;
+                            }
+                        }
+                        //creates an account from user input
+                        Account user_account = new Account(new_username, new_password, new_major);
+                        session_accounts.add(user_account);
+                        accounts.add(new_username);
+                        System.out.println("Account successfully created!");
+                        System.out.println();
+                        boolean in_account = true;
+                        while (in_account) {
+                            System.out.println("ACCOUNT MENU");
+                            System.out.println("'o' - Open Schedule | 'm' - Modify Schedule | 'd' - Delete Schedule | 'n' - New Schedule | 'x' - Exit Account");
+                            String account_act = scnr.next();
+                            good_inputs = Arrays.asList("o", "m", "d", "n", "x", "s");
+                            while (!(input_verification(good_inputs,account_act))) {
+                                System.out.println("Invalid Input - Only 's', 'c', or 'x' accepted. Please try again.");
+                                account_act = scnr.next();
+                            }
+                            if (account_act.equalsIgnoreCase("o")) {
+                                System.out.println("Whats the name of the schedule you'd like to open?");
+                                String open_sched = scnr.next();
+                                boolean has_file = user_account.has_schedule(open_sched);
+                                if (has_file) {
+                                    //print out the schedule
+                                } else {
+                                    System.out.println("Schedule not found.");
                                 }
+                            } else if (account_act.equalsIgnoreCase("m")) {
+                                System.out.println("Whats the name of the schedule you'd like to modify?");
+                                String open_sched = scnr.next();
+                                boolean has_file = user_account.has_schedule(open_sched);
+                                if (has_file) {
+                                    //modify out the schedule
+                                } else {
+                                    System.out.println("Schedule not found.");
+                                }
+                            } else if (account_act.equalsIgnoreCase("d")) {
+                                System.out.println("Whats the name of the schedule you'd like to delete?");
+                                String open_sched = scnr.next();
+                                boolean has_file = user_account.has_schedule(open_sched);
+                                if (has_file) {
+                                    user_account.delete_schedule(open_sched);
+                                } else {
+                                    System.out.println("Schedule not found.");
+                                }
+                            } else if (account_act.equalsIgnoreCase("n")) {
+                                System.out.println("What would you like the schedule to be called?");
+                                String sched_name = scnr.next();
+                                String file_name = sched_name + ".csv";
+                                Schedule newSched = new Schedule(user_account.getUsername(),sched_name);
+                                System.out.println(newSched);
+                            } else {
+                                in_account = false;
                             }
-                            Account user_account = new Account(new_username, new_password, new_major);
-                            session_accounts.add(user_account);
-                            System.out.println("Account successfully created!");
-                            System.out.println();
-                            user_account.printAcct();
-                            System.out.println();
-                        } else {
-                            System.out.println("No major entered.");
-                            Account user_account = new Account(new_username, new_password);
-                            session_accounts.add(user_account);
-                            System.out.println("Account successfully created!");
-                            System.out.println();
-                            user_account.printAcct();
-                            System.out.println();
+                        }
+                    } else { //creates an account from user input
+                        System.out.println("No major entered.");
+                        Account user_account = new Account(new_username, new_password);
+                        session_accounts.add(user_account);
+                        accounts.add(new_username);
+                        System.out.println("Account successfully created!");
+                        System.out.println();
+                        boolean in_account = true;
+                        while (in_account) {
+                            System.out.println("ACCOUNT MENU");
+                            System.out.println("'o' - Open Schedule | 'm' - Modify Schedule | 'd' - Delete Schedule | 'n' - New Schedule | 'x' - Exit Account");
+                            String account_act = scnr.next();
+                            good_inputs = Arrays.asList("o", "m", "d", "n", "x", "s");
+                            while (!(input_verification(good_inputs,account_act))) {
+                                System.out.println("Invalid Input - Only 's', 'c', or 'x' accepted. Please try again.");
+                                account_act = scnr.next();
+                            }
+                            if (account_act.equalsIgnoreCase("o")) {
+                                System.out.println("Whats the name of the schedule you'd like to open?");
+                                String open_sched = scnr.next();
+                                boolean has_file = user_account.has_schedule(open_sched);
+                                if (has_file) {
+                                    //print out the schedule
+                                } else {
+                                    System.out.println("Schedule not found.");
+                                }
+                            } else if (account_act.equalsIgnoreCase("m")) {
+                                System.out.println("Whats the name of the schedule you'd like to modify?");
+                                String open_sched = scnr.next();
+                                boolean has_file = user_account.has_schedule(open_sched);
+                                if (has_file) {
+                                    //modify out the schedule
+                                } else {
+                                    System.out.println("Schedule not found.");
+                                }
+                            } else if (account_act.equalsIgnoreCase("d")) {
+                                System.out.println("Whats the name of the schedule you'd like to delete?");
+                                String open_sched = scnr.next();
+                                boolean has_file = user_account.has_schedule(open_sched);
+                                if (has_file) {
+                                    user_account.delete_schedule(open_sched);
+                                } else {
+                                    System.out.println("Schedule not found.");
+                                }
+                            } else if (account_act.equalsIgnoreCase("n")) {
+                                Schedule newSched = new Schedule();
+                                System.out.println("What would you like the schedule to be called?");
+                                String sched_name = scnr.next();
+                                newSched.setName(sched_name);
+                                System.out.println("Is the schedule for Spring or Fall?");
+                                String semester = scnr.next();
+                                newSched.setSemester(semester);
+                                System.out.println("What year is this schedule for?");
+                                int year = scnr.nextInt();
+                                newSched.setYear(year);
+                                System.out.println("Your schedule " + sched_name + " has been created!");
+                                System.out.println(newSched);
+                                //user_account.save_schedule(sched_name);
+                            } else {
+                                in_account = false;
+                            }
                         }
                     }
                 } else {
@@ -369,7 +514,8 @@ public class Main {
                     if (hasAccount) {
                         Account compare = new Account();
                         for (int i = 0; i < session_accounts.size(); i++) {
-                            if (session_accounts.get(i).getUsername() == curr_username) {
+                            Account current_acct = session_accounts.get(i);
+                            if (current_acct.getUsername().equals(curr_username)) {
                                 compare = session_accounts.get(i);
                             }
                         }
@@ -394,7 +540,7 @@ public class Main {
                 String user_choice;
                 String new_username;
                 String new_password;
-                Major new_major = Major.NULL;
+                Major new_major = null;
                 System.out.println("What would you like to set as your username?");
                 new_username = scnr.next();
                 System.out.println("What would you like to set as your password?");
@@ -402,7 +548,7 @@ public class Main {
                 System.out.println("Would you like to add a major to your account? Enter y or n.");
                 user_choice = scnr.next();
                 good_inputs = Arrays.asList("y", "n");
-                if (!(input_verification(good_inputs,user_choice))) {
+                if (!(input_verification(good_inputs, user_choice))) {
                     System.out.println("Invalid entry. Please re-enter either y or n.");
                     user_choice = scnr.next();
                 } else {
@@ -411,6 +557,9 @@ public class Main {
                         List<Major> major_list = Arrays.asList(Major.values());
                         for (int i = 0; i < major_list.size(); i++) {
                             System.out.print(major_list.get(i) + " ");
+                            if (i % 9 == 0){
+                                System.out.println();
+                            }
                         }
                         System.out.println();
                         String major_choice = scnr.next().toUpperCase();
@@ -601,61 +750,53 @@ public class Main {
                         }
                         Account user_account = new Account(new_username, new_password, new_major);
                         session_accounts.add(user_account);
+                        accounts.add(new_username);
                         System.out.println("Account successfully created!");
                         System.out.println();
-                        user_account.printAcct();
-                        System.out.println();
                         boolean in_account = true;
-                        while (in_account){
+                        while (in_account) {
                             System.out.println("ACCOUNT MENU");
                             System.out.println("'o' - Open Schedule | 'm' - Modify Schedule | 'd' - Delete Schedule | 'n' - New Schedule | 'x' - Exit Account");
                             String account_act = scnr.next();
-                            good_inputs = Arrays.asList("o", "m", "d","n","x","s");
-                            while ((!(account_act.equalsIgnoreCase("o")) || !(account_act.equalsIgnoreCase("m"))) || ((!(account_act.equalsIgnoreCase("d")) || !(account_act.equalsIgnoreCase("n"))) || !(account_act.equalsIgnoreCase("x")))) {
+                            good_inputs = Arrays.asList("o", "m", "d", "n", "x", "s");
+                            while (!(input_verification(good_inputs,account_act))) {
                                 System.out.println("Invalid Input - Only 's', 'c', or 'x' accepted. Please try again.");
                                 account_act = scnr.next();
                             }
-                            if (account_act.equalsIgnoreCase("o")){
+                            if (account_act.equalsIgnoreCase("o")) {
                                 System.out.println("Whats the name of the schedule you'd like to open?");
                                 String open_sched = scnr.next();
                                 boolean has_file = user_account.has_schedule(open_sched);
                                 if (has_file) {
                                     //print out the schedule
-                                }
-                                else {
+                                } else {
                                     System.out.println("Schedule not found.");
                                 }
-                            }
-                            else if (account_act.equalsIgnoreCase("m")){
+                            } else if (account_act.equalsIgnoreCase("m")) {
                                 System.out.println("Whats the name of the schedule you'd like to modify?");
                                 String open_sched = scnr.next();
                                 boolean has_file = user_account.has_schedule(open_sched);
                                 if (has_file) {
                                     //modify out the schedule
-                                }
-                                else {
+                                } else {
                                     System.out.println("Schedule not found.");
                                 }
-                            }
-                            else if (account_act.equalsIgnoreCase("d")){
+                            } else if (account_act.equalsIgnoreCase("d")) {
                                 System.out.println("Whats the name of the schedule you'd like to delete?");
                                 String open_sched = scnr.next();
                                 boolean has_file = user_account.has_schedule(open_sched);
                                 if (has_file) {
                                     user_account.delete_schedule(open_sched);
-                                }
-                                else {
+                                } else {
                                     System.out.println("Schedule not found.");
                                 }
-                            }
-                            else if (account_act.equalsIgnoreCase("n")){
+                            } else if (account_act.equalsIgnoreCase("n")) {
                                 System.out.println("What would you like the schedule to be called?");
                                 String sched_name = scnr.next();
                                 String file_name = sched_name + ".txt";
-                                Schedule newSched = new Schedule(sched_name);
+                                Schedule newSched = new Schedule("",sched_name);
                                 System.out.println(newSched);
-                            }
-                            else {
+                            } else {
                                 in_account = false;
                             }
                         }
@@ -663,16 +804,63 @@ public class Main {
                         System.out.println("No major entered.");
                         Account user_account = new Account(new_username, new_password);
                         session_accounts.add(user_account);
+                        accounts.add(new_username);
                         System.out.println("Account successfully created!");
                         System.out.println();
-                        user_account.printAcct();
-                        System.out.println();
+                        boolean in_account = true;
+                        while (in_account) {
+                            System.out.println("ACCOUNT MENU");
+                            System.out.println("'o' - Open Schedule | 'm' - Modify Schedule | 'd' - Delete Schedule | 'n' - New Schedule | 'x' - Exit Account");
+                            String account_act = scnr.next();
+                            good_inputs = Arrays.asList("o", "m", "d", "n", "x", "s");
+                            while (!(input_verification(good_inputs,account_act))) {
+                                System.out.println("Invalid Input - Only 's', 'c', or 'x' accepted. Please try again.");
+                                account_act = scnr.next();
+                            }
+                            if (account_act.equalsIgnoreCase("o")) {
+                                System.out.println("Whats the name of the schedule you'd like to open?");
+                                String open_sched = scnr.next();
+                                boolean has_file = user_account.has_schedule(open_sched);
+                                if (has_file) {
+                                    //print out the schedule
+                                } else {
+                                    System.out.println("Schedule not found.");
+                                }
+                            } else if (account_act.equalsIgnoreCase("m")) {
+                                System.out.println("Whats the name of the schedule you'd like to modify?");
+                                String open_sched = scnr.next();
+                                boolean has_file = user_account.has_schedule(open_sched);
+                                if (has_file) {
+                                    //modify out the schedule
+                                } else {
+                                    System.out.println("Schedule not found.");
+                                }
+                            } else if (account_act.equalsIgnoreCase("d")) {
+                                System.out.println("Whats the name of the schedule you'd like to delete?");
+                                String open_sched = scnr.next();
+                                boolean has_file = user_account.has_schedule(open_sched);
+                                if (has_file) {
+                                    user_account.delete_schedule(open_sched);
+                                } else {
+                                    System.out.println("Schedule not found.");
+                                }
+                            } else if (account_act.equalsIgnoreCase("n")) {
+                                System.out.println("What would you like the schedule to be called?");
+                                String sched_name = scnr.next();
+                                String file_name = sched_name + ".csv";
+                                Schedule newSched = new Schedule(user_account.getUsername(),sched_name);
+                                System.out.println(newSched);
+                            } else {
+                                in_account = false;
+                            }
+                        }
                     }
                 }
             }
             System.out.println("Input 's' for Sign-in | Input 'c' for Create Account | Input 'x' for Exit Application");
             user_selection = scnr.next();
-            while (!(user_selection.equalsIgnoreCase("s")) && (!(user_selection.equalsIgnoreCase("c")) && !(user_selection.equalsIgnoreCase("x")))) {
+            good_inputs = Arrays.asList("s", "c", "x");
+            while (!(input_verification(good_inputs,user_selection))) {
                 System.out.println("Invalid Input - Only 's', 'c', or 'x' accepted. Please try again.");
                 user_selection = scnr.next();
             }
