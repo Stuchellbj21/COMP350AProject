@@ -889,7 +889,35 @@ public class Main {
         }
     }
 
+    public static void printScheduleTest(){
+        ArrayList<DayTime> dts1 = new ArrayList<>();
+        dts1.add(new DayTime("8:00 AM","8:50 AM",'M'));
+        dts1.add(new DayTime("8:00 AM","8:50 AM",'W'));
+        dts1.add(new DayTime("8:00 AM","8:50 AM",'F'));
+        ArrayList<DayTime> dts2 = new ArrayList<>();
+        dts2.add(new DayTime("8:00 AM","9:15 AM",'T'));
+        dts2.add(new DayTime("8:00 AM","9:15 AM",'R'));
+        ArrayList<DayTime> dts3 = new ArrayList<>();
+        dts3.add(new DayTime("3:00 PM","3:50 PM",'M'));
+        dts3.add(new DayTime("3:00 PM","3:50 PM",'W'));
+        dts3.add(new DayTime("3:00 PM","3:50 PM",'F'));
+        ArrayList<DayTime> dts4 = new ArrayList<>();
+        dts4.add(new DayTime("12:30 PM","1:45 PM",'T'));
+        dts4.add(new DayTime("12:30 PM","1:45 PM",'R'));
+        Course c1 = new Course("Enrichment of the Mentality Complex1",'A',Major.ACCT,820,3,10,10,"Greg Bilbod",2050,"Fall",null,dts1);
+        Course c2 = new Course("Enrichment of the Mentality Complex2",'B',Major.ACCT,820,3,10,10,"Greg Bilbod",2050,"Fall",null,dts2);
+        Course c3 = new Course("Enrichment of the Mentality Complex3",'C',Major.ACCT,820,3,10,10,"Greg Bilbod",2050,"Fall",null,dts3);
+        Course c4 = new Course("Enrichment of the Mentality Complex4",'D',Major.ACCT,820,3,10,10,"Greg Bilbod",2050,"Fall",null,dts4);
+        Schedule test_Sched = new Schedule();
+        test_Sched.add_course(c1);
+        test_Sched.add_course(c2);
+        test_Sched.add_course(c3);
+        test_Sched.add_course(c4);
+        test_Sched.printSchedule();
+    }
+
     public static void main(String[] args) {
+        printScheduleTest();
         try {
             run();
         } catch (IOException ioe) {
