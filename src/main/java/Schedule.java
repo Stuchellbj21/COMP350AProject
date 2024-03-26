@@ -66,7 +66,7 @@ public class Schedule {
     public Schedule(String accountname, String name) {
         courses = new ArrayList<>();
         try {
-            load(accountname,name);
+            load(accountname, name);
         } catch (InputMismatchException | IOException error) {
             System.out.println(error.getMessage() + " " + error.getCause());
         }
