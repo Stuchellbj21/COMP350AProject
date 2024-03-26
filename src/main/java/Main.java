@@ -191,7 +191,7 @@ public class Main {
             Account curr_account = null;
             String curr_username;
             String curr_password;
-            //Runs if the user wants to sign-in
+            //Runs if the user wants to sign-in and the list of accounts is not empty
             if (user_selection.equalsIgnoreCase("s") && !accounts.isEmpty()) {
                 System.out.println("Please enter your username.");
                 curr_username = scnr.next();
