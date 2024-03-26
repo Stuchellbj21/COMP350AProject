@@ -170,6 +170,7 @@ public class Main {
         //todo:have to make days given by user to days filter uppercase
         populate_allcourses();
         List<Account> session_accounts = new ArrayList<>();
+        System.out.println(allcourses);
         System.out.println("Welcome to SchedulEase!");
         boolean run = true;
         System.out.println("Input 's' for Sign-in | Input 'c' for Create Account | Input 'x' for Exit Application");
@@ -220,11 +221,13 @@ public class Main {
                     }
                 } else {
                     System.out.println("Account does not exist. Please create account.");
+                    System.out.println();
                 }
             }
             else {
                 if (user_selection.equalsIgnoreCase("s")){
                     System.out.println("No accounts exist. Please create account");
+                    System.out.println();
                 }
                 String user_choice;
                 String new_username;
@@ -269,7 +272,9 @@ public class Main {
                 }
             }
             boolean in_account = true;
-            System.out.println("ACCOUNT MENU");
+            if (enter_acct) {
+                System.out.println("ACCOUNT MENU");
+            }
             while (in_account && enter_acct) {
                 System.out.println("'o' - Open Schedule | 'm' - Modify Schedule | 'd' - Delete Schedule | 'n' - New Schedule | 'x' - Exit Account");
                 String account_act = scnr.next();
