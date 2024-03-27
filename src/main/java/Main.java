@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.*;
 import java.util.HashMap;
 import java.io.IOException;
@@ -17,6 +18,7 @@ public class Main {
     //schedules for those accounts
     public static HashMap<Integer, String> accounts; //HashMap of all account numbers and names (which are directory names)
     // Number associated with each user at account creation
+    //there should be a file that holds entries "password_hash:account_name"
     public static int userNum = 0;
 
     public static boolean input_verification(List<String> good_inputs, String user_input) {
@@ -44,8 +46,9 @@ public class Main {
        * (asterisk)
     */
     public static boolean is_valid_name(String name) {
-        for(char c : name.toCharArray())
-            if(c == '<' || c == '>' || c == ':' || c == '\"' || c == '/' || c == '\\' || c == '|' || c == '?' || c == '*') return false;
+        for (char c : name.toCharArray())
+            if (c == '<' || c == '>' || c == ':' || c == '\"' || c == '/' || c == '\\' || c == '|' || c == '?' || c == '*')
+                return false;
         return true;
     }
 
@@ -134,7 +137,7 @@ public class Main {
     }
 
     public static void add_course(Course add) {
-        if(!allcourses.isEmpty()) {
+        if (!allcourses.isEmpty()) {
             Course last = allcourses.getLast();
             //if the course is the same as the one before, just merge the daytimes into the last course
             if (add.getCourseNum() == last.getCourseNum() && add.getMajor() == last.getMajor()
@@ -142,25 +145,24 @@ public class Main {
                     && add.getSemester().equalsIgnoreCase(last.getSemester())) last.getTimes().addAll(add.getTimes());
                 //otherwise, add the full course
             else allcourses.add(add);
-        }
-        else allcourses.add(add);
+        } else allcourses.add(add);
     }
 
-    public static Major major_set(String major_name){
+    public static Major major_set(String major_name) {
         Scanner maj = new Scanner(System.in);
-        while (!Major.is_major(major_name)){
+        while (!Major.is_major(major_name)) {
             System.out.println("Invalid major, please try again.");
-            major_name = maj.next();
+            major_name = maj.next().toUpperCase();
         }
         Major corr = Major.valueOf(major_name);
         return corr;
     }
 
-    public static void print_majs(){
+    public static void print_majs() {
         List<Major> major_list = Arrays.asList(Major.values());
         for (int i = 0; i < major_list.size(); i++) {
             System.out.print(major_list.get(i) + " ");
-            if (i % 9 == 0){
+            if (i % 9 == 0) {
                 System.out.println();
             }
         }
@@ -170,7 +172,20 @@ public class Main {
         //todo:have to make days given by user to days filter uppercase
         populate_allcourses();
         List<Account> session_accounts = new ArrayList<>();
-        System.out.println(allcourses);
+        //Reads from the account_direc.txt file which gets all the current accounts
+        File accts = new File("account_direc.txt");
+        Scanner acct_scnr = new Scanner(accts);
+        acct_scnr.useDelimiter(":");
+        List<ArrayList> active_accts = new ArrayList<>();
+        while (acct_scnr.hasNextLine()) {
+            String password_hash = acct_scnr.next();
+            String account_name = acct_scnr.next();
+            ArrayList<String> curr_acct = new ArrayList<>();
+            curr_acct.add(password_hash);
+            curr_acct.add(account_name);
+            active_accts.add(curr_acct);
+        }
+//        System.out.println(allcourses);
         System.out.println("Welcome to SchedulEase!");
         boolean run = true;
         System.out.println("Input 's' for Sign-in | Input 'c' for Create Account | Input 'x' for Exit Application");
@@ -192,11 +207,19 @@ public class Main {
             String curr_username;
             String curr_password;
             //Runs if the user wants to sign-in and the list of accounts is not empty
-            if (user_selection.equalsIgnoreCase("s") && !accounts.isEmpty()) {
+            if (user_selection.equalsIgnoreCase("s") && !active_accts.isEmpty()) {
                 System.out.println("Please enter your username.");
                 curr_username = scnr.next();
                 Account compare = new Account();
                 Boolean exists = false;
+                Boolean string_found = false;
+                for (ArrayList account : active_accts) {
+                    if (account.get(1).equals(curr_username)) {
+                        string_found = true;
+                        System.out.println("Found in directory file.");
+                        break;
+                    }
+                }
                 for (Account current_acct : session_accounts) {
                     if (current_acct.getUsername().equals(curr_username)) {
                         compare = current_acct;
@@ -223,9 +246,8 @@ public class Main {
                     System.out.println("Account does not exist. Please create account.");
                     System.out.println();
                 }
-            }
-            else {
-                if (user_selection.equalsIgnoreCase("s")){
+            } else {
+                if (user_selection.equalsIgnoreCase("s")) {
                     System.out.println("No accounts exist. Please create account");
                     System.out.println();
                 }
@@ -237,39 +259,23 @@ public class Main {
                 new_username = scnr.next();
                 System.out.println("What would you like to set as your password?");
                 new_password = scnr.next();
-                System.out.println("Would you like to add a major to your account? Enter y or n.");
-                user_choice = scnr.next();
-                good_inputs = Arrays.asList("y", "n");
-                //Runs till user enters correct input
-                while (!(input_verification(good_inputs, user_choice))) {
-                    System.out.println("Invalid entry. Please re-enter either y or n.");
-                    user_choice = scnr.next();
-                }
-                //Gets user input for major choice
-                if (user_choice.equalsIgnoreCase("y")) {
-                    System.out.println("Please type your major from list.");
-                    //SELECTION OF MAJOR
-                    print_majs();
-                    String major_choice = scnr.next().toUpperCase();
-                    Major off_major = major_set(major_choice);
-                    //creates an account from user input
-                    curr_account = new Account(new_username, new_password, off_major);
-                    userNum = 1+userNum;
-                    session_accounts.add(curr_account);
-                    accounts.put(userNum, new_username);
-                    System.out.println("Account successfully created!");
-                    System.out.println();
-                    enter_acct = true;
-                }
-                else {
-                    curr_account = new Account(new_username, new_password);
-                    userNum = 1+userNum;
-                    session_accounts.add(curr_account);
-                    accounts.put(userNum, new_username);
-                    System.out.println("Account successfully created!");
-                    System.out.println();
-                    enter_acct = true;
-                }
+                String hash_pass = String.valueOf(new_password.hashCode());
+                ArrayList<String> new_acct = new ArrayList<>();
+                new_acct.add(new_username);
+                new_acct.add(hash_pass);
+                System.out.println("Please type your major from list.");
+                //SELECTION OF MAJOR
+                print_majs();
+                String major_choice = scnr.next().toUpperCase();
+                Major off_major = major_set(major_choice);
+                //creates an account from user input
+                curr_account = new Account(new_username, new_password, off_major);
+                userNum = 1 + userNum;
+                session_accounts.add(curr_account);
+                accounts.put(userNum, new_username);
+                System.out.println("Account successfully created!");
+                System.out.println();
+                enter_acct = true;
             }
             boolean in_account = true;
             if (enter_acct) {
@@ -279,16 +285,15 @@ public class Main {
                 System.out.println("'o' - Open Schedule | 'm' - Modify Schedule | 'd' - Delete Schedule | 'n' - New Schedule | 'x' - Exit Account");
                 String account_act = scnr.next();
                 good_inputs = Arrays.asList("o", "m", "d", "n", "x", "s");
-                while (!(input_verification(good_inputs,account_act))) {
+                while (!(input_verification(good_inputs, account_act))) {
                     System.out.println("Invalid Input - Only 's', 'c', or 'x' accepted. Please try again.");
                     account_act = scnr.next();
                 }
                 if (account_act.equalsIgnoreCase("o")) {
-                    if (curr_account.num_scheds() == 0){
+                    if (curr_account.num_scheds() == 0) {
                         System.out.println("No schedules saved in account.");
                         System.out.println();
-                    }
-                    else {
+                    } else {
                         System.out.println("Whats the name of the schedule you'd like to open?");
                         String open_sched = scnr.next();
                         boolean has_file = curr_account.has_schedule(open_sched);
@@ -301,11 +306,10 @@ public class Main {
                         }
                     }
                 } else if (account_act.equalsIgnoreCase("m")) {
-                    if (curr_account.num_scheds() == 0){
+                    if (curr_account.num_scheds() == 0) {
                         System.out.println("No schedules saved in account.");
                         System.out.println();
-                    }
-                    else {
+                    } else {
                         System.out.println("Whats the name of the schedule you'd like to modify?");
                         String open_sched = scnr.next();
                         boolean has_file = curr_account.has_schedule(open_sched);
@@ -317,11 +321,10 @@ public class Main {
                         }
                     }
                 } else if (account_act.equalsIgnoreCase("d")) {
-                    if (curr_account.num_scheds() == 0){
+                    if (curr_account.num_scheds() == 0) {
                         System.out.println("No schedules saved in account.");
                         System.out.println();
-                    }
-                    else {
+                    } else {
                         System.out.println("Whats the name of the schedule you'd like to delete?");
                         String open_sched = scnr.next();
                         boolean has_file = curr_account.has_schedule(open_sched);
@@ -339,7 +342,7 @@ public class Main {
                     String sched_name = scnr.next();
                     curr_account.save_schedule(sched_name);
                     String file_name = sched_name + ".txt";
-                    Schedule newSched = new Schedule("",sched_name);
+                    Schedule newSched = new Schedule("", sched_name);
                     newSched.printSchedule();
                 } else {
                     in_account = false;
@@ -348,7 +351,7 @@ public class Main {
             System.out.println("Input 's' for Sign-in | Input 'c' for Create Account | Input 'x' for Exit Application");
             user_selection = scnr.next();
             good_inputs = Arrays.asList("s", "c", "x");
-            while (!(input_verification(good_inputs,user_selection))) {
+            while (!(input_verification(good_inputs, user_selection))) {
                 System.out.println("Invalid Input - Only 's', 'c', or 'x' accepted. Please try again.");
                 user_selection = scnr.next();
             }
@@ -359,25 +362,25 @@ public class Main {
         System.out.println("Thank you for using SchedulEase!");
     }
 
-    public static void printScheduleTest(){
+    public static void printScheduleTest() {
         ArrayList<DayTime> dts1 = new ArrayList<>();
-        dts1.add(new DayTime("8:00 AM","8:50 AM",'M'));
-        dts1.add(new DayTime("8:00 AM","8:50 AM",'W'));
-        dts1.add(new DayTime("8:00 AM","8:50 AM",'F'));
+        dts1.add(new DayTime("8:00 AM", "8:50 AM", 'M'));
+        dts1.add(new DayTime("8:00 AM", "8:50 AM", 'W'));
+        dts1.add(new DayTime("8:00 AM", "8:50 AM", 'F'));
         ArrayList<DayTime> dts2 = new ArrayList<>();
-        dts2.add(new DayTime("8:00 AM","9:15 AM",'T'));
-        dts2.add(new DayTime("8:00 AM","9:15 AM",'R'));
+        dts2.add(new DayTime("8:00 AM", "9:15 AM", 'T'));
+        dts2.add(new DayTime("8:00 AM", "9:15 AM", 'R'));
         ArrayList<DayTime> dts3 = new ArrayList<>();
-        dts3.add(new DayTime("3:00 PM","3:50 PM",'M'));
-        dts3.add(new DayTime("3:00 PM","3:50 PM",'W'));
-        dts3.add(new DayTime("3:00 PM","3:50 PM",'F'));
+        dts3.add(new DayTime("3:00 PM", "3:50 PM", 'M'));
+        dts3.add(new DayTime("3:00 PM", "3:50 PM", 'W'));
+        dts3.add(new DayTime("3:00 PM", "3:50 PM", 'F'));
         ArrayList<DayTime> dts4 = new ArrayList<>();
-        dts4.add(new DayTime("12:30 PM","1:45 PM",'T'));
-        dts4.add(new DayTime("12:30 PM","1:45 PM",'R'));
-        Course c1 = new Course("Enrichment of the Mentality Complex1",'A',Major.ACCT,820,3,9,10,"Greg Bilbod",2050,"Fall",null,dts1);
-        Course c2 = new Course("Enrichment of the Mentality Complex2",'B',Major.ACCT,830,3,9,10,"Greg Bilbod",2050,"Fall",null,dts2);
-        Course c3 = new Course("Enrichment of the Mentality Complex3",'C',Major.ACCT,850,3,9,10,"Greg Bilbod",2050,"Fall",null,dts3);
-        Course c4 = new Course("Enrichment of the Mentality Complex4",'D',Major.ACCT,860,3,9,10,"Greg Bilbod",2050,"Fall",null,dts4);
+        dts4.add(new DayTime("12:30 PM", "1:45 PM", 'T'));
+        dts4.add(new DayTime("12:30 PM", "1:45 PM", 'R'));
+        Course c1 = new Course("Enrichment of the Mentality Complex1", 'A', Major.ACCT, 820, 3, 9, 10, "Greg Bilbod", 2050, "Fall", null, dts1);
+        Course c2 = new Course("Enrichment of the Mentality Complex2", 'B', Major.ACCT, 830, 3, 9, 10, "Greg Bilbod", 2050, "Fall", null, dts2);
+        Course c3 = new Course("Enrichment of the Mentality Complex3", 'C', Major.ACCT, 850, 3, 9, 10, "Greg Bilbod", 2050, "Fall", null, dts3);
+        Course c4 = new Course("Enrichment of the Mentality Complex4", 'D', Major.ACCT, 860, 3, 9, 10, "Greg Bilbod", 2050, "Fall", null, dts4);
         Schedule test_Sched = new Schedule();
         test_Sched.add_course(c1);
         test_Sched.add_course(c2);
@@ -388,7 +391,7 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            printScheduleTest();
+//            printScheduleTest();
             run();
         } catch (IOException ioe) {
             System.out.println(ioe.getMessage() + "\n" + ioe.getCause());
