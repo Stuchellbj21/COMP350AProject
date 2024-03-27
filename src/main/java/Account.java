@@ -103,4 +103,8 @@ public class Account {
         System.out.println("Password: " + this.passwordhash);
         System.out.println("Major: " + this.major);
     }
+
+    public int num_scheds(){
+        return schednames.size();
+    }
 }

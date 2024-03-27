@@ -170,6 +170,7 @@ public class Main {
         //todo:have to make days given by user to days filter uppercase
         populate_allcourses();
         List<Account> session_accounts = new ArrayList<>();
+        System.out.println(allcourses);
         System.out.println("Welcome to SchedulEase!");
         boolean run = true;
         System.out.println("Input 's' for Sign-in | Input 'c' for Create Account | Input 'x' for Exit Application");
@@ -186,36 +187,47 @@ public class Main {
             run = false;
         }
         while (run) { //Runs an individual journey until the user asks to exit the program
+            boolean enter_acct = false;
             Account curr_account = null;
             String curr_username;
             String curr_password;
-            //Runs if the user wants to sign-in
+            //Runs if the user wants to sign-in and the list of accounts is not empty
             if (user_selection.equalsIgnoreCase("s") && !accounts.isEmpty()) {
                 System.out.println("Please enter your username.");
                 curr_username = scnr.next();
                 Account compare = new Account();
+                Boolean exists = false;
                 for (Account current_acct : session_accounts) {
                     if (current_acct.getUsername().equals(curr_username)) {
                         compare = current_acct;
+                        exists = true;
                     }
                 }
-                System.out.println("Please enter your password.");
-                curr_password = scnr.next();
-                if (compare.verify_password(curr_password)) {
-                    System.out.println("Correct password.");
-                    curr_account = compare;
-                } else {
-                    while (!(compare.verify_password(curr_password))) {
-                        System.out.println("Incorrect password. Please re-enter.");
-                        curr_password = scnr.next();
+                if (exists) {
+                    System.out.println("Please enter your password.");
+                    curr_password = scnr.next();
+                    if (compare.verify_password(curr_password)) {
+                        System.out.println("Correct password.");
+                        curr_account = compare;
+                        enter_acct = true;
+                    } else {
+                        while (!(compare.verify_password(curr_password))) {
+                            System.out.println("Incorrect password. Please re-enter.");
+                            curr_password = scnr.next();
+                        }
+                        System.out.println("Successfully logged in.");
+                        curr_account = compare;
+                        enter_acct = true;
                     }
-                    System.out.println("Successfully logged in.");
-                    curr_account = compare;
+                } else {
+                    System.out.println("Account does not exist. Please create account.");
+                    System.out.println();
                 }
             }
             else {
                 if (user_selection.equalsIgnoreCase("s")){
                     System.out.println("No accounts exist. Please create account");
+                    System.out.println();
                 }
                 String user_choice;
                 String new_username;
@@ -247,11 +259,23 @@ public class Main {
                     accounts.put(userNum, new_username);
                     System.out.println("Account successfully created!");
                     System.out.println();
+                    enter_acct = true;
+                }
+                else {
+                    curr_account = new Account(new_username, new_password);
+                    userNum = 1+userNum;
+                    session_accounts.add(curr_account);
+                    accounts.put(userNum, new_username);
+                    System.out.println("Account successfully created!");
+                    System.out.println();
+                    enter_acct = true;
                 }
             }
             boolean in_account = true;
-            while (in_account) {
+            if (enter_acct) {
                 System.out.println("ACCOUNT MENU");
+            }
+            while (in_account && enter_acct) {
                 System.out.println("'o' - Open Schedule | 'm' - Modify Schedule | 'd' - Delete Schedule | 'n' - New Schedule | 'x' - Exit Account");
                 String account_act = scnr.next();
                 good_inputs = Arrays.asList("o", "m", "d", "n", "x", "s");
@@ -260,38 +284,63 @@ public class Main {
                     account_act = scnr.next();
                 }
                 if (account_act.equalsIgnoreCase("o")) {
-                    System.out.println("Whats the name of the schedule you'd like to open?");
-                    String open_sched = scnr.next();
-                    boolean has_file = curr_account.has_schedule(open_sched);
-                    if (has_file) {
-                        //print out the schedule
-                    } else {
-                        System.out.println("Schedule not found.");
+                    if (curr_account.num_scheds() == 0){
+                        System.out.println("No schedules saved in account.");
+                        System.out.println();
+                    }
+                    else {
+                        System.out.println("Whats the name of the schedule you'd like to open?");
+                        String open_sched = scnr.next();
+                        boolean has_file = curr_account.has_schedule(open_sched);
+                        if (has_file) {
+                            Schedule opened_sched = curr_account.load_schedule(open_sched);
+                            opened_sched.printSchedule();
+                        } else {
+                            System.out.println("Schedule not found.");
+                            System.out.println();
+                        }
                     }
                 } else if (account_act.equalsIgnoreCase("m")) {
-                    System.out.println("Whats the name of the schedule you'd like to modify?");
-                    String open_sched = scnr.next();
-                    boolean has_file = curr_account.has_schedule(open_sched);
-                    if (has_file) {
-                        //modify out the schedule
-                    } else {
-                        System.out.println("Schedule not found.");
+                    if (curr_account.num_scheds() == 0){
+                        System.out.println("No schedules saved in account.");
+                        System.out.println();
+                    }
+                    else {
+                        System.out.println("Whats the name of the schedule you'd like to modify?");
+                        String open_sched = scnr.next();
+                        boolean has_file = curr_account.has_schedule(open_sched);
+                        if (has_file) {
+                            //modify out the schedule
+                        } else {
+                            System.out.println("Schedule not found.");
+                            System.out.println();
+                        }
                     }
                 } else if (account_act.equalsIgnoreCase("d")) {
-                    System.out.println("Whats the name of the schedule you'd like to delete?");
-                    String open_sched = scnr.next();
-                    boolean has_file = curr_account.has_schedule(open_sched);
-                    if (has_file) {
-                        curr_account.delete_schedule(open_sched);
-                    } else {
-                        System.out.println("Schedule not found.");
+                    if (curr_account.num_scheds() == 0){
+                        System.out.println("No schedules saved in account.");
+                        System.out.println();
+                    }
+                    else {
+                        System.out.println("Whats the name of the schedule you'd like to delete?");
+                        String open_sched = scnr.next();
+                        boolean has_file = curr_account.has_schedule(open_sched);
+                        if (has_file) {
+                            curr_account.delete_schedule(open_sched);
+                            System.out.println("Schedule successfully deleted.");
+                            System.out.println();
+                        } else {
+                            System.out.println("Schedule not found.");
+                            System.out.println();
+                        }
                     }
                 } else if (account_act.equalsIgnoreCase("n")) {
                     System.out.println("What would you like the schedule to be called?");
                     String sched_name = scnr.next();
+                    curr_account.save_schedule(sched_name);
                     String file_name = sched_name + ".txt";
                     Schedule newSched = new Schedule("",sched_name);
-                    System.out.println(newSched);
+                    newSched.printSchedule();
                 } else {
                     in_account = false;
                 }
@@ -325,10 +374,10 @@ public class Main {
         ArrayList<DayTime> dts4 = new ArrayList<>();
         dts4.add(new DayTime("12:30 PM","1:45 PM",'T'));
         dts4.add(new DayTime("12:30 PM","1:45 PM",'R'));
-        Course c1 = new Course("Enrichment of the Mentality Complex1",'A',Major.ACCT,820,3,10,10,"Greg Bilbod",2050,"Fall",null,dts1);
-        Course c2 = new Course("Enrichment of the Mentality Complex2",'B',Major.ACCT,820,3,10,10,"Greg Bilbod",2050,"Fall",null,dts2);
-        Course c3 = new Course("Enrichment of the Mentality Complex3",'C',Major.ACCT,820,3,10,10,"Greg Bilbod",2050,"Fall",null,dts3);
-        Course c4 = new Course("Enrichment of the Mentality Complex4",'D',Major.ACCT,820,3,10,10,"Greg Bilbod",2050,"Fall",null,dts4);
+        Course c1 = new Course("Enrichment of the Mentality Complex1",'A',Major.ACCT,820,3,9,10,"Greg Bilbod",2050,"Fall",null,dts1);
+        Course c2 = new Course("Enrichment of the Mentality Complex2",'B',Major.ACCT,830,3,9,10,"Greg Bilbod",2050,"Fall",null,dts2);
+        Course c3 = new Course("Enrichment of the Mentality Complex3",'C',Major.ACCT,850,3,9,10,"Greg Bilbod",2050,"Fall",null,dts3);
+        Course c4 = new Course("Enrichment of the Mentality Complex4",'D',Major.ACCT,860,3,9,10,"Greg Bilbod",2050,"Fall",null,dts4);
         Schedule test_Sched = new Schedule();
         test_Sched.add_course(c1);
         test_Sched.add_course(c2);
