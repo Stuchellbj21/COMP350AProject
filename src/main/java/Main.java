@@ -177,13 +177,27 @@ public class Main {
         Scanner acct_scnr = new Scanner(accts);
         acct_scnr.useDelimiter(":");
         List<ArrayList> active_accts = new ArrayList<>();
+        Scanner line_reader;
         while (acct_scnr.hasNextLine()) {
-            String password_hash = acct_scnr.next();
-            String account_name = acct_scnr.next();
+            line_reader = new Scanner(acct_scnr.nextLine());
+            line_reader.useDelimiter(":");
+            String password_hash = line_reader.next();
+            String account_name = line_reader.next();
+            String major_name = line_reader.next();
             ArrayList<String> curr_acct = new ArrayList<>();
             curr_acct.add(password_hash);
             curr_acct.add(account_name);
+            curr_acct.add(major_name);
             active_accts.add(curr_acct);
+            ArrayList<String> acct_scheds = new ArrayList<>();
+            while (line_reader.hasNext()){
+                String schedule = line_reader.next();
+                acct_scheds.add(schedule);
+            }
+            Major maj_to_add = Major.valueOf(major_name);
+            Account add_account = new Account(account_name,password_hash,maj_to_add);
+            add_account.load_schednames(acct_scheds);
+            session_accounts.add(add_account);
         }
 //        System.out.println(allcourses);
         System.out.println("Welcome to SchedulEase!");

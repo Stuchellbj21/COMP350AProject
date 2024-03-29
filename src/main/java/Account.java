@@ -22,13 +22,6 @@ public class Account {
         this.username = "empty";
     }
 
-    //Constructor without major
-    public Account(String username,String passwordhash){
-        this.username = username;
-        this.passwordhash = passwordhash.hashCode();
-        schednames = new ArrayList<String>();
-    }
-
     //Constructor with major
     public Account(String username,String passwordhash,Major major){
         this.username = username;
@@ -97,14 +90,15 @@ public class Account {
         this.major = major;
     }
 
-    public void printAcct(){
-        System.out.println("Account:");
-        System.out.println("Name: " + this.username);
-        System.out.println("Password: " + this.passwordhash);
-        System.out.println("Major: " + this.major);
-    }
-
+    /**
+     This method gets the number of schedules currently saved in an account.
+     @return the number of schedules saved in an account
+     **/
     public int num_scheds(){
         return schednames.size();
+    }
+
+    public void load_schednames(ArrayList<String> schedules){
+        schednames.addAll(schedules);
     }
 }
