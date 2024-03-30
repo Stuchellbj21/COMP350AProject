@@ -364,6 +364,7 @@ public class Schedule {
                     }
                 }
                 courses.add(new Course(cname, section, major, coursenum, ccredits, numstudents, capacity, prof, cyear, csem, requiredby, daytimes));
+                update_times_per_day();
             }
         }
     }
