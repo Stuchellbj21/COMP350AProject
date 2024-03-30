@@ -11,6 +11,9 @@ public class Schedule {
     private List<Course> courses;
     private int credits;
 
+    //associates days to sorted lists of times that are on that day
+    private Map<Character,List<DayTime>> timesperday;
+
     //getters + setters
     public String get_name() {
         return name;
@@ -56,39 +59,39 @@ public class Schedule {
     public Schedule() {
         name = "Blank Schedule";
         semester = "Spring";
-        year = 2024;
+        year = 2020;
         courses = new ArrayList<>();
         credits = 0;
+        init_timesperday();
     }
 
     // constructor w/one parameter
     public Schedule(String accountname, String name) {
         courses = new ArrayList<>();
+        init_timesperday();
+        //name, semeseter, year, and credits are set in load
         try {load(accountname, name);}
-        catch(InputMismatchException | IOException error) {System.out.println(error.getMessage() + ' ' + error.getCause());}
-    }
-
-    // constructor with name and list of courses
-    public Schedule(String name, ArrayList<Course> courses) {
-        this.name = name;
-        this.courses = courses;
+        catch(InputMismatchException | IOException error) {Main.autoflush.println(error.getMessage() + ' ' + error.getCause());}
+        update_times_per_day();
     }
 
     // full constructor
-    public Schedule(String name, String semester, int year, int credits) {
+    public Schedule(String name, String semester, int year, List<Course> courses, int credits) {
         this.name = name;
         this.semester = semester;
         this.year = year;
-        courses = new ArrayList<>();
+        this.courses = courses;
+        update_times_per_day();
         this.credits = credits;
     }
 
     // equals method
-    public boolean equals(Schedule sched) {
-        return (this.name.equals(sched.name) && this.semester.equals(sched.name)
-                && this.year == sched.year && this.courses.equals(sched.courses) &&
-                this.credits == sched.credits);
-        // May not need ALL of these comparisons, consider which ones are needed
+    @Override
+    public boolean equals(Object other) {
+        if(other == null) return false;
+        if(!(other instanceof Schedule o)) return false;
+        //there should only be 1 schedule of a given name
+        return name.equals(o.name);
     }
 
     //toString
@@ -98,6 +101,85 @@ public class Schedule {
         // could also be ' semester + ", " + year + ", " + name '
     }
 
+    public void set_name_with_checks() {
+        while(true) {
+            String newname = Main.input("Enter new schedule name: ");
+            try{
+                if(Main.is_valid_name(newname)) {
+                    name = newname;
+                    Main.autoflush.println("Schedule name successfully changed to '" + newname + "'");
+                    break;
+                }
+                else Main.autoflush.println("Error: '" + newname + "' is not a valid schedule name");
+            }
+            catch(IllegalArgumentException iae) {Main.autoflush.println(iae.getMessage());}
+        }
+    }
+
+    public void set_semester_with_checks() {
+        while(true) {
+            String newsem = Main.input("Enter new semester value: ").toLowerCase();
+            //ensure either Fall or Spring
+            newsem = newsem.substring(0,1).toUpperCase() + newsem.substring(1);
+            if(newsem.equals("Fall") || newsem.equals("Spring")) {
+                semester = newsem;
+                Main.autoflush.println("Warning: you will now only be able to add courses for the " + semester + " to this schedule");
+                return;
+            }
+            else Main.autoflush.println("Error: '" + newsem + "' is not a valid semester value");
+        }
+    }
+
+    public void set_year_with_checks() {
+        while(true) {
+            //ensure either Fall or Spring
+            int newyear;
+            try{
+                String in = Main.input("Enter new year value: ");
+                newyear = Integer.parseInt(in);
+                if(in.length() != 4) Main.autoflush.println("Error: valid year values are only 4 digits long");
+                else if(newyear < 0) Main.autoflush.println("Error: the year value must be positive");
+                else if(2020 > newyear) Main.autoflush.println("Error: " + newyear + " is too far in the past, schedules must be for 2020 or later");
+                else {
+                    year = newyear;
+                    Main.autoflush.println("Warning: you will now only be able to add courses for " + year + " to this schedule");
+                    break;
+                }
+            }
+            catch(NumberFormatException nfe) {Main.autoflush.println("Error: you did not enter a valid integer value");}
+        }
+    }
+
+    public String to_str() {
+        StringBuilder sb = new StringBuilder("Name: ").append(name).append(" - ").append(semester).append(' ');
+        sb.append(year).append(" - ").append(credits).append(" credits\n");
+        sb.append("-------------------------------------\n");
+        add_classes_for_day_to_str('M',sb);
+        add_classes_for_day_to_str('T',sb);
+        add_classes_for_day_to_str('W',sb);
+        add_classes_for_day_to_str('R',sb);
+        add_classes_for_day_to_str('F',sb);
+        return sb.append("-------------------------------------").toString();
+    }
+
+    private void add_classes_for_day_to_str(char day, StringBuilder sb) {
+        sb.append(day).append(":(free time)");
+        for(int i = 0; i < timesperday.get(day).size(); i++) {
+            DayTime dt = timesperday.get(day).get(i);
+            Course current = null;
+            for(Course c : courses)
+                if(c.has_time(dt)) current = c;
+            //now we have the correct course to add, so we add it
+            sb.append('(').append(current.getMajor()).append(' ').append(current.getCourseNum());
+            sb.append(' ').append(current.getSection()).append(' ').append(dt.get_start_time()).append('-');
+            sb.append(dt.get_end_time()).append(')');
+            //if we're on last time, or there are more than 15 minutes between this course and the next,
+            //add (free time)
+            if(i == timesperday.get(day).size() - 1 || (DayTime.military_to_minutes(timesperday.get(day).get(i + 1).get_militarystart()) - DayTime.military_to_minutes(dt.get_militaryend()) > 15))
+                sb.append("(free time)");
+        }
+        sb.append('\n');
+    }
 
     /**
      * Adds a course to a Schedule
@@ -106,15 +188,19 @@ public class Schedule {
      * @return true if course is added, false if not
      */
     public boolean add_course(Course course) {
+        if(course.isFull()) throw new IllegalArgumentException("Error: " + course.short_str(true) + " is full already");
+        if(course.getTimes() == null || course.getTimes().isEmpty()) throw new IllegalArgumentException("Error: courses with no times listed cannot be added to schedules");
+        if(!course.getSemester().equalsIgnoreCase(semester) || course.getYear() != year) throw new IllegalArgumentException("Error: " + course.short_str(true) + " cannot be added as it is for a different semester than this schedule is");
         for(Course c : courses) {
             //if the times overlap or they are the same class as something already in the schedule or the course is full
             //there's an issue
-            if(c.times_overlap_with(course)) throw new IllegalArgumentException("Error: you can't add a course that has a time overlap with another course in your schedule");
             if(c.getCourseNum() == course.getCourseNum() && c.getMajor() == course.getMajor()) throw new IllegalArgumentException("Error: " + course.getMajor() + " " + course.getCourseNum() + " is already in your schedule");
-            if(course.isFull()) throw new IllegalArgumentException("Error: the course you tried to add is full already");
+            if(c.times_overlap_with(course)) throw new IllegalArgumentException("Error: the course you attempted to add has a time overlap with " + c.short_str(true) + " in your schedule");
         }
         courses.add(course);
+        course.setNumstudents(course.getNumstudents()+1);
         credits += course.getCredits();
+        update_times_per_day();
         return true;
     }
 
@@ -125,11 +211,18 @@ public class Schedule {
      * @return true if course is removed, false if not
      */
     public boolean remove_course(Course course) {
-        if (courses.isEmpty()) throw new InputMismatchException("Error: cannot remove a course from an empty schedule");
-        if(!courses.contains(course)) throw new InputMismatchException("Error: your schedule does not contain that course");
+        if(courses.isEmpty()) throw new InputMismatchException("Error: cannot remove a course from an empty schedule");
+        if(!courses.contains(course)) throw new InputMismatchException("Error: your schedule does not contain " + course.short_str(false) + " course");
+        remove_from_times_per_day(course);
         courses.remove(course);
+        course.setNumstudents(course.getNumstudents()-1);
         credits -= course.getCredits();
+        remove_from_times_per_day(course);
         return true;
+    }
+
+    public void remove_from_times_per_day(Course c) {
+        for(DayTime dt : c.getTimes()) timesperday.get(dt.get_day()).remove(dt);
     }
 
     public void save(String accountname) throws IOException {
@@ -162,7 +255,43 @@ public class Schedule {
         pw.close();
     }
 
-    //fname doesn't have extension
+    //timesperday should always be initialized via this method.... timesperday should always be null if
+    //init hasn't been called
+    private void init_timesperday() {
+        if(timesperday == null) {
+            timesperday = new HashMap<>();
+            timesperday.put('M',new ArrayList<>());
+            timesperday.put('T',new ArrayList<>());
+            timesperday.put('W',new ArrayList<>());
+            timesperday.put('R',new ArrayList<>());
+            timesperday.put('F',new ArrayList<>());
+        }
+    }
+
+    //makes sure all courses in courses are represented in timesperday
+    private void update_times_per_day() {
+        init_timesperday();
+        for(Course c : courses) {
+            for(DayTime dt : c.getTimes()) {
+                //if no list present for a given day, add a new list
+                if(timesperday.get(dt.get_day()) == null) timesperday.put(dt.get_day(),new ArrayList<>());
+                add_if_unique(dt);
+            }
+        }
+        //ensure that the lists of times are in sorted order
+        for(List<DayTime> times : timesperday.values()) Collections.sort(times);
+    }
+
+    //expects timesperday to not be null
+    private boolean add_if_unique(DayTime dt) {
+        if(timesperday.get(dt.get_day()) == null || !timesperday.get(dt.get_day()).contains(dt)) {
+            timesperday.get(dt.get_day()).add(dt);
+            return true;
+        }
+        //the list exists and contains the element already
+        return false;
+    }
+
     public void load(String accountname,String fname) throws IOException {
         FileInputStream fis = new FileInputStream("Accounts" + '\\' + accountname + '\\' + fname + (fname.endsWith(".csv") ? "" : ".csv"));
         Scanner fscn = new Scanner(fis);
@@ -280,7 +409,7 @@ public class Schedule {
      */
     public boolean clear_schedule() {
         if (courses.isEmpty()) {
-            System.out.println("Cannot clear empty schedule");
+            Main.autoflush.println("Cannot clear empty schedule");
             return false;
         }
         courses.clear();
