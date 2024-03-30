@@ -1,4 +1,7 @@
-public class DayTime {
+import java.util.Arrays;
+import java.util.Objects;
+
+public class DayTime implements Comparable<DayTime> {
 
     private char day;
 
@@ -71,16 +74,18 @@ public class DayTime {
         militaryend = to_military_time(endtime);
     }
 
-    //TODO: put getters + setters if necessary
-
     public int to_military_time(String time) {
         //time is something like 9:00 AM
         String[] s = time.split(" ");
         //time = s[0];
         //meridiem = s[1];
         int r = Integer.parseInt(s[0].replace(":",""));
-        //assuming there will never be a time of 12:00 AM
+        //assuming there will never be a time of 12:XX AM, the below line should account for that though
+        if(r >= 1200 && s[1].equalsIgnoreCase("am")) return r - 1200;
         if(s[1].equalsIgnoreCase("am")) return r;
+        //if time is 12:XX PM, don't add 1200
+        if(r >= 1200) return r;
+        //if time is 1:00 PM or later, add 1200
         return r + 1200;
     }
 
@@ -92,8 +97,11 @@ public class DayTime {
 
     //should simply check sameday and sametime (want it to work this way so that our Sets can
     //be used effectively)  |  Set contains uses .equals()
-    public boolean equals(DayTime other) {
-        return same_time(other) && same_day(other);
+    @Override
+    public boolean equals(Object other) {
+        if(other == null) return false;
+        if(!(other instanceof DayTime o)) return false;
+        return same_time(o) && same_day(o);
     }
 
     public boolean overlaps(DayTime other) {
@@ -101,5 +109,12 @@ public class DayTime {
     }
 
     @Override
-    public int hashCode() {return super.hashCode();}
+    public int compareTo(DayTime other) {return this.militarystart - other.militarystart;}
+
+    //returns the number of minutes denoted by the military integer given (1250 = 720 + 50 = 770, 1300 = 780 + 0)
+    public static int military_to_minutes(int military) {return (military / 100) * 60 + (military % 100);}
+
+    //use military start, military end, and day so that hashcode will match equals
+    @Override
+    public int hashCode() {return Arrays.hashCode(new int[] {militarystart,militaryend,(int)day});}
 }
