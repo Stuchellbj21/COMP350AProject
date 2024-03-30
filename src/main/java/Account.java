@@ -16,8 +16,6 @@ public class Account {
 
     private List<String> schednames;
 
-    private Search search;
-
     public Account(){
         this.username = "empty";
     }
