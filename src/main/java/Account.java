@@ -95,6 +95,10 @@ public class Account {
         this.major = major;
     }
 
+    public List<String> get_schednames() {
+        return schednames;
+    }
+
     public void printAcct(){
         System.out.println("Account:");
         System.out.println("Name: " + this.username);
