@@ -263,7 +263,7 @@ public class Schedule {
 
     //timesperday should always be initialized via this method.... timesperday should always be null if
     //init hasn't been called
-    private void init_timesperday() {
+    void init_timesperday() {
         if(timesperday == null) {
             timesperday = new HashMap<>();
             timesperday.put('M',new ArrayList<>());

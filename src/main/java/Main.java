@@ -359,9 +359,10 @@ public class Main {
         }
     }
 
-    public static void accountMenu() {
+    public static void accountMenu() throws IOException {
         while (true) {
-            String in = input("Enter (create) -> create new Account/ (login) -> login to existing account\n");
+            String in = input("Enter (create) -> create new Account/ (login) -> login to existing account\n" +
+                    "(close) --> exit program\n");
             if (in.equalsIgnoreCase("create")) {
                 if (createAccount()) {
                     break; // account created successfully
@@ -370,7 +371,11 @@ public class Main {
                 if (login()) {
                     break;
                 }
-            } else autoflush.println("Error: '" + in + "' is an invalid response");
+            } else if (in.equalsIgnoreCase("close")){
+                System.exit(0); // kill the program with no errors
+            }
+            else {autoflush.println("Error: '" + in + "' is an invalid response");
+            }
         }
     }
 
@@ -437,7 +442,7 @@ public class Main {
         }
     }
 
-    public static boolean login() {
+    public static boolean login() throws IOException {
         String un = input("Enter (username) --> / (back) -> return to Account menu\n");
         if (un.equalsIgnoreCase("back")) {
             return false;
@@ -474,23 +479,23 @@ public class Main {
         return true;
     }
 
-    public static boolean create_new_Schedule() {
+    public static boolean create_new_Schedule() throws IOException {
+
         String in = input("Enter <YourScheduleName> --> name schedule / (back) --> return to Schedule Menu\n");
         if (in.equalsIgnoreCase("back")) {
             scheduleMenu();
             return false;
         }
         if (is_valid_name(in)) {
+            currentsched = new Schedule();
             currentsched.set_name(in);
         }
-        in = input("Enter <YourScheduleSemester> --> set semester / (back) --> return to Schedule Menu\n");
-        if (in.equalsIgnoreCase("back")) {
-            return false;
-        }
+        // todo: allow user to set more attributes of new schedule than just the name
+        // e.g., allow them to set semester and year
         return true;
     }
 
-    public static void scheduleMenu() {
+    public static void scheduleMenu() throws IOException {
         while (true) {
             String in = input("Enter (newS) --> new blank schedule / (load) --> load schedule / (back) --> return to Account Menu\n");
             if (in.equalsIgnoreCase("back")) {
@@ -500,24 +505,24 @@ public class Main {
                 create_new_Schedule();
             } else if (in.equalsIgnoreCase("load")) {
                 String current = input("Enter (<YourScheduleName>) --> load schedule\n");
-                System.out.println("Here we are 1");
-                if (currentaccnt.get_schednames().contains(current)) {
-                    currentsched = currentaccnt.load_schedule(current);
-                }
+                //if (currentaccnt.get_schednames().contains(current)) {
+                currentsched = currentaccnt.load_schedule(current);
+                //}
             }
             in_schedule();
         }
     }
 
     public static void run() throws IOException {
+
         //todo:have to make days given by user to days filter uppercase
         populate_allcourses();
+        List<Account> session_accounts = new ArrayList<>();
         autoflush.println("Welcome to SchedulEase!");
         accountMenu();
         scheduleMenu();
         in_schedule();
         input("");
-        List<Account> session_accounts = new ArrayList<>();
     }
 
     public static void main(String[] args) {
