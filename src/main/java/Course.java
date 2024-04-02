@@ -1,9 +1,5 @@
 import java.lang.StringBuilder;
-import java.util.HashMap;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 public class Course {
@@ -47,6 +43,8 @@ public class Course {
         populate_id();
     }
 
+    Course() {}
+
     private void populate_id() {
         add_time_strs_to_id();
         //make sure everything is uppercase so works with search
@@ -59,8 +57,9 @@ public class Course {
         Collections.addAll(id,names);
     }
 
-    // Constructors
-    public Course(){}
+    public String short_str(boolean includesem) {
+        return major.name() + " " + coursenum + " " + section + (includesem ? " - " + semester + " " + year : "");
+    }
 
     public Set<String> get_id() {return id;}
 
@@ -70,7 +69,7 @@ public class Course {
             String st = times.get(0).get_start_time();
             String et = times.get(0).get_end_time();
             //09:00 AM-12:00 PM MWF and 03:00 PM-06:00 PM R -> 9,9:00,9:00-12:00,9-12:00,9-12,9:00-12,AM
-            add_times_and_ranges(st,et);
+            add_times_and_ranges_to_id(st,et);
         }
     }
 
@@ -79,16 +78,16 @@ public class Course {
         return 0;
     }
 
-    private void add_short_strt_strs(String st, int startst, String et, int startet, String shortet) {
+    private void add_short_strt_strs_to_id(String st, int startst, String et, int startet, String shortet) {
         if(st.startsWith("00",3)) {
             String shortst = st.substring(startst,2);
             id.add(shortst); // + '9'
-            id.add(shortst + '-' + et.substring(startet,et.indexOf(' '))); // + '9-12:00
+            id.add(shortst + '-' + et.substring(startet,et.indexOf(' '))); // + '9-12:00'
             if(shortet != null) id.add(shortst + '-' + shortet); // + '9-12'
         }
     }
 
-    private void add_times_and_ranges(String st,String et) {
+    private void add_times_and_ranges_to_id(String st,String et) {
         //start for start index
         int startst = get_start_idx(st),startet = get_start_idx(et);
         String stwithoutm = get_without_meridiem(st,startst), etwithoutm = get_without_meridiem(et,startet);
@@ -98,7 +97,7 @@ public class Course {
         String shortet = null;
         if(et.startsWith("00",3)) shortet = et.substring(startet,2);
         //add '9' and range permutations that go with it as start
-        add_short_strt_strs(st,startst,et,startet,shortet); // + '9', '9-12:00', '9-12'
+        add_short_strt_strs_to_id(st,startst,et,startet,shortet); // + '9', '9-12:00', '9-12'
         id.add(stwithoutm + '-' + etwithoutm); // + '9:00-12:00'
         if(shortet != null) id.add(stwithoutm + '-' + shortet); // + '9:00-12'
     }
@@ -181,21 +180,68 @@ public class Course {
         return false;
     }
 
+    public boolean has_time(DayTime dt) {return times.contains(dt);}
+
     // determines if two courses are the same course
-    public boolean equals(Course other) {
-        return (other.section == this.section && other.major == this.major && other.coursenum == this.coursenum
-        && other.year == this.year && other.semester.equals(this.semester));
+    @Override
+    public boolean equals(Object other) {
+        if(other == null) return false;
+        if(!(other instanceof Course o)) return false;
+        return o.section == section && o.major == major && o.coursenum == coursenum
+        && o.year == this.year && o.semester.equals(semester);
     }
 
     @Override
     public String toString() {
+        //rarest and most common
+        DayTime[] r_mc = rarest_most_common(get_time_counts());
         StringBuilder sb = new StringBuilder(semester);
         sb.append(' ').append(year).append(": ").append(professor).append(" - ").append(major.name());
         sb.append(' ').append(coursenum).append(' ').append(section).append(" - ");
         sb.append(name).append(" - ").append(days_to_str()).append(" ");
-        if(!times.isEmpty()) sb.append(times.get(0).get_start_time()).append(" - ").append(times.get(0).get_end_time());
+        //give them most common time as the generic time
+        if(times != null && !times.isEmpty()) sb.append(r_mc[1].get_start_time()).append(" - ").append(r_mc[1].get_end_time());
         else sb.append("(no times listed)");
-        return sb.append(" (").append(numstudents).append("/").append(capacity).append(')').toString();
+        sb.append(" (").append(numstudents).append("/").append(capacity).append(')');
+        //if there is a rare time (a time that is irregular), find that time and show it in toString()
+        if(times != null && !times.isEmpty() && !r_mc[0].same_time(r_mc[1])) {
+            DayTime rare = r_mc[0];
+            for(DayTime dt : times) {
+                if(dt.same_time(rare)) {
+                    rare = dt;
+                    break;
+                }
+            }
+            sb.append(" (").append(rare.get_day()).append(": ").append(rare.get_start_time()).append(" - ");
+            sb.append(rare.get_end_time()).append(')');
+        }
+        return sb.toString();
+    }
+
+    //method returns a map from DayTime (with uninitialized day -> only records time) to Integer
+    private HashMap<DayTime,Integer> get_time_counts() {
+        HashMap<DayTime,Integer> timecounts = new HashMap<>();
+        //get counts for each time
+        for(DayTime dt : times)
+            timecounts.put(new DayTime(dt.get_start_time(),dt.get_end_time()),timecounts.getOrDefault(new DayTime(dt.get_start_time(),dt.get_end_time()),0)+1);
+        return timecounts;
+    }
+
+    private DayTime[] rarest_most_common(HashMap<DayTime,Integer> timecounts) {
+        int max = Integer.MIN_VALUE,min = Integer.MAX_VALUE;
+        DayTime rarest = null,mostcommon = null;
+        for(Map.Entry<DayTime,Integer> e : timecounts.entrySet()) {
+            if(e.getValue() > max) {
+                max = e.getValue();
+                mostcommon = e.getKey();
+            }
+            if(e.getValue() < min) {
+                min = e.getValue();
+                rarest = e.getKey();
+            }
+        }
+        //will contain the rarest time first and the most common time second
+        return new DayTime[] {rarest,mostcommon};
     }
 
     public boolean isFull() {return numstudents >= capacity;}

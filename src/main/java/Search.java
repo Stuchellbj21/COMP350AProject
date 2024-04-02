@@ -2,8 +2,22 @@ import java.util.*;
 
 public class Search {
     private List<Course> searchresults;
-
     private List<Course> filteredresults; //this way don't have to do new search when add filter
+
+    private Comparator<Course> bymajor = new Comparator<Course>() {
+        @Override
+        public int compare(Course c1, Course c2) {return c1.getMajor().name().compareTo(c2.getMajor().name());}
+    };
+
+    private Comparator<Course> bysection = new Comparator<Course>() {
+        @Override
+        public int compare(Course c1, Course c2) {return c1.getSection() - (c2.getSection());}
+    };
+
+    private Comparator<Course> bycoursenum = new Comparator<Course>() {
+        @Override
+        public int compare(Course c1, Course c2) {return c1.getCourseNum() - (c2.getCourseNum());}
+    };
 
     private Set<Filter> activefilters;
 
@@ -35,13 +49,15 @@ public class Search {
     //getters + setters yet to be added
 
     //threshold specifies the limit on the number of Courses given to search results
-    public List<Course> search(String ss,int threshold) {
-        //sets searchstr to ss and performs a new search on searchstr and gives results
+    //sets searchstr to ss and performs a new search on searchstr and gives results
+    public List<Course> search(String ss,int threshold,boolean sorted) {
         set_search_str(ss);
         HashMap<Course,Integer> coursetoweight = new HashMap<>();
         for(Course c : Main.allcourses) coursetoweight.put(c,get_weight(c)); //now we have weighted courses
+        //want ordering by weight, so use treemap
         TreeMap<Integer,List<Course>> weighttocourse = new TreeMap<>();
         for(Course c : coursetoweight.keySet())
+            //if weight is greater than 0, add the course to treemap list
             if(coursetoweight.get(c) > 0) {
                 if(weighttocourse.get(coursetoweight.get(c)) == null) weighttocourse.put(coursetoweight.get(c),new ArrayList<>());
                 weighttocourse.get(coursetoweight.get(c)).add(c);
@@ -49,6 +65,11 @@ public class Search {
         searchresults.clear();
         int n = 0;
         for(Integer i : weighttocourse.descendingKeySet()) {
+            if(sorted) {
+                Collections.sort(weighttocourse.get(i), bysection);
+                Collections.sort(weighttocourse.get(i), bycoursenum);
+                Collections.sort(weighttocourse.get(i), bymajor);
+            }
             for(Course c : weighttocourse.get(i)) {
                 searchresults.add(c);
                 if(++n >= threshold) break;
@@ -66,17 +87,21 @@ public class Search {
         search_str_list.remove("");
     }
 
-    public List<Course> search(String ss) {return search(ss,Integer.MAX_VALUE);}
+    public List<Course> search(String ss) {return search(ss,Integer.MAX_VALUE,true);}
+
+    public List<Course> search(String ss,boolean sorted) {return search(ss,Integer.MAX_VALUE,sorted);}
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Search Results: ");
+        if(filteredresults == null || filteredresults.isEmpty()) return sb.append("None").toString();
         for(Course c : filteredresults) sb.append('\n').append(c);
         return sb.toString();
     }
 
     public String to_str(int threshold) {
         StringBuilder sb = new StringBuilder("Search Results for ").append('\'').append(searchstr).append('\'').append(':');
+        if(filteredresults == null || filteredresults.isEmpty()) return sb.append("\nNone").toString();
         for(int i = 0; i < filteredresults.size() && i < threshold;i++)
             sb.append('\n').append(filteredresults.get(i));
         return sb.toString();
@@ -93,7 +118,7 @@ public class Search {
                 //section
                 if(s.length() == 1 && Character.isAlphabetic(s.charAt(0))) w++;
                 //coursenum
-                else if(s.length() == 3 && is_numeric(s)) w+=3;
+                else if(s.length() == 3 && Main.is_numeric(s)) w+=3;
                 //major
                 else if(s.length() == 4 && Major.is_major(s)) w+=4;
                 //everything else
@@ -101,14 +126,6 @@ public class Search {
             }
         }
         return w;
-    }
-
-    private boolean is_numeric(String s) {
-        try {
-            Integer.parseInt(s);
-            return true;
-        }
-        catch(NumberFormatException nfe) {return false;}
     }
 
     public void apply_all_filters() {for(Filter f : activefilters) f.apply_to(filteredresults);}
