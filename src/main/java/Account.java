@@ -95,6 +95,10 @@ public class Account {
         this.major = major;
     }
 
+    public List<String> get_schednames() {
+        return schednames;
+    }
+
     public void printAcct(){
         System.out.println("Account:");
         System.out.println("Name: " + this.username);
@@ -104,5 +108,11 @@ public class Account {
 
     public int num_scheds(){
         return schednames.size();
+    }
+
+    public void load_schednames(ArrayList<String> names){
+        for (int i = 0; i < schednames.size(); i++) {
+            schednames.add(names.get(i));
+        }
     }
 }
