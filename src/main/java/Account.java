@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Account {
@@ -15,8 +16,6 @@ public class Account {
 
     private List<String> schednames;
 
-    private Search search;
-
     public Account(){
         this.username = "empty";
     }
@@ -25,6 +24,7 @@ public class Account {
     public Account(String username,String passwordhash){
         this.username = username;
         this.passwordhash = passwordhash.hashCode();
+        schednames = new ArrayList<String>();
     }
 
     //Constructor with major
@@ -32,6 +32,7 @@ public class Account {
         this.username = username;
         this.passwordhash = passwordhash.hashCode();
         this.major = major;
+        schednames = new ArrayList<String>();
     }
 
     //getters + setters not added yet
@@ -99,5 +100,9 @@ public class Account {
         System.out.println("Name: " + this.username);
         System.out.println("Password: " + this.passwordhash);
         System.out.println("Major: " + this.major);
+    }
+
+    public int num_scheds(){
+        return schednames.size();
     }
 }

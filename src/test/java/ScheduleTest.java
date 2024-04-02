@@ -1,6 +1,7 @@
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 public class ScheduleTest {
@@ -12,8 +13,8 @@ public class ScheduleTest {
     }
     @Test
     public void test_equals() {
-        Schedule s1 = new Schedule("Test", "Spring", 2024, 15);
-        Schedule s2 = new Schedule("Test", "Spring", 2024, 15);
+        Schedule s1 = new Schedule("Test", "Spring", 2024, new ArrayList<>(),0);
+        Schedule s2 = new Schedule("Test", "Spring", 2024, new ArrayList<>(), 15);
 
         assertEquals(s1.get_name(), s2.get_name());
         assertEquals(s1.get_semester(), s2.get_semester());
