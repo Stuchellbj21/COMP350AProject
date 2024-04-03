@@ -507,17 +507,9 @@ public class Main {
             return false;
         }
         if (is_valid_name(in)) {
-            System.out.println("Step 1");
             currentaccnt.save_schedule(in);
-            System.out.println("Step 2");
             currentsched = new Schedule();
-            System.out.println("Step 3");
             currentsched.set_name(in);
-            System.out.println("Step 4");
-            File new_sched_file = new File("Accounts\\" + currentaccnt.getUsername() + "\\" + in);
-            System.out.println("Step 5");
-            curr_sched_file = new_sched_file;
-            System.out.println("Step 6");
             currentsched.save(currentaccnt.getUsername());
             System.out.println("Last step");
         }
