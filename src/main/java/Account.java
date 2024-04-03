@@ -35,6 +35,19 @@ public class Account {
         schednames = new ArrayList<String>();
     }
 
+    //Constructor without major
+    public Account(String username,int passwordhash){
+        this.username = username;
+        this.passwordhash = passwordhash;
+    }
+
+    //Constructor with major
+    public Account(String username,int passwordhash,Major major){
+        this.username = username;
+        this.passwordhash = passwordhash;
+        this.major = major;
+    }
+
     //getters + setters not added yet
 
     //this could be done as a setter for major
