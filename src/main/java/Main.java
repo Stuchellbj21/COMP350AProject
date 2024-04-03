@@ -532,6 +532,7 @@ public class Main {
                 String current = input("Enter (<YourScheduleName>) --> load schedule\n");
                 if (currentaccnt.get_schednames().contains(current)) {
                     currentsched = currentaccnt.load_schedule(current);
+                    //Not sure if this should be removed
                     curr_sched_file = new File("Accounts\\" + currentaccnt.getUsername() + "\\" + in + ".txt");
                     System.out.println("Here");
                     in_schedule();
