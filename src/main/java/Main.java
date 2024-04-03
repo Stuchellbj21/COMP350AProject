@@ -550,6 +550,7 @@ public class Main {
         }
     }
 
+    //Issue needs to be fixed here
     public static void load_schedules() throws FileNotFoundException {
         Scanner file_scan = new Scanner(curr_file);
         file_scan.useDelimiter("\n");
