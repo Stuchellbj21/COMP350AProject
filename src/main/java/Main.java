@@ -30,6 +30,8 @@ public class Main {
 
     public static File curr_file;
 
+    public static File curr_sched_file;
+
 
     //used for schedule and account names alike.... user must pass this test in order
     //to name something
@@ -171,6 +173,7 @@ public class Main {
     }
 
     public static void in_schedule() {
+        System.out.println("Got to in");
         boolean saved = false;
         while (true) {
             currentsched.printSchedule();
@@ -379,7 +382,8 @@ public class Main {
             } else if (in.equalsIgnoreCase("close")){
                 System.exit(0); // kill the program with no errors
             }
-            else {autoflush.println("Error: '" + in + "' is an invalid response");
+            else {
+                autoflush.println("Error: '" + in + "' is an invalid response");
             }
         }
         close_accounts();
@@ -466,9 +470,13 @@ public class Main {
         if (accounts.containsKey(pw.hashCode()) && accounts.containsValue(un)) {
             currentaccnt = new Account(un, pw, Major.COMP); //  todo: for now, this just makes a new schedule with default major;
             curr_file = new File(un + "schedules.txt");
+            load_schedules();
             scheduleMenu();
+            return true;
         }
-        return true;
+        else {
+            return false;
+        }
     }
 
     public static boolean createAccount() throws IOException {
@@ -487,8 +495,6 @@ public class Main {
         Major major = Major.valueOf(m);
         currentaccnt = new Account(username, password, major);
         accounts.put(password.hashCode(),username);
-        File a_file = new File(username + "schedules.txt");
-        a_file.createNewFile();
         autoflush.println("Account successfully created\n");
         return true;
     }
@@ -504,6 +510,8 @@ public class Main {
             currentaccnt.save_schedule(in);
             currentsched = new Schedule();
             currentsched.set_name(in);
+            currentsched.save(currentaccnt.getUsername());
+            System.out.println("Last step");
         }
         // todo: allow user to set more attributes of new schedule than just the name
         // e.g., allow them to set semester and year
@@ -519,13 +527,19 @@ public class Main {
                 break;
             } else if (in.equalsIgnoreCase("newS")) {
                 create_new_Schedule();
+                in_schedule();
             } else if (in.equalsIgnoreCase("load")) {
                 String current = input("Enter (<YourScheduleName>) --> load schedule\n");
                 if (currentaccnt.get_schednames().contains(current)) {
                     currentsched = currentaccnt.load_schedule(current);
+                    //Not sure if this should be removed
+                    curr_sched_file = new File("Accounts\\" + currentaccnt.getUsername() + "\\" + in + ".txt");
+                    System.out.println("Here");
+                    in_schedule();
+                } else {
+                    System.out.println("Schedule does not exist. Please try again.");
                 }
             }
-            in_schedule();
         }
     }
 
@@ -546,8 +560,10 @@ public class Main {
         }
     }
 
+    //Issue needs to be fixed here
     public static void load_schedules() throws FileNotFoundException {
         Scanner file_scan = new Scanner(curr_file);
+        file_scan.useDelimiter("\n");
         while (file_scan.hasNextLine()){
             String sched_name = file_scan.next();
             currentaccnt.save_schedule(sched_name);
@@ -558,7 +574,12 @@ public class Main {
         FileWriter fw = new FileWriter(curr_file);
         List<String> curr_scheds = currentaccnt.get_schednames();
         for (int i = 0; i < curr_scheds.size(); i++){
-            fw.write(curr_scheds.get(i));
+            if (i == curr_scheds.size()-1){
+                fw.write(curr_scheds.get(i));
+            }
+            else {
+                fw.write(curr_scheds.get(i) + "\n");
+            }
         }
         fw.close();
     }
@@ -569,7 +590,7 @@ public class Main {
         for (int key : keys){
             String hash_password = String.valueOf(key);
             String username = accounts.get(key);
-            pw.write(hash_password + ":" + username);
+            pw.write(hash_password + ":" + username+"\n");
         }
         pw.close();
     }
