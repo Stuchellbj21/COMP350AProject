@@ -240,8 +240,8 @@ public class Schedule {
     public void save(String accountname) throws IOException {
         //will save to <schedule name>.csv (may have to remove some punctuation or something)
         //to get things to work right
-        System.out.println("Got here");
-        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + name + ".txt");
+        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + name + ".csv");
+        //FileOutputStream fos = new FileOutputStream("TestSave.txt");
         System.out.println("Created output stream");
         PrintWriter pw = new PrintWriter(fos);
         System.out.println("Got here");
@@ -331,10 +331,13 @@ public class Schedule {
         fscn.nextLine();
         //read in courses
         data = fscn.nextLine();
+        System.out.println("load1");
         //'--' will denote that there are no courses
         if (!data.equals("--")) {
+            System.out.println("load2");
             boolean first = true;
             while (fscn.hasNextLine()) {
+                System.out.println("load3");
                 //we've already got the new line for the first iteration
                 //but on later iterations we need to scan a new line
                 if (first) first = false;
@@ -342,12 +345,14 @@ public class Schedule {
                 parser = new Scanner(data);
                 parser.useDelimiter(",");
                 //define defaults for all variables for Course
+                System.out.println("load5");
                 String cname = "", prof = "", csem = "";
                 char section = '_';
                 Major major = Major.COMP;
                 int coursenum = -1, ccredits = 0, numstudents = 0, capacity = 0, cyear = -1;
                 Set<Major> requiredby = new HashSet<>();
                 List<DayTime> daytimes = new ArrayList<>();
+                System.out.println("load6");
                 for (int i = 0; parser.hasNext(); i++) {
                     data = parser.next();
                     //shouldn't have to deal with blanks here (should have saved correctly)
@@ -379,6 +384,7 @@ public class Schedule {
                         case 11 -> load_required_by(data, requiredby);
                     }
                 }
+                System.out.println("load7");
                 courses.add(new Course(cname, section, major, coursenum, ccredits, numstudents, capacity, prof, cyear, csem, requiredby, daytimes));
                 update_times_per_day();
             }
