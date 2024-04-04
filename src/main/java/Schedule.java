@@ -241,7 +241,8 @@ public class Schedule {
         //will save to <schedule name>.csv (may have to remove some punctuation or something)
         //to get things to work right
         System.out.println("Got here");
-        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + name + ".txt");
+        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + name + ".csv");
+        //FileOutputStream fos = new FileOutputStream("TestSave.txt");
         System.out.println("Created output stream");
         PrintWriter pw = new PrintWriter(fos);
         System.out.println("Got here");
