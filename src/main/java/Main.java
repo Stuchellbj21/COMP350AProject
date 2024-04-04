@@ -163,7 +163,6 @@ public class Main {
             else allcourses.add(add);
         } else allcourses.add(add);
     }
-
     public static String input(String prompt) {
         if (prompt != null) {
             autoflush.print(prompt);
@@ -171,7 +170,6 @@ public class Main {
         //strip the new line off the end and any starting whitespace
         return userin.nextLine().strip();
     }
-
     public static void in_schedule() throws IOException {
         System.out.println("Got to in");
         boolean saved = false;
@@ -196,7 +194,8 @@ public class Main {
 
                 //todo: use saved -> if already saved, say so
                 if (currentaccnt.get_schednames().contains(currentsched.get_name())) {
-                    autoflush.println("Schedule already saved");
+                    currentsched.save(currentaccnt.getUsername());
+                    autoflush.println("Schedule might already be saved");
                 }
                 else {
                     currentaccnt.save_schedule(currentsched.get_name()); // save in Account class
@@ -209,7 +208,6 @@ public class Main {
             else autoflush.println("Error: '" + in + "' is an invalid response");
         }
     }
-
     public static void remove_course_from_schedule() {
         boolean first = true;
         while (true) {
@@ -495,10 +493,10 @@ public class Main {
         accountDir.mkdir();
 
         // this should be a new method
-        FileOutputStream fos = new FileOutputStream("Accounts\\" + currentaccnt.getUsername() + '\\' + "into.txt");
-        PrintWriter pw = new PrintWriter(fos);
-        pw.println(username + ", " + password.hashCode() + ", " + major);
-        pw.close();
+        File f = new File("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt");
+        FileWriter fw = new FileWriter(f, true);
+        fw.write(username + ", " + password.hashCode() + ", " + major + ",");
+        fw.close();
         //------------------------------
 
         autoflush.println("Account successfully created\n");
@@ -513,14 +511,20 @@ public class Main {
             return false;
         }
         if (is_valid_name(in)) {
-            currentaccnt.save_schedule(in);
+            currentaccnt.save_schedule(in); // account save
             currentsched = new Schedule();
             currentsched.set_name(in);
-            currentsched.save(currentaccnt.getUsername());
+            currentsched.save(currentaccnt.getUsername()); // Schedule save
+
+            //--------------------------------------
+            File f = new File("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt");
+            FileWriter fw = new FileWriter(f, true);
+            fw.write(in + ",");
+            fw.close();
+
             System.out.println("Last step");
         }
-        // todo: allow user to set more attributes of new schedule than just the name
-        // e.g., allow them to set semester and year
+        // todo: allow user to set more attributes of new schedule than just the name, e.g. semester and year
         return true;
     }
 
@@ -533,14 +537,17 @@ public class Main {
                 break;
             } else if (in.equalsIgnoreCase("newS")) {
                 create_new_Schedule();
+                System.out.println("n1");
                 in_schedule();
             } else if (in.equalsIgnoreCase("load")) {
                 String current = input("Enter (<YourScheduleName>) --> load schedule\n");
                 if (currentaccnt.get_schednames().contains(current)) {
                     //currentsched = currentaccnt.load_schedule(current);
+                    System.out.println("h1");
                     currentsched.load(currentaccnt.getUsername(), current);
+                    System.out.println("h2");
                     //Not sure if this should be removed
-                    curr_sched_file = new File("Accounts\\" + currentaccnt.getUsername() + "\\" + in + ".txt");
+                    // curr_sched_file = new File("Accounts\\" + currentaccnt.getUsername() + "\\" + in + ".txt");
                     in_schedule();
                 } else {
                     autoflush.println("Schedule does not exist");
@@ -572,12 +579,24 @@ public class Main {
 
     //Issue needs to be fixed here
     public static void load_schedules() throws FileNotFoundException {
-        Scanner file_scan = new Scanner(curr_file);
-        file_scan.useDelimiter("\n");
-        while (file_scan.hasNextLine()){
-            String sched_name = file_scan.next();
-            currentaccnt.save_schedule(sched_name);
+//        Scanner file_scan = new Scanner(curr_file); // TODO: Gotcha
+//        file_scan.useDelimiter("\n");
+//        while (file_scan.hasNextLine()){
+//            String sched_name = file_scan.next();
+//            currentaccnt.save_schedule(sched_name);
+
+        FileInputStream fis = new FileInputStream("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt");
+        Scanner infoScan = new Scanner(fis);
+        infoScan.useDelimiter(",");
+        infoScan.next(); infoScan.next(); infoScan.next(); // skip over password hash, username, major
+        while(infoScan.hasNext()) {
+            String temp = infoScan.next();
+            System.out.println(temp);
+            currentaccnt.save_schedule(temp);
+
         }
+        System.out.println(currentaccnt.get_schednames());
+        autoflush.println("Schedules loaded for " + currentaccnt.getUsername());
     }
 
     public static void close_schedule_file() throws IOException {
