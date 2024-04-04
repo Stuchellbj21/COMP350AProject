@@ -1,8 +1,5 @@
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
-import java.io.FileInputStream;
-import java.io.IOException;
 
 public class Schedule {
     private String name;
@@ -231,11 +228,23 @@ public class Schedule {
         for(DayTime dt : c.getTimes()) timesperday.get(dt.get_day()).remove(dt);
     }
 
+    //THIS IS JUNK, JUST WANTED YOU GUYS TO BE ABLE TO SEE WHAT I WAS WORKING ON TO TRY TO MAKE THIS WORK
+    public void create_sched_file(String account_name) throws IOException {
+        File s_file = new File("Accounts\\"+account_name+"\\"+name+".csv");
+        PrintWriter pw = new PrintWriter(s_file);
+        pw.println("\n");
+        System.out.println("File created for schedule.");
+        pw.close();
+    }
+
     public void save(String accountname) throws IOException {
         //will save to <schedule name>.csv (may have to remove some punctuation or something)
         //to get things to work right
-        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + name + ".csv");
+        System.out.println("Got here");
+        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + name + ".txt");
+        System.out.println("Created output stream");
         PrintWriter pw = new PrintWriter(fos);
+        System.out.println("Got here");
         pw.println("name,semester,year,credits");
         pw.println(name + ',' + semester + ',' + year + ',' + credits + '\n');
         pw.println("name,section,major,coursenum,credits,numstudents,capacity,professor,year,semester,times(start-end-day-start-end-day-start-end-day-....),requiredby(m1-m2-m3-m4-....)");
