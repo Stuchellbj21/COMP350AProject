@@ -2,18 +2,13 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    //this is where we will keep our JFrame
-
-    //for ease of access we may want to have current schedule and search from account in main
-    //we’ll make a directory per account with all of the schedules belonging to that account in it
-
-    public static List<Course> allcourses; //set to null to avoid var may not have been initialized
-    //public static List<String> allprofessors; this doesn't seem like a necessary variable
-
-    //we will have a directory in which we store all of the account directories
-    //within each account directory there will be csv/txt/other files which represent the saved
-    //schedules for those accounts
-
+    /*
+    - The Accounts directory stores all of the user directories, as well as a file containing login
+    information for all separate accounts
+    - Each user directory contains separate csv files for each schedule saved to the account,
+    as well as one info.txt file which stores user information and schedule names.
+     */
+    public static List<Course> allcourses; //set to null to avoid 'variable may not have been initialized'
     public static Scanner userin = new Scanner(System.in);
     public static PrintStream autoflush = new PrintStream(System.out, true);
     public static Search search = new Search();
@@ -22,28 +17,21 @@ public class Main {
     public static Map<Integer, String> accounts = new HashMap<>();
     public static Account currentaccnt = null;
 
-    //from the user's perspective it will simply appear that the user has made a new blank Schedule
-    //or a new custom schedule, but from our perspective we know that the schedule starts as a blank schedule
-    //and a custom schedule is simply a matter of changing the attributes of the current schedule
-    //a new blank schedule is simply leaving the attributes of the current schedule as they are
+    /*  from user's perspective it appears that a new blank Schedule or a new custom Schedule
+    has been created, but from our perspective we know that the schedule starts as a blank schedule
+    and a custom schedule is simply a matter of changing the current schedule's attributes.
+    A new blank schedule leaves the attributes of the current schedule as they are. */
     public static Schedule currentsched = new Schedule();
 
 
     //used for schedule and account names alike.... user must pass this test in order
     //to name something
     /*
-    The following reserved characters:
-       < (less than)
-       > (greater than)
-       : (colon)
-       " (double quote)
-       / (forward slash)
-       \ (backslash)
-       | (vertical bar or pipe)
-       ? (question mark)
-       * (asterisk)
+    The following are reserved characters:
+       < (less than),  > (greater than),  : (colon),  " (double quote),  / (forward slash)
+       \ (backslash),  | (vertical bar or pipe),  ? (question mark),  * (asterisk)
     */
-    public static boolean is_valid_name(String name) {
+    public static boolean is_valid_nameAllred(String name) {
         if (name.equalsIgnoreCase("major") || name.equalsIgnoreCase("account") || name.equalsIgnoreCase("accounts"))
             throw new IllegalArgumentException("Error: you cannot name an account or schedule 'accounts', or 'account', or 'major'");
         if (name.length() > 20)
@@ -169,14 +157,12 @@ public class Main {
         return userin.nextLine().strip();
     }
 
-    public static void in_schedule() throws IOException {
-        System.out.println("Got to in");
-        boolean saved = false;
+    public static void in_scheduleAllred() throws IOException {
         while (true) {
-            currentsched.printSchedule();
+            autoflush.println(currentsched.to_str());
             String in = input("Enter (modify) -> modify schedule/(search) -> search for courses/(ac) -> add_course/\n(rc) -> remove course/(save) -> save schedule/(exit) -> exit to schedule selection: ");
             if (in.equalsIgnoreCase("modify")) {
-                modify_schedule();
+                modify_scheduleAllred();
             } else if (in.equalsIgnoreCase("search")) {
                 prompt_and_search();
             } else if (in.equalsIgnoreCase("ac")) {
@@ -189,7 +175,6 @@ public class Main {
                 else remove_course_from_schedule();
             } else if (in.equalsIgnoreCase("save")) {
                 currentsched.save(currentaccnt.getUsername());
-
             } else if (in.equalsIgnoreCase("exit")) break;
             else autoflush.println("Error: '" + in + "' is an invalid response");
         }
@@ -252,10 +237,23 @@ public class Main {
         }
     }
 
-    public static void modify_schedule() {
+    public static void modify_scheduleAllred() throws IOException {
         while (true) {
             String in = input("What attribute of the current schedule would you like to modify? (name/semester/year/none): ");
-            if (in.equalsIgnoreCase("name")) currentsched.set_name_with_checks();
+            if (in.equalsIgnoreCase("name")) {
+                String old = currentsched.get_name();
+                currentsched.set_name_with_checks();
+                currentaccnt.get_schednames().remove(old);
+                currentaccnt.get_schednames().add(currentsched.getName());
+                File f = new File("Accounts\\" + currentaccnt.getUsername() + '\\' + old + ".csv");
+                if (f.delete()) {
+                    // hooray!
+                }
+                else {
+                    System.out.println("Old schedule was not deleted");
+                }
+                currentsched.save(currentaccnt.getUsername()); // create newly named file via save method
+            }
             else if (in.equalsIgnoreCase("semester")) currentsched.set_semester_with_checks();
             else if (in.equalsIgnoreCase("year")) currentsched.set_year_with_checks();
             else if (in.equalsIgnoreCase("none")) break;
@@ -396,12 +394,11 @@ public class Main {
                 return false;
             }
         }
-        autoflush.println("username set successfully");
         return true;
     }
 
     public static String create_username() {
-        while (true) { // todo: do I need this 'while'
+        while (true) {
             String un = input("Enter (<YourUserName>) --> set new username / (back) --> return to Account screen\n");
             if (un.equalsIgnoreCase("back")) {
                 return "back";
@@ -483,15 +480,14 @@ public class Main {
         currentaccnt = new Account(username, password, major);
         accounts.put(password.hashCode(), username); // add account to the map
         File accountDir = new File("Accounts\\" + currentaccnt.getUsername());
-        accountDir.mkdir();
+        accountDir.mkdir(); // create new folder for each new account that's created
 
-        // this should be a new method
+        // store user's password-hash, username, and major in user-specific txt file
         File f = new File("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt");
         FileWriter fw = new FileWriter(f, true);
-        fw.write(username + ", " + password.hashCode() + ", " + major + ",");
+        fw.write(username + ", " + password.hashCode() + ", " + major + "\n");
         fw.close();
-        //------------------------------
-
+        //---------------------------------------------------------
         autoflush.println("Account successfully created\n");
         return true;
     }
@@ -503,17 +499,12 @@ public class Main {
             scheduleMenu();
             return false;
         }
-        if (is_valid_name(in)) {
-            currentaccnt.save_schedule(in); // account save
+        if (is_valid_nameAllred(in)) {
+            currentaccnt.save_schedule(in); // adds course name to currentaccnt's list
             currentsched = new Schedule();
             currentsched.set_name(in);
-            currentsched.save(currentaccnt.getUsername()); // Schedule save
-
-            //--------------------------------------
-            File f = new File("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt");
-            FileWriter fw = new FileWriter(f, true);
-            fw.write(in + ",");
-            fw.close();
+            // create new CSV file and save all courses in the schedule to that file
+            currentsched.save(currentaccnt.getUsername());
         }
         // todo: allow user to set more attributes of new schedule than just the name, e.g. semester and year
         return true;
@@ -521,19 +512,20 @@ public class Main {
 
     public static void scheduleMenu() throws IOException {
         while (true) {
-            String in = input("Enter (newS) --> new blank schedule / (load) --> load schedule / (back) --> return to Account Menu\n");
+            String in = input("Enter (newS) -> new blank schedule / (load) -> load schedule / (back) -> return to Account Menu\n");
             if (in.equalsIgnoreCase("back")) {
+                account_flush(); // make sure all info.txt files are updated before exiting account
                 accountMenu();
                 break;
             } else if (in.equalsIgnoreCase("newS")) {
                 create_new_Schedule();
-                in_schedule();
+                in_scheduleAllred();
             } else if (in.equalsIgnoreCase("load")) {
                 autoflush.println("Your schedules: " + currentaccnt.get_schednames());
                 String current = input("Enter (<YourScheduleName>) --> load schedule\n");
                 if (currentaccnt.get_schednames().contains(current)) {
                     currentsched.load(currentaccnt.getUsername(), current);
-                    in_schedule();
+                    in_scheduleAllred();
                 } else {
                     autoflush.println("Schedule does not exist");
                 }
@@ -563,23 +555,28 @@ public class Main {
         }
     }
 
-    public static void load_schedules() throws FileNotFoundException {
+
+    /**
+     * Reads from user's info.txt file and adds all saved schedules to a static list in main
+     * @throws IOException
+     */
+    public static void load_schedules() throws IOException {
 
         FileInputStream fis = new FileInputStream("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt");
         Scanner infoScan = new Scanner(fis);
+        infoScan.nextLine(); // skip line that contains account information (password-hash, username, major)
         infoScan.useDelimiter(",");
-        infoScan.next();
-        infoScan.next();
-        infoScan.next(); // skip over password hash, username, major
         while (infoScan.hasNext()) {
             String temp = infoScan.next();
             currentaccnt.save_schedule(temp);
         }
-        autoflush.println("Schedules loaded: " + currentaccnt.get_schednames());
+        infoScan.close();
+        fis.close();
     }
 
     /**
-     * Ensures that all accounts within the accounts-hashmap are written to a file before the program is closed
+     * Ensures all accounts in the accounts-hashmap are written to a file before the program is closed,
+     * allowing program to reboot with saved account information
      *
      * @throws FileNotFoundException
      */
@@ -594,13 +591,36 @@ public class Main {
         pw.close();
     }
 
+    /**
+     * Completes the info.txt file associated with each account by writing password-hash, username, major
+     * and schedule names to file in the user's account directory.
+     * @throws IOException
+     */
+    public static void account_flush() throws IOException {
+
+        FileReader reader = new FileReader(("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt"));
+        BufferedReader br = new BufferedReader(reader);
+        String tempLine = br.readLine(); // save first line of file since it will be overwritten
+        br.close();
+
+        File f = new File("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt");
+        FileWriter fw = new FileWriter(f, false); // rewrite the whole file
+        fw.write(tempLine + "\n");
+        for (int i = 0; i < currentaccnt.get_schednames().size(); i++) {
+            System.out.println("writing file name");
+            fw.write(currentaccnt.get_schednames().get(i) + ",");
+        }
+        fw.close();
+    }
+
     public static void run() throws IOException {
-        load_accounts();
+        try {load_accounts();}
+        catch (Exception e) {autoflush.println("no accounts to load");}
         populate_allcourses();
         autoflush.println("Welcome to SchedulEase!");
         accountMenu();
         scheduleMenu();
-        in_schedule();
+        in_scheduleAllred();
     }
 
     public static void main(String[] args) {
