@@ -767,18 +767,19 @@ public class Main {
      */
     public static void load_accounts() throws FileNotFoundException {
         allcourses = new ArrayList<>();
+        //Opens a file to the accoutns directory text file
         File accts = new File("Accounts\\account_direc.txt");
         Scanner acct_scnr = new Scanner(accts);
         acct_scnr.useDelimiter(":");
-        List<ArrayList> active_accts = new ArrayList<>();
         Scanner line_reader;
         while (acct_scnr.hasNextLine()) {
             line_reader = new Scanner(acct_scnr.nextLine());
+            //Gets the line on which each accounts username and password is stored
             line_reader.useDelimiter(":");
-            String str_pass_hash = line_reader.next();
+            String str_pass_hash = line_reader.next(); //gets the string hash password and converts it to int in order to add it to the accounts Map
             int int_pass_hash = Integer.parseInt(str_pass_hash);
             String account_name = line_reader.next();
-            accounts.put(int_pass_hash, account_name);
+            accounts.put(int_pass_hash, account_name); //Adds the accounts username and hash password to the accounts Map
         }
     }
 
@@ -808,11 +809,12 @@ public class Main {
      */
     public static void close_accounts() throws FileNotFoundException {
         PrintWriter pw = new PrintWriter("Accounts\\account_direc.txt");
+        //Gets a list of the keys of the accounts Map to loop through the map
         Set<Integer> keys = accounts.keySet();
         for (int key : keys) {
             String hash_password = String.valueOf(key);
             String username = accounts.get(key);
-            pw.write(hash_password + ":" + username + "\n");
+            pw.write(hash_password + ":" + username + "\n"); //Gets the username and password for each account and prints both to the directory file seperated by a colon and ending with a newline
         }
         pw.close();
     }

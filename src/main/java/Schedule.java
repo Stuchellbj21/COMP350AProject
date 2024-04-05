@@ -449,6 +449,10 @@ public class Schedule {
         this.year = year;
     }
 
+    /**
+     * Method which prints out a visual representation of a schedule similar to Microsoft Outlook
+     * NOTE: Method wasn't handling edge case course times well, so we decided to use a simpler print method for the MVP
+     */
     public void printSchedule() {
         //Prints out the header for the schedule
         System.out.printf("%-13s", "");
