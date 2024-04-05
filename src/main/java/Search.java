@@ -4,6 +4,7 @@ public class Search {
     private List<Course> searchresults;
     private List<Course> filteredresults; //this way don't have to do new search when add filter
 
+    //comparators for certain sorting techniques
     private Comparator<Course> bymajor = new Comparator<Course>() {
         @Override
         public int compare(Course c1, Course c2) {return c1.getMajor().name().compareTo(c2.getMajor().name());}
@@ -115,6 +116,7 @@ public class Search {
         StringBuilder sb = new StringBuilder("Active Filters: ").append(activefilters != null && !activefilters.isEmpty() ? activefilters : "None").append('\n');
         sb.append("Search Results for ").append('\'').append(searchstr).append('\'').append(':');
         if(filteredresults == null || filteredresults.isEmpty()) return sb.append("\nNone").toString();
+        //give results up to threshold
         for(int i = 0; i < filteredresults.size() && i < threshold;i++)
             sb.append('\n').append(filteredresults.get(i));
         return sb.toString();
