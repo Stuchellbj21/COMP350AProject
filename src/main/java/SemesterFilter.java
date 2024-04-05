@@ -6,10 +6,16 @@ public class SemesterFilter extends Filter{
     private int year;
 
     public SemesterFilter(List<Course> courses, String semester, int year) {
-        super.filteron = FilterType.SEMESTER;
+        super(FilterType.SEMESTER);
         this.semester = semester;
         this.year = year;
         apply_to(courses); // A filter is applied automatically when it is created
+    }
+
+    public SemesterFilter() {
+        super(FilterType.SEMESTER);
+        year = -1;
+        semester = null;
     }
 
     @Override
@@ -21,4 +27,7 @@ public class SemesterFilter extends Filter{
             }
         }
     }
+
+    @Override
+    public String toString() {return filteron.name() + " filter: " + semester + " " + year;}
 }

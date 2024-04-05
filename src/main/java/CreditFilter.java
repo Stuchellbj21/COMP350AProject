@@ -5,9 +5,16 @@ public class CreditFilter extends Filter {
     private int numcredits;
 
     public CreditFilter(List<Course> courses,int numcredits) {
-        super.filteron = FilterType.CREDIT;
+        super(FilterType.CREDIT);
         this.numcredits = numcredits;
         apply_to(courses); // A filter is applied automatically when it is created
+    }
+
+    //this is here just to be able to remove a credit filter (equals checks only on filter on, so
+    //we can just use search.deactivate_filter(new CreditFilter()) to deactivate the credit filter)
+    public CreditFilter() {
+        super(FilterType.CREDIT);
+        numcredits = -1;
     }
 
     @Override
@@ -19,4 +26,13 @@ public class CreditFilter extends Filter {
             }
         }
     }
+
+    @Override
+    public String toString() {return filteron.name() + " filter: " + numcredits;}
+
+    /*@Override
+    public int hashCode() {
+        //I think this will be sufficient here, but maybe not
+        return ((Integer)numcredits).hashCode() + filteron.hashCode();
+    }*/
 }
