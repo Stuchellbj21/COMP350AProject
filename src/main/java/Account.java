@@ -101,13 +101,4 @@ public class Account {
         System.out.println("Major: " + this.major);
     }
 
-    public int num_scheds(){
-        return schednames.size();
-    }
-
-    public void load_schednames(ArrayList<String> names){
-        for (int i = 0; i < schednames.size(); i++) {
-            schednames.add(names.get(i));
-        }
-    }
 }

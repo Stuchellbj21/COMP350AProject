@@ -15,39 +15,30 @@ public class Schedule {
     public String get_name() {
         return name;
     }
-
     public void set_name(String name) {
         this.name = name;
     }
-
     public String get_semester() {
         return semester;
     }
-
     public void set_semester(String semester) {
         this.semester = semester;
     }
-
     public int get_year() {
         return year;
     }
-
     public void set_year(int year) {
         this.year = year;
     }
-
     public List<Course> get_courses() {
         return courses;
     }
-
     public void set_courses(List<Course> courses) {
         this.courses = courses;
     }
-
     public int get_credits() {
         return credits;
     }
-
     public void set_credits(int credits) {
         this.credits = credits;
     }
@@ -61,7 +52,6 @@ public class Schedule {
         credits = 0;
         init_timesperday();
     }
-
     // constructor w/one parameter
     public Schedule(String accountname, String name) {
         courses = new ArrayList<>();
@@ -71,13 +61,11 @@ public class Schedule {
         catch(InputMismatchException | IOException error) {Main.autoflush.println(error.getMessage() + ' ' + error.getCause());}
         update_times_per_day();
     }
-
     // constructor with name and list of courses
     public Schedule(String name, ArrayList<Course> courses) {
         this.name = name;
         this.courses = courses;
     }
-
     // full constructor
     public Schedule(String name, String semester, int year, List<Course> courses, int credits) {
         this.name = name;
@@ -101,14 +89,12 @@ public class Schedule {
     @Override
     public String toString() {
         return name + ", " + semester + ", " + year;
-        // could also be ' semester + ", " + year + ", " + name '
     }
-
     public void set_name_with_checks() {
         while(true) {
             String newname = Main.input("Enter new schedule name: ");
             try{
-                if(Main.is_valid_name(newname)) {
+                if(Main.is_valid_nameAllred(newname)) {
                     name = newname;
                     Main.autoflush.println("Schedule name successfully changed to '" + newname + "'");
                     break;
@@ -118,7 +104,6 @@ public class Schedule {
             catch(IllegalArgumentException iae) {Main.autoflush.println(iae.getMessage());}
         }
     }
-
     public void set_semester_with_checks() {
         while(true) {
             String newsem = Main.input("Enter new semester value: ").toLowerCase();
@@ -132,7 +117,6 @@ public class Schedule {
             else Main.autoflush.println("Error: '" + newsem + "' is not a valid semester value");
         }
     }
-
     public void set_year_with_checks() {
         while(true) {
             //ensure either Fall or Spring
@@ -226,15 +210,6 @@ public class Schedule {
 
     public void remove_from_times_per_day(Course c) {
         for(DayTime dt : c.getTimes()) timesperday.get(dt.get_day()).remove(dt);
-    }
-
-    //THIS IS JUNK, JUST WANTED YOU GUYS TO BE ABLE TO SEE WHAT I WAS WORKING ON TO TRY TO MAKE THIS WORK
-    public void create_sched_file(String account_name) throws IOException {
-        File s_file = new File("Accounts\\"+account_name+"\\"+name+".csv");
-        PrintWriter pw = new PrintWriter(s_file);
-        pw.println("\n");
-        System.out.println("File created for schedule.");
-        pw.close();
     }
 
     public void save(String accountname) throws IOException {
@@ -382,6 +357,7 @@ public class Schedule {
             }
             System.out.println(courses);
         }
+        fscn.close();
     }
 
     public void load_daytimes(String data, List<DayTime> daytimes) {
@@ -436,23 +412,18 @@ public class Schedule {
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
-
     public String getSemester() {
         return semester;
     }
-
     public void setSemester(String semester) {
         this.semester = semester;
     }
-
     public int getYear() {
         return year;
     }
-
     public void setYear(int year) {
         this.year = year;
     }
