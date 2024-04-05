@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.PrintStream;
 import java.util.*;
 import java.io.IOException;
@@ -25,7 +26,8 @@ public class Main {
     //associates password hash with String account name
     public static Map<Integer,String> accounts = new HashMap<>();
 
-    public static Account currentaccnt = null;
+    //change default value to null if actually having account selection
+    public static Account currentaccnt = new Account("NateAccount","password1234",Major.COMP);
 
     //from the user's perspective it will simply appear that the user has made a new blank Schedule
     //or a new custom schedule, but from our perspective we know that the schedule starts as a blank schedule
@@ -50,6 +52,7 @@ public class Main {
     public static boolean is_valid_name(String name) {
         if(name.equalsIgnoreCase("major") || name.equalsIgnoreCase("account") || name.equalsIgnoreCase("accounts")) throw new IllegalArgumentException("Error: you cannot name an account or schedule 'accounts', or 'account', or 'major'");
         if(name.length() > 20) throw new IllegalArgumentException("Error: account and schedule names cannot be longer than 20 characters");
+        if(new File("Accounts\\" + currentaccnt.getUsername() + "\\" + name + (name.endsWith(".csv") ? "" : ".csv")).exists()) throw new IllegalArgumentException("Error: a schedule with name '" + name + "' already exists");
         for(char c : name.toCharArray())
             if(c == '<' || c == '>' || c == ':' || c == '\"' || c == '/' || c == '\\' || c == '|' || c == '?' || c == '*') throw new IllegalArgumentException("Error: account and schedule names cannot contain any of the following characters: '*','?','|','/','\\','>','<',':','\"'");
         return true;
@@ -168,15 +171,14 @@ public class Main {
     }
 
     public static void in_schedule() {
-        boolean saved = false;
         while(true) {
             autoflush.println(currentsched.to_str());
             //modify will allow editing of the schedule
-            String in = input("Enter (modify) -> modify schedule/(search) -> search for courses/(ac) -> add_course/\n(rc) -> remove course/(save) -> save schedule/(exit) -> exit to schedule selection: ");
-            if(in.equalsIgnoreCase("modify")) {modify_schedule();}
-            else if(in.equalsIgnoreCase("search")) {prompt_and_search();}
+            String in = input("Enter (modify) -> modify schedule/(search) -> search for courses/(ac) -> add_course/\n(rc) -> remove course/(save) -> save schedule/(filter) -> edit filters/(del) -> delete schedule\n(exit) -> exit to schedule selection: ");
+            if(in.equalsIgnoreCase("modify")) modify_schedule();
+            else if(in.equalsIgnoreCase("search")) prompt_and_search();
             else if(in.equalsIgnoreCase("ac")) {
-                if(search.get_filteredresults() == null || search.get_filteredresults().isEmpty())
+                if(search.get_filtered_results() == null || search.get_filtered_results().isEmpty())
                     autoflush.println("Error: if you wish to add a course, you must add it from search results and you currently have no search results");
                 else add_course_to_schedule();
             }
@@ -185,13 +187,253 @@ public class Main {
                 else remove_course_from_schedule();
             }
             else if(in.equalsIgnoreCase("save")) {
-                //todo: use saved -> if already saved, say so  |  make sure saved is kept up to date with
-                //todo: the rest of in_sched.... saving should check the map to see if the should write the schedule entry ('<hashcode>:<sched_name>')
-                //todo: to the Accounts.txt file ()
+                try{
+                    if(currentsched.get_name().equalsIgnoreCase("blank schedule")) autoflush.println("Error: rename schedule to something other than 'Blank Schedule' before saving");
+                    else {
+                        currentsched.save(currentaccnt.getUsername());
+                        //currentaccnt.save_schedule(currentsched.get_name()); don't really have to keep track of things in the account list
+                        autoflush.println(currentsched.get_name() + " saved successfully");
+                    }
+                }
+                catch(IOException ioe) {autoflush.println(ioe.getMessage());}
             }
-            else if(in.equalsIgnoreCase("exit")) break;
+            else if(in.equalsIgnoreCase("del")) {
+                currentsched.delete(currentaccnt.getUsername());
+                autoflush.println("schedule deleted successfully");
+                break;
+            }
+            else if(in.equalsIgnoreCase("filter")) edit_filters();
+            else if(in.equalsIgnoreCase("exit")) break; //exit to schedule selection menu -> load schedule, new blank schedule, edit schedule (back to account menu)
             else autoflush.println("Error: '" + in + "' is an invalid response");
         }
+    }
+
+    public static void schedule_menu() {
+        while(true) {
+            String in = input("(load) -> load a schedule/(new) -> create a new blank schedule/(ls) -> list saved schedules: ");
+            if(in.equalsIgnoreCase("load")) {
+                String schedname = input("Enter the name of the schedule to load: ");
+                try{
+                    if(new File("Accounts\\" + currentaccnt.getUsername() + "\\" + schedname + (schedname.endsWith(".csv") ? "" : ".csv")).exists()) {
+                        currentsched.load(currentaccnt.getUsername(), schedname);
+                        autoflush.println("Schedule '" + schedname + "' loaded successfully");
+                        in_schedule();
+                    }
+                    else autoflush.println("Error: that schedule does not exist");
+                }
+                catch(IOException ioe) {autoflush.println("Error: file did not load correctly");}
+            }
+            else if(in.equalsIgnoreCase("new")) {
+                currentsched = new Schedule();
+                autoflush.println("New blank schedule created");
+                in_schedule();
+            }
+            else if(in.equalsIgnoreCase("ls")) currentaccnt.print_schedule_list();
+            else if(in.equalsIgnoreCase("exit")) {
+                autoflush.println("Good bye");
+                break;
+            }
+            else autoflush.println("Error: invalid input");
+        }
+    }
+
+    public static void edit_filters() {
+        while(true) {
+            autoflush.println("Active Filters: " + (search.get_active_filters() != null && !search.get_active_filters().isEmpty() ? search.get_active_filters() : "None"));
+            String command = input("(a) -> add filter/(m) -> modify filter/(d) -> delete filter/(done) -> end filter editing: ");
+            if(command.equalsIgnoreCase("a")) add_filter(false,null);
+            else if(command.equalsIgnoreCase("m")) modify_filter();
+            else if(command.equalsIgnoreCase("d")) delete_filter();
+            else if(command.equalsIgnoreCase("done")) break;
+            else autoflush.println("Error: '" + command + "' not recognized");
+        }
+    }
+
+    //this method can be used for filter modification instead of pure filter addition.... in the case
+    //where it is used for modification, modify arg should be true and tomod should not be null
+    public static void add_filter(boolean modify, FilterType tomod) {
+        //holds the original size of the active filters for comparison at the end
+        int ogsize = search.get_active_filters().size();
+        //by default we use the tomod filter type
+        FilterType ft = tomod;
+        //if we're not modifying then we use a filter type specified by user
+        if(!modify) ft = get_filter_type("add");
+        //we only want this statement to fire in the addition case, so if not modify
+        if(!modify && search.get_active_filters().contains(new Filter(ft))) autoflush.println("Error: a " + ft.name().toLowerCase() + " filter is already active");
+        else {
+            switch(ft) {
+                case DAYS -> {
+                    Set<Character> days = get_days_for_filter(modify);
+                    if(days != null) add_or_modify_filter(modify,new DaysFilter(search.get_filtered_results(),days));
+                }
+                case TIME -> {
+                    DayTime time = get_time_for_filter(modify);
+                    if(time != null) add_or_modify_filter(modify,new TimeFilter(search.get_filtered_results(),time));
+                }
+                case SEMESTER -> {
+                    String[] semyear = get_semester_for_filter(modify);
+                    if(semyear != null) add_or_modify_filter(modify,new SemesterFilter(search.get_filtered_results(),semyear[0],Integer.parseInt(semyear[1])));
+                }
+                case NAME -> add_or_modify_filter(modify,new NameFilter(search.get_filtered_results(),input("Enter the course name you would like to filter on: ")));
+                case MAJOR -> {
+                    Major m = get_major_for_filter(modify);
+                    if(m != null) add_or_modify_filter(modify,new MajorFilter(search.get_filtered_results(),m));
+                }
+                case CREDIT -> {
+                    Integer i = get_credits_for_filter(modify);
+                    if(i != null) add_or_modify_filter(modify,new CreditFilter(search.get_filtered_results(),i));
+                }
+                case PROFESSOR -> add_or_modify_filter(modify,new ProfessorFilter(search.get_filtered_results(),input("Enter the name of the professor you would like to filter on: ")));
+            }
+            if(!modify && search.get_active_filters().size() != ogsize) autoflush.println("Filter addition successful");
+        }
+    }
+
+    public static void add_or_modify_filter(boolean modify, Filter f) {
+        if(!modify) search.activate_new_filter(f);
+        else search.modify_filter(f);
+    }
+
+    public static Integer get_credits_for_filter(boolean modify) {
+        //i for int
+        String i;
+        boolean first = true;
+        do {
+            if(first) first = false;
+            else autoflush.println("Error: invalid credit value");
+            if(!filter_move_forward(modify,FilterType.CREDIT)) return null;
+            //setting i equal to input here
+        } while(!is_numeric(i = input("Enter number of credits to filter on: ")) || Integer.parseInt(i) < 0);
+        //now i is a string representing a valid Integer
+        return Integer.parseInt(i);
+    }
+
+    public static Major get_major_for_filter(boolean modify) {
+        String m;
+        boolean first = true;
+        do {
+            if(first) first = false;
+            else autoflush.println("Error: invalid major value");
+            if(!filter_move_forward(modify,FilterType.MAJOR)) return null;
+            //setting m equal to input here
+        } while(!Major.is_major(m = input("Enter major to filter on: ").toUpperCase()));
+        //now m is a string representing a valid major
+        return Major.valueOf(m);
+    }
+
+    public static String[] get_semester_for_filter(boolean modify) {
+        while(true) {
+            if(!filter_move_forward(modify,FilterType.SEMESTER)) return null;
+            String[] semyear = input("Enter semester in the form 'Spring/Fall XXXX' where X is a digit: ").split("\\s+");
+            if(!get_semester_formatted(semyear) || !valid_semester(semyear) || !valid_year(semyear)) continue;
+            return semyear;
+        }
+    }
+
+    public static boolean filter_move_forward(boolean modify,FilterType filtertype) {
+        while(true) {
+            String moveforward = input("Would you like to " + (modify ? "modify the " : "add a ") + filtertype.name().toLowerCase() + " filter? (y/n) ");
+            if (moveforward.equalsIgnoreCase("n") || moveforward.equalsIgnoreCase("no")) return false;
+            //if not yes or no: error
+            if (!moveforward.equalsIgnoreCase("") && !moveforward.equalsIgnoreCase("yes") &&
+                    !moveforward.equalsIgnoreCase("y")) {
+                autoflush.println("Error: invalid input");
+                continue;
+            }
+            //if yes return true
+            return true;
+        }
+    }
+
+    public static DayTime get_time_for_filter(boolean modify) {
+        while(true) {
+            if(!filter_move_forward(modify,FilterType.TIME)) return null;
+            String start = input("Enter start time in the form XX:XX PM/AM (where X is a digit): ").toUpperCase();
+            if(!DayTime.is_valid_time(start)) {
+                autoflush.println("Error: '" + start + "' is not a valid time");
+                continue;
+            }
+            String end = input("Enter end time in the form XX:XX PM/AM (where X is a digit): ").toUpperCase();
+            if(!DayTime.is_valid_time(end)) {
+                autoflush.println("Error: '" + end + "' is not a valid time");
+                continue;
+            }
+            DayTime r = new DayTime(start,end);
+            if(DayTime.military_to_minutes(r.get_militarystart()) >= DayTime.military_to_minutes(r.get_militaryend())) {
+                autoflush.println("Error: start time must be earlier than end time");
+                continue;
+            }
+            return r;
+        }
+    }
+
+    public static Set<Character> get_days_for_filter(boolean modify) {
+        String[] days;
+        while(true) {
+            if(!filter_move_forward(modify,FilterType.DAYS)) return null;
+            autoflush.println("Valid Days: M -> Monday, T -> Tuesday, W -> Wednesday, R -> Thursday, F -> Friday");
+            days = input("Enter whitespace separated characters (see above) for days you would like to filter on: ").toUpperCase().split("\\s+");
+            if(days.length < 1) {
+                autoflush.println("Error: no days entered");
+                continue;
+            }
+            boolean error = false;
+            for(String d : days) {
+                //if day is too long or incorrect: error
+                if(d.length() > 1 || (!d.equalsIgnoreCase("M") && !d.equalsIgnoreCase("T") &&
+                        !d.equalsIgnoreCase("W") && !d.equalsIgnoreCase("R") &&
+                        !d.equalsIgnoreCase("F"))) {
+                    autoflush.println("Error: '" + d + "' is not a valid day (M,T,W,R,F)");
+                    error = true;
+                    break;
+                }
+            }
+            if(!error) break;
+        }
+        //r for return (this is the set containing the days)
+        Set<Character> r = new HashSet<>();
+        for(String s : days) r.add(s.charAt(0));
+        return r;
+    }
+
+    public static void modify_filter() {
+        if(search.get_active_filters() == null || search.get_active_filters().isEmpty()) {
+            autoflush.println("Error: there are no filters to modify");
+            return;
+        }
+        FilterType ft = get_filter_type("modify");
+        if(!search.get_active_filters().contains(new Filter(ft))) autoflush.println("Error: there is no " + ft.name().toLowerCase() + " filter active");
+        else {
+            add_filter(true,ft);
+            autoflush.println("Filter modification process successful");
+        }
+    }
+
+    public static void delete_filter() {
+        if(search.get_active_filters() == null || search.get_active_filters().isEmpty()) {
+            autoflush.println("Error: there are no filters to delete");
+            return;
+        }
+        FilterType ft = get_filter_type("delete");
+        if(!search.get_active_filters().contains(new Filter(ft))) autoflush.println("Error: there is no " + ft.name().toLowerCase() + " filter active");
+        else {
+            search.deactivate_filter(new Filter(ft));
+            autoflush.println("Filter deletion successful");
+        }
+    }
+
+    public static FilterType get_filter_type(String operation) {
+        autoflush.println("Filter types: credit,time,days,professor,name (course name),major,semester");
+        boolean first = true;
+        String ft = "";
+        do {
+            if(first) first = false;
+            else autoflush.println("Error: '" + ft + "' is not a valid filter type");
+            //ft for filter type
+            ft = input("Enter filter type to " + operation + ": ").toUpperCase();
+        } while(!FilterType.is_filter_type(ft));
+        //once we have a valid filter type, return it
+        return FilterType.valueOf(ft);
     }
 
     public static void remove_course_from_schedule() {
@@ -200,7 +442,7 @@ public class Main {
             if(first) first = false;
             else if(!want_more('r')) return;
             if(currentsched.get_courses().isEmpty()) {
-                System.out.println("Error: the current schedule does not contain any courses for removal");
+                autoflush.println("Error: the current schedule does not contain any courses for removal");
                 return;
             }
             String[] cc = get_course_code(false);
@@ -251,7 +493,7 @@ public class Main {
     public static void modify_schedule() {
         while(true) {
             String in = input("What attribute of the current schedule would you like to modify? (name/semester/year/none): ");
-            if(in.equalsIgnoreCase("name")) currentsched.set_name_with_checks();
+            if(in.equalsIgnoreCase("name")) currentsched.set_name_with_checks(currentaccnt.getUsername());
             else if(in.equalsIgnoreCase("semester")) currentsched.set_semester_with_checks();
             else if(in.equalsIgnoreCase("year")) currentsched.set_year_with_checks();
             else if(in.equalsIgnoreCase("none")) break;
@@ -272,10 +514,10 @@ public class Main {
             if(!is_valid_section(section)) continue;
             /*String[] sem = input("Enter semester and year of the course to add (you will only be able to add courses for " + currentsched.get_semester() + " " + currentsched.get_year() + "): ").strip().split("\\s+");
             //get semester in correct form, then check valid year value, then check valid semester value
-            if(!get_semester(sem) || !valid_year(sem) || !valid_semester(sem)) continue;*/
+            if(!get_semester_formatted(sem) || !valid_year(sem) || !valid_semester(sem)) continue;*/
             String toadd = coursecode + " " + section + " - " + currentsched.get_semester() + " " + currentsched.get_year();
             boolean addattempted = false;
-            for(Course c : search.get_filteredresults())
+            for(Course c : search.get_filtered_results())
                 if(toadd.equals(c.short_str(true))) {
                     try {if(currentsched.add_course(c)) autoflush.println(toadd + " has been added to the current schedule");}
                     catch(IllegalArgumentException iae) {autoflush.println(iae.getMessage());}
@@ -293,7 +535,7 @@ public class Main {
         return true;
     }
 
-    public static boolean get_semester(String[] sem) {
+    public static boolean get_semester_formatted(String[] sem) {
         if(sem.length == 2 && sem[0] != null && sem[0].length() > 1) {
             sem[0] = sem[0].substring(0,1).toUpperCase() + sem[0].substring(1).toLowerCase();
             return true;
@@ -303,7 +545,7 @@ public class Main {
     }
 
     public static boolean valid_year(String[] sem) {
-        if(!is_numeric(sem[1]) || sem[1].length() != 4 || Integer.parseInt(sem[1]) < 0 || Integer.parseInt(sem[1]) < 2020) {
+        if(!is_numeric(sem[1]) || sem[1].length() != 4 || Integer.parseInt(sem[1]) < 2020) {
             autoflush.println("Error: invalid year value");
             return false;
         }
@@ -341,7 +583,7 @@ public class Main {
             String ans;
             if(type == 'a') ans = input("Add course? (y/n) ");
             else if(type == 'r') ans = input("Remove course? (y/n) ");
-            else if(type == 's') ans = input("Would you like sorted results? (y/n) ");
+            else if(type == 's') ans = input("Apply sorting to results? (y/n) ");
             else throw new IllegalArgumentException("Error: didn't correctly specify type");
             if (ans.equalsIgnoreCase("no") || ans.equalsIgnoreCase("n")) return false;
             else if(ans.equalsIgnoreCase("yes") || ans.equalsIgnoreCase("y") || ans.isEmpty()) return true;
@@ -350,12 +592,9 @@ public class Main {
     }
 
     public static void run() throws IOException {
-        //todo:have to make days given by user to days filter uppercase
+        autoflush.println("Welcome to the One and Only Scheduling Application");
         populate_allcourses();
-        in_schedule();
-        input("");
-        List<Account> session_accounts = new ArrayList<>();
-        autoflush.println("Welcome to SchedulEase!");
+        schedule_menu();
     }
 
     public static void main(String[] args) {
