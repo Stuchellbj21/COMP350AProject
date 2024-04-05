@@ -7,15 +7,10 @@ public class Account {
     //has schedules in it
 
     private String username;
-
     private int passwordhash;
-
     private Major major;
-
     private Schedule currentsched;
-
     private List<String> schednames;
-
     public Account(){
         this.username = "empty";
     }

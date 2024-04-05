@@ -240,11 +240,8 @@ public class Schedule {
     public void save(String accountname) throws IOException {
         //will save to <schedule name>.csv (may have to remove some punctuation or something)
         //to get things to work right
-        System.out.println("Got here");
-        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + name + ".txt");
-        System.out.println("Created output stream");
+        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + name + ".csv");
         PrintWriter pw = new PrintWriter(fos);
-        System.out.println("Got here");
         pw.println("name,semester,year,credits");
         pw.println(name + ',' + semester + ',' + year + ',' + credits + '\n');
         pw.println("name,section,major,coursenum,credits,numstudents,capacity,professor,year,semester,times(start-end-day-start-end-day-start-end-day-....),requiredby(m1-m2-m3-m4-....)");
@@ -324,6 +321,7 @@ public class Schedule {
         semester = parser.next();
         year = parser.nextInt();
         credits = parser.nextInt();
+        courses.clear();
         parser.close();
         //else return false;
         //get past descriptors
@@ -334,7 +332,7 @@ public class Schedule {
         //'--' will denote that there are no courses
         if (!data.equals("--")) {
             boolean first = true;
-            while (fscn.hasNextLine()) {
+            while (first || fscn.hasNextLine()) {
                 //we've already got the new line for the first iteration
                 //but on later iterations we need to scan a new line
                 if (first) first = false;
@@ -382,6 +380,7 @@ public class Schedule {
                 courses.add(new Course(cname, section, major, coursenum, ccredits, numstudents, capacity, prof, cyear, csem, requiredby, daytimes));
                 update_times_per_day();
             }
+            System.out.println(courses);
         }
     }
 
@@ -532,7 +531,7 @@ public class Schedule {
                                 }
                             }
                         } else if (curr_day == 1) {
-                            if (day == 'T' && (start_time == converted_hour || end_time-0.45 == converted_hour)) {
+                            if (day == 'T' && (start_time == converted_hour || end_time-0.45 == converted_hour || (start_time - 0.05 == converted_hour)))  {
                                 if (morning && time_of_day.equals("A.M.")) {
                                     print_for_day += "| " + curr.getMajor() + " " + curr.getCourseNum() + " " + curr.getSection()+" ";
                                     printed = true;
@@ -541,7 +540,7 @@ public class Schedule {
                                     printed = true;
                                 }
                             }
-                            else if (day == 'T' && (end_time-0.15 == converted_hour || start_time-0.3 == converted_hour)){
+                            else if (day == 'T' && (end_time-0.15 == converted_hour || start_time-0.3 == converted_hour || end_time - 0.2 == converted_hour)){
                                 if (morning && time_of_day.equals("A.M.")) {
                                     print_for_day += "|------------";
                                     printed = true;
@@ -561,7 +560,7 @@ public class Schedule {
                                 }
                             }
                         } else if (curr_day == 3) {
-                            if (day == 'R' && (start_time == converted_hour || end_time-0.45 == converted_hour)) {
+                            if (day == 'R' && (start_time == converted_hour || end_time-0.45 == converted_hour || start_time - 0.05 == converted_hour)) {
                                 if (morning && time_of_day.equals("A.M.")) {
                                     print_for_day += "| " + curr.getMajor() + " " + curr.getCourseNum() + " " + curr.getSection()+" ";
                                     printed = true;
@@ -570,7 +569,7 @@ public class Schedule {
                                     printed = true;
                                 }
                             }
-                            else if (day == 'R' && (end_time-0.15 == converted_hour || start_time-0.3 == converted_hour)){
+                            else if (day == 'R' && (end_time-0.15 == converted_hour || start_time-0.3 == converted_hour || end_time - 0.2 == converted_hour)){
                                 if (morning && time_of_day.equals("A.M.")) {
                                     print_for_day += "|------------";
                                     printed = true;

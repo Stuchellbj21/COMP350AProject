@@ -28,10 +28,6 @@ public class Main {
     //a new blank schedule is simply leaving the attributes of the current schedule as they are
     public static Schedule currentsched = new Schedule();
 
-    public static File curr_file;
-
-    public static File curr_sched_file;
-
 
     //used for schedule and account names alike.... user must pass this test in order
     //to name something
@@ -59,8 +55,9 @@ public class Main {
     }
 
     public static boolean is_valid_password(String password) {
-        if (password.length() < 7 || password.length() > 20)
+        if (password.length() < 7 || password.length() > 20) {
             throw new IllegalArgumentException("Error: password must be between 7 and 20 (inclusive) characters long");
+        }
         return true;
     }
 
@@ -172,13 +169,11 @@ public class Main {
         return userin.nextLine().strip();
     }
 
-    public static void in_schedule() {
+    public static void in_schedule() throws IOException {
         System.out.println("Got to in");
         boolean saved = false;
         while (true) {
             currentsched.printSchedule();
-            //autoflush.println(currentsched.to_str());
-            //modify will allow editing of the schedule
             String in = input("Enter (modify) -> modify schedule/(search) -> search for courses/(ac) -> add_course/\n(rc) -> remove course/(save) -> save schedule/(exit) -> exit to schedule selection: ");
             if (in.equalsIgnoreCase("modify")) {
                 modify_schedule();
@@ -193,9 +188,8 @@ public class Main {
                     autoflush.println("Error: the current schedule does not contain any courses for removal");
                 else remove_course_from_schedule();
             } else if (in.equalsIgnoreCase("save")) {
-                //todo: use saved -> if already saved, say so  |  make sure saved is kept up to date with
-                //todo: the rest of in_sched.... saving should check the map to see if the should write the schedule entry ('<hashcode>:<sched_name>')
-                //todo: to the Accounts.txt file ()
+                currentsched.save(currentaccnt.getUsername());
+
             } else if (in.equalsIgnoreCase("exit")) break;
             else autoflush.println("Error: '" + in + "' is an invalid response");
         }
@@ -265,7 +259,14 @@ public class Main {
             else if (in.equalsIgnoreCase("semester")) currentsched.set_semester_with_checks();
             else if (in.equalsIgnoreCase("year")) currentsched.set_year_with_checks();
             else if (in.equalsIgnoreCase("none")) break;
-            else autoflush.println("Error: '" + in + "' is not a valid attribute to modify");
+            else {
+                if (in.length() < 200) {
+                    autoflush.println("Error: '" + in + "' is not a valid attribute to modify");
+                }
+                else {
+                    autoflush.println("Error: invalid response");
+                }
+            }
         }
     }
 
@@ -353,8 +354,8 @@ public class Main {
     public static boolean want_more(char type) {
         while (true) {
             String ans;
-            if (type == 'a') ans = input("Add course? (y/n) ");
-            else if (type == 'r') ans = input("Remove course? (y/n) ");
+            if (type == 'a') ans = input("Continue adding courses? (y/n) ");
+            else if (type == 'r') ans = input("Continue removing courses? (y/n) ");
             else if (type == 's') ans = input("Would you like sorted results? (y/n) ");
             else throw new IllegalArgumentException("Error: didn't correctly specify type");
             if (ans.equalsIgnoreCase("no") || ans.equalsIgnoreCase("n")) return false;
@@ -366,23 +367,19 @@ public class Main {
     public static void accountMenu() throws IOException {
         while (true) {
             String in = input("Enter (create) -> create new Account/ (login) -> login to existing account\n" +
-                    "(close) --> exit program\n");
+                    "(close) -> exit program\n");
             if (in.equalsIgnoreCase("create")) {
                 if (createAccount()) {
-                    String file_name = currentaccnt.getUsername() + "schedules.txt";
-                    curr_file = new File(file_name);
                     break; // account created successfully
                 }
             } else if (in.equalsIgnoreCase("login")) {
                 if (login()) {
-                    String file_name = currentaccnt.getUsername() + ".txt";
-                    curr_file = new File(file_name);
                     break;
                 }
-            } else if (in.equalsIgnoreCase("close")){
+            } else if (in.equalsIgnoreCase("close")) {
+                close_accounts();
                 System.exit(0); // kill the program with no errors
-            }
-            else {
+            } else {
                 autoflush.println("Error: '" + in + "' is an invalid response");
             }
         }
@@ -403,20 +400,6 @@ public class Main {
         return true;
     }
 
-    public static boolean check_password(String password) {
-        for (int i = 0; i < password.length(); i++) {
-            if (!Character.isLetter(password.charAt(i)) && !Character.isDigit(password.charAt(i))) {
-                autoflush.println("Error: password should only contains letters and digits");
-                return false;
-            } else if (password.length() > 20) {
-                autoflush.println("Error: password length cannot exceed 20 characters");
-                return false;
-            }
-        }
-        autoflush.println("password set successfully");
-        return true;
-    }
-
     public static String create_username() {
         while (true) { // todo: do I need this 'while'
             String un = input("Enter (<YourUserName>) --> set new username / (back) --> return to Account screen\n");
@@ -429,19 +412,24 @@ public class Main {
     }
 
     public static String create_password() {
-        while (true) { // todo: do I need this 'while'
-            String pw = input("Enter (<YourPassword>) --> set new password / (back) --> return to Account screen\n");
-            if (pw.equalsIgnoreCase("back")) {
-                return "back";
-            } else if (check_password(pw)) {
-                return pw;
+        while (true) {
+            try {
+                String pw = input("Enter (<YourPassword>) -> set new password / (back) -> return to Account screen\n");
+                if (pw.equalsIgnoreCase("back")) {
+                    return "back";
+                } else if (is_valid_password(pw)) {
+                    return pw;
+                }
+            }
+            catch(IllegalArgumentException e) {
+                autoflush.println(e.getMessage());
             }
         }
     }
 
     public static String enter_major() {
         while (true) {
-            String in = input("Enter (major) --> set major, e.g. 'COMP' / (back) --> Account menu\n");
+            String in = input("Enter (major) -> set major, e.g. 'COMP' / (back) -> Account menu\n");
             if (in.equalsIgnoreCase("back")) {
                 return "back";
             } else if (Major.is_major(in.toUpperCase())) {
@@ -454,27 +442,26 @@ public class Main {
 
     public static boolean login() throws IOException {
         //Checks to see if any accounts exist. If not, returns false.
-        if (accounts.isEmpty()){
-            autoflush.println("No accounts exist --> Please create account or exit");
+        if (accounts.isEmpty()) {
+            autoflush.println("No accounts exist -> Please create account or exit");
             System.out.println();
             return false;
         }
-        String un = input("Enter (username) --> / (back) -> return to Account menu\n");
+        String un = input("Enter (username) -> / (back) -> return to Account menu\n");
         if (un.equalsIgnoreCase("back")) {
             return false;
         }
-        String pw = input("Enter (password) --> / (back) -> return to Account menu\n");
+        String pw = input("Enter (password) -> / (back) -> return to Account menu\n");
         if (pw.equalsIgnoreCase("back")) {
             return false;
         }
-        if (accounts.containsKey(pw.hashCode()) && accounts.containsValue(un)) {
+        if (un.equals(accounts.get(pw.hashCode()))) { //todo: ensure this is valid way to check password
             currentaccnt = new Account(un, pw, Major.COMP); //  todo: for now, this just makes a new schedule with default major;
-            curr_file = new File(un + "schedules.txt");
             load_schedules();
             scheduleMenu();
             return true;
-        }
-        else {
+        } else {
+            autoflush.println("Incorrect password or username");
             return false;
         }
     }
@@ -494,27 +481,41 @@ public class Main {
         }
         Major major = Major.valueOf(m);
         currentaccnt = new Account(username, password, major);
-        accounts.put(password.hashCode(),username);
+        accounts.put(password.hashCode(), username); // add account to the map
+        File accountDir = new File("Accounts\\" + currentaccnt.getUsername());
+        accountDir.mkdir();
+
+        // this should be a new method
+        File f = new File("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt");
+        FileWriter fw = new FileWriter(f, true);
+        fw.write(username + ", " + password.hashCode() + ", " + major + ",");
+        fw.close();
+        //------------------------------
+
         autoflush.println("Account successfully created\n");
         return true;
     }
 
     public static boolean create_new_Schedule() throws IOException {
 
-        String in = input("Enter <YourScheduleName> --> name schedule / (back) --> return to Schedule Menu\n");
+        String in = input("Enter <YourScheduleName> -> name schedule / (back) -> return to Schedule Menu\n");
         if (in.equalsIgnoreCase("back")) {
             scheduleMenu();
             return false;
         }
         if (is_valid_name(in)) {
-            currentaccnt.save_schedule(in);
+            currentaccnt.save_schedule(in); // account save
             currentsched = new Schedule();
             currentsched.set_name(in);
-            currentsched.save(currentaccnt.getUsername());
-            System.out.println("Last step");
+            currentsched.save(currentaccnt.getUsername()); // Schedule save
+
+            //--------------------------------------
+            File f = new File("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt");
+            FileWriter fw = new FileWriter(f, true);
+            fw.write(in + ",");
+            fw.close();
         }
-        // todo: allow user to set more attributes of new schedule than just the name
-        // e.g., allow them to set semester and year
+        // todo: allow user to set more attributes of new schedule than just the name, e.g. semester and year
         return true;
     }
 
@@ -522,30 +523,32 @@ public class Main {
         while (true) {
             String in = input("Enter (newS) --> new blank schedule / (load) --> load schedule / (back) --> return to Account Menu\n");
             if (in.equalsIgnoreCase("back")) {
-                close_schedule_file();
                 accountMenu();
                 break;
             } else if (in.equalsIgnoreCase("newS")) {
                 create_new_Schedule();
                 in_schedule();
             } else if (in.equalsIgnoreCase("load")) {
+                autoflush.println("Your schedules: " + currentaccnt.get_schednames());
                 String current = input("Enter (<YourScheduleName>) --> load schedule\n");
                 if (currentaccnt.get_schednames().contains(current)) {
-                    currentsched = currentaccnt.load_schedule(current);
-                    //Not sure if this should be removed
-                    curr_sched_file = new File("Accounts\\" + currentaccnt.getUsername() + "\\" + in + ".txt");
-                    System.out.println("Here");
+                    currentsched.load(currentaccnt.getUsername(), current);
                     in_schedule();
                 } else {
-                    System.out.println("Schedule does not exist. Please try again.");
+                    autoflush.println("Schedule does not exist");
                 }
             }
         }
     }
 
+    /**
+     * Reads from File that stores account identification information and stores it in accounts map
+     *
+     * @throws FileNotFoundException
+     */
     public static void load_accounts() throws FileNotFoundException {
         allcourses = new ArrayList<>();
-        File accts = new File("account_direc.txt");
+        File accts = new File("Accounts\\account_direc.txt");
         Scanner acct_scnr = new Scanner(accts);
         acct_scnr.useDelimiter(":");
         List<ArrayList> active_accts = new ArrayList<>();
@@ -556,55 +559,48 @@ public class Main {
             String str_pass_hash = line_reader.next();
             int int_pass_hash = Integer.parseInt(str_pass_hash);
             String account_name = line_reader.next();
-            accounts.put(int_pass_hash,account_name);
+            accounts.put(int_pass_hash, account_name);
         }
     }
 
-    //Issue needs to be fixed here
     public static void load_schedules() throws FileNotFoundException {
-        Scanner file_scan = new Scanner(curr_file);
-        file_scan.useDelimiter("\n");
-        while (file_scan.hasNextLine()){
-            String sched_name = file_scan.next();
-            currentaccnt.save_schedule(sched_name);
+
+        FileInputStream fis = new FileInputStream("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt");
+        Scanner infoScan = new Scanner(fis);
+        infoScan.useDelimiter(",");
+        infoScan.next();
+        infoScan.next();
+        infoScan.next(); // skip over password hash, username, major
+        while (infoScan.hasNext()) {
+            String temp = infoScan.next();
+            currentaccnt.save_schedule(temp);
         }
+        autoflush.println("Schedules loaded: " + currentaccnt.get_schednames());
     }
 
-    public static void close_schedule_file() throws IOException {
-        FileWriter fw = new FileWriter(curr_file);
-        List<String> curr_scheds = currentaccnt.get_schednames();
-        for (int i = 0; i < curr_scheds.size(); i++){
-            if (i == curr_scheds.size()-1){
-                fw.write(curr_scheds.get(i));
-            }
-            else {
-                fw.write(curr_scheds.get(i) + "\n");
-            }
-        }
-        fw.close();
-    }
-
+    /**
+     * Ensures that all accounts within the accounts-hashmap are written to a file before the program is closed
+     *
+     * @throws FileNotFoundException
+     */
     public static void close_accounts() throws FileNotFoundException {
-        PrintWriter pw = new PrintWriter("account_direc.txt");
+        PrintWriter pw = new PrintWriter("Accounts\\account_direc.txt");
         Set<Integer> keys = accounts.keySet();
-        for (int key : keys){
+        for (int key : keys) {
             String hash_password = String.valueOf(key);
             String username = accounts.get(key);
-            pw.write(hash_password + ":" + username+"\n");
+            pw.write(hash_password + ":" + username + "\n");
         }
         pw.close();
     }
 
     public static void run() throws IOException {
-        //todo:have to make days given by user to days filter uppercase
         load_accounts();
         populate_allcourses();
-        List<Account> session_accounts = new ArrayList<>();
         autoflush.println("Welcome to SchedulEase!");
         accountMenu();
         scheduleMenu();
         in_schedule();
-        input("");
     }
 
     public static void main(String[] args) {
