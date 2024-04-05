@@ -39,16 +39,27 @@ public class Account {
         return true;
     }
 
+    //NOT IMPLEMENTED
     public boolean change_password(String newpassword) {
         passwordhash = newpassword.hashCode();
         return true;
     }
 
+    /**
+     * Allows the user to change their username
+     * @param newname new username
+     * @return true once the username has been changed
+     */
     public boolean change_username(String newname) {
         this.username = newname;
         return true;
     }
 
+    /**
+     * Saves the name of a created schedule to the list of schedules in an account
+     * @param sched_name the name of the new schedule
+     * @return true once of the schedule has been added
+     */
     public boolean save_schedule(String sched_name) {
         schednames.add(sched_name);
         return true;
@@ -59,21 +70,13 @@ public class Account {
         //return currentsched;
     } //default is to work with new Schedule*/
 
+    //NOT IMPLEMENTED
     public boolean delete_schedule(String schedname) {
         schednames.remove(schedname);
         return true;
     }
 
     public boolean delete_account() {return false;}
-
-    public boolean verify_password(String passwordattempt) {
-        int passwordhash = passwordattempt.hashCode();
-        return this.passwordhash == passwordhash;
-    }
-
-    public boolean has_schedule (String schedname){
-        return schednames.contains(schedname);
-    }
 
     public String getUsername() {
         return username;
@@ -95,13 +98,6 @@ public class Account {
         return schednames;
     }
 
-    public void printAcct(){
-        System.out.println("Account:");
-        System.out.println("Name: " + this.username);
-        System.out.println("Password: " + this.passwordhash);
-        System.out.println("Major: " + this.major);
-    }
-
     public void print_schedule_list() {
         File account = new File("Accounts\\" + username);
         Main.autoflush.println(username+" Schedules:");
@@ -118,6 +114,7 @@ public class Account {
         if(!hasSchedule) Main.autoflush.println("\tNone");
     }
 
+    //NOT IMPLEMENTED
     public int num_scheds(){
         return schednames.size();
     }
