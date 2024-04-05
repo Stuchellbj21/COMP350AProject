@@ -16,7 +16,6 @@ public class ProfessorFilter extends Filter {
 
     @Override
     public void apply_to(List<Course> courses) {
-
         for (int i = courses.size()-1; i >= 0 ; i--) {
             if(!courses.get(i).getProfessor().equalsIgnoreCase(professor)) {
                 courses.remove(courses.get(i));

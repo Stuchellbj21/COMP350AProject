@@ -38,7 +38,10 @@ public class Main {
         if(name.isEmpty()) throw new IllegalArgumentException("Error: no blank schedule or account names allowed");
         if(name.equalsIgnoreCase("major") || name.equalsIgnoreCase("account") || name.equalsIgnoreCase("accounts")) throw new IllegalArgumentException("Error: you cannot name an account or schedule 'accounts', or 'account', or 'major'");
         if(name.length() > 20) throw new IllegalArgumentException("Error: account and schedule names cannot be longer than 20 characters");
+        //issue if name conflict with schedules
         if(currentaccnt != null && new File("Accounts\\" + currentaccnt.getUsername() + "\\" + name + (name.endsWith(".csv") ? "" : ".csv")).exists()) throw new IllegalArgumentException("Error: a schedule with name '" + name + "' already exists");
+        //issue if name conflict with accounts
+        if(currentaccnt != null && new File("Accounts\\" + currentaccnt.getUsername() + "\\").exists()) throw new IllegalArgumentException("Error: a schedule with name '" + name + "' already exists");
         for(char c : name.toCharArray())
             if(c == '<' || c == '>' || c == ':' || c == '\"' || c == '/' || c == '\\' || c == '|' || c == '?' || c == '*') throw new IllegalArgumentException("Error: account and schedule names cannot contain any of the following characters: '*','?','|','/','\\','>','<',':','\"'");
         return true;
@@ -274,7 +277,7 @@ public class Main {
                     Integer i = get_credits_for_filter(modify);
                     if(i != null) add_or_modify_filter(modify,new CreditFilter(search.get_filtered_results(),i));
                 }
-                case PROFESSOR -> add_or_modify_filter(modify,new ProfessorFilter(search.get_filtered_results(),input("Enter the name of the professor you would like to filter on: ")));
+                case PROFESSOR -> add_or_modify_filter(modify,new ProfessorFilter(search.get_filtered_results(),input("Enter the name of the professor (in form '<first_name> <last_name>') you would like to filter on: ")));
             }
             if(!modify && search.get_active_filters().size() != ogsize) autoflush.println("Filter addition successful");
         }
