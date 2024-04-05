@@ -45,6 +45,9 @@ public class Main {
     }
 
     public static boolean is_valid_password(String password) throws IllegalArgumentException {
+        if(accounts.containsKey(password.hashCode())) {
+            throw new IllegalArgumentException("Error: that password is already taken");
+        }
         if (password.length() < 7 || password.length() > 20) {
             throw new IllegalArgumentException("Error: password must be between 7 and 20 (inclusive) characters long");
         }
