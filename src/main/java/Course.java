@@ -198,7 +198,8 @@ public class Course {
         StringBuilder sb = new StringBuilder(semester);
         sb.append(' ').append(year).append(": ").append(professor).append(" - ").append(major.name());
         sb.append(' ').append(coursenum).append(' ').append(section).append(" - ");
-        sb.append(name).append(" - ").append(days_to_str()).append(" ");
+        sb.append(name).append(" - ");
+        if(!days_to_str().isEmpty()) sb.append(days_to_str()).append(" ");
         //give them most common time as the generic time
         if(times != null && !times.isEmpty()) sb.append(r_mc[1].get_start_time()).append(" - ").append(r_mc[1].get_end_time());
         else sb.append("(no times listed)");
@@ -215,7 +216,7 @@ public class Course {
             sb.append(" (").append(rare.get_day()).append(": ").append(rare.get_start_time()).append(" - ");
             sb.append(rare.get_end_time()).append(')');
         }
-        return sb.toString();
+        return sb.append(' ').append("[credits: ").append(credits).append(']').toString();
     }
 
     //method returns a map from DayTime (with uninitialized day -> only records time) to Integer

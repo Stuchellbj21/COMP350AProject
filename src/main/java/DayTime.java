@@ -117,4 +117,25 @@ public class DayTime implements Comparable<DayTime> {
     //use military start, military end, and day so that hashcode will match equals
     @Override
     public int hashCode() {return Arrays.hashCode(new int[] {militarystart,militaryend,(int)day});}
+
+    /**
+     * takes in a string of the form XX:XX AM/PM and returns the truth value of the statement:
+     * 'the given time is a valid time'  |  13:89 JK is not a valid time, 12:29 PM is a valid time
+     * @param s the given time string
+     * @return the truth value of the statement 'the given time is a valid time'
+     */
+    public static boolean is_valid_time(String s) {
+        //"XX:XX MM".length() is 8
+        if(s.length() != 8) return false;
+        //check meridiem
+        if(!s.substring(s.length() - 2).equals("PM") &&
+                !s.substring(s.length() - 2).equals("AM")) return false;
+        if(s.charAt(2) != ':' || s.charAt(5) != ' ') return false;
+        String hrs = s.substring(0,2),mins = s.substring(3,5);
+        //check hours and minutes
+        if(!Main.is_numeric(hrs) || Integer.parseInt(hrs) > 12 || Integer.parseInt(hrs) < 1) return false;
+        if(!Main.is_numeric(mins) || Integer.parseInt(mins) > 59 || Integer.parseInt(mins) < 0) return false;
+        //all good
+        return true;
+    }
 }

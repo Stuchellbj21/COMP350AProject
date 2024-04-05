@@ -44,7 +44,7 @@ public class SearchTest {
         catch(IOException ioe) {System.out.println(ioe.getMessage() + " " + ioe.getCause());}
         Search s = new Search("writ 101 c");
         System.out.println(s.to_str(10));
-        s.activate_new_filter(new DaysFilter(s.get_filteredresults(), Set.of('W','M','F')));
+        s.activate_new_filter(new DaysFilter(s.get_filtered_results(), Set.of('W','M','F')));
         System.out.println(s.to_str(10));
     }
 }

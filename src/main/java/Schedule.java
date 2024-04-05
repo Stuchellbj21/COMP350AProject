@@ -1,4 +1,5 @@
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 
 public class Schedule {
@@ -90,26 +91,36 @@ public class Schedule {
     public String toString() {
         return name + ", " + semester + ", " + year;
     }
-    public void set_name_with_checks() {
+
+    public void set_name_with_checks(String accountname) {
         while(true) {
             String newname = Main.input("Enter new schedule name: ");
             try{
-                if(Main.is_valid_nameAllred(newname)) {
+                if(Main.is_valid_name(newname)) {
+                    //don't have to replace existing because is_valid_name already checks to make sure the target doesn't exist
+                    File oldf = new File("Accounts\\" + accountname + "\\" + name +(name.endsWith(".csv") ? "" : ".csv"));
+                    File newf = new File("Accounts\\" + accountname + "\\" + newname + (newname.endsWith(".csv") ? "" : ".csv"));
+                    //only need to rename if old file exists
+                    if(oldf.exists()) Files.move(oldf.toPath(),newf.toPath());
                     name = newname;
                     Main.autoflush.println("Schedule name successfully changed to '" + newname + "'");
                     break;
                 }
                 else Main.autoflush.println("Error: '" + newname + "' is not a valid schedule name");
             }
+            catch(IOException ioe) {Main.autoflush.println("Error: renaming of file failed: " + ioe.getMessage());}
             catch(IllegalArgumentException iae) {Main.autoflush.println(iae.getMessage());}
         }
     }
     public void set_semester_with_checks() {
         while(true) {
-            String newsem = Main.input("Enter new semester value: ").toLowerCase();
+            String newsem = Main.input("Enter new semester value (Warning: changing the schedule's semester will remove all courses from the schedule): ").toLowerCase();
             //ensure either Fall or Spring
             newsem = newsem.substring(0,1).toUpperCase() + newsem.substring(1);
             if(newsem.equals("Fall") || newsem.equals("Spring")) {
+                if(!newsem.equalsIgnoreCase(semester)) {
+                    for(Iterator<Course> cit = courses.iterator();cit.hasNext();cit.remove()) removal_update(cit.next());
+                }
                 semester = newsem;
                 Main.autoflush.println("Warning: you will now only be able to add courses for the " + semester + " to this schedule");
                 return;
@@ -122,12 +133,15 @@ public class Schedule {
             //ensure either Fall or Spring
             int newyear;
             try{
-                String in = Main.input("Enter new year value: ");
+                String in = Main.input("Enter new year value (Warning: changing the schedule's year will remove all courses from the schedule): ");
                 newyear = Integer.parseInt(in);
                 if(in.length() != 4) Main.autoflush.println("Error: valid year values are only 4 digits long");
                 else if(newyear < 0) Main.autoflush.println("Error: the year value must be positive");
                 else if(2020 > newyear) Main.autoflush.println("Error: " + newyear + " is too far in the past, schedules must be for 2020 or later");
                 else {
+                    if(newyear != year) {
+                        for(Iterator<Course> cit = courses.iterator();cit.hasNext();cit.remove()) removal_update(cit.next());
+                    }
                     year = newyear;
                     Main.autoflush.println("Warning: you will now only be able to add courses for " + year + " to this schedule");
                     break;
@@ -185,7 +199,7 @@ public class Schedule {
             if(c.times_overlap_with(course)) throw new IllegalArgumentException("Error: the course you attempted to add has a time overlap with " + c.short_str(true) + " in your schedule");
         }
         courses.add(course);
-        course.setNumstudents(course.getNumstudents()+1);
+        //not going to change numstudents of course because don't want to have to update the csv file
         credits += course.getCredits();
         update_times_per_day();
         return true;
@@ -200,15 +214,18 @@ public class Schedule {
     public boolean remove_course(Course course) {
         if(courses.isEmpty()) throw new InputMismatchException("Error: cannot remove a course from an empty schedule");
         if(!courses.contains(course)) throw new InputMismatchException("Error: your schedule does not contain " + course.short_str(false) + " course");
-        remove_from_times_per_day(course);
         courses.remove(course);
-        course.setNumstudents(course.getNumstudents()-1);
-        credits -= course.getCredits();
-        remove_from_times_per_day(course);
+        removal_update(course);
         return true;
     }
 
-    public void remove_from_times_per_day(Course c) {
+    private void removal_update(Course course) {
+        credits -= course.getCredits();
+        //not updating number of students in course cause don't want to update all course csv
+        remove_from_times_per_day(course);
+    }
+
+    private void remove_from_times_per_day(Course c) {
         for(DayTime dt : c.getTimes()) timesperday.get(dt.get_day()).remove(dt);
     }
 
@@ -578,5 +595,10 @@ public class Schedule {
             hour++;
         }
         System.out.println();
+    }
+
+    public boolean delete(String accountname) {
+        File sched = new File("Accounts\\"+accountname+"\\"+name+".csv");
+        return sched.delete();
     }
 }

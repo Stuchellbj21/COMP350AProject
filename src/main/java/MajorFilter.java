@@ -4,9 +4,14 @@ public class MajorFilter extends Filter {
     private Major major;
 
     public MajorFilter(List<Course> courses, Major major) {
-        super.filteron = FilterType.MAJOR;
+        super(FilterType.MAJOR);
         this.major = major;
         apply_to(courses);// A filter is applied automatically when it is created
+    }
+
+    public MajorFilter() {
+        super(FilterType.MAJOR);
+        major = null;
     }
 
     @Override
@@ -18,4 +23,7 @@ public class MajorFilter extends Filter {
             }
         }
     }
+
+    @Override
+    public String toString() {return filteron.name() + " filter: " + major.name();}
 }
