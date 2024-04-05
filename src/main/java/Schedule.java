@@ -116,6 +116,10 @@ public class Schedule {
         while(true) {
             String newsem = Main.input("Enter new semester value (Warning: changing the schedule's semester will remove all courses from the schedule): ").toLowerCase();
             //ensure either Fall or Spring
+            if(newsem.isEmpty()) {
+                Main.autoflush.println("Error: '" + newsem + "' is not a valid semester value");
+                continue;
+            }
             newsem = newsem.substring(0,1).toUpperCase() + newsem.substring(1);
             if(newsem.equals("Fall") || newsem.equals("Spring")) {
                 if(!newsem.equalsIgnoreCase(semester)) {
