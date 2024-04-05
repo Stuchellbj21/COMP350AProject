@@ -9,13 +9,9 @@ public class Account {
     //has schedules in it
 
     private String username;
-
     private int passwordhash;
-
     private Major major;
-
     private List<String> schednames;
-
     public Account(){
         this.username = "empty";
     }
@@ -93,6 +89,10 @@ public class Account {
 
     public void setMajor(Major major) {
         this.major = major;
+    }
+
+    public List<String> get_schednames() {
+        return schednames;
     }
 
     public void printAcct(){

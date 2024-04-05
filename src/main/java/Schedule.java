@@ -16,39 +16,30 @@ public class Schedule {
     public String get_name() {
         return name;
     }
-
     public void set_name(String name) {
         this.name = name;
     }
-
     public String get_semester() {
         return semester;
     }
-
     public void set_semester(String semester) {
         this.semester = semester;
     }
-
     public int get_year() {
         return year;
     }
-
     public void set_year(int year) {
         this.year = year;
     }
-
     public List<Course> get_courses() {
         return courses;
     }
-
     public void set_courses(List<Course> courses) {
         this.courses = courses;
     }
-
     public int get_credits() {
         return credits;
     }
-
     public void set_credits(int credits) {
         this.credits = credits;
     }
@@ -62,7 +53,6 @@ public class Schedule {
         credits = 0;
         init_timesperday();
     }
-
     // constructor w/one parameter
     public Schedule(String accountname, String name) {
         courses = new ArrayList<>();
@@ -72,13 +62,11 @@ public class Schedule {
         catch(InputMismatchException | IOException error) {Main.autoflush.println(error.getMessage() + ' ' + error.getCause());}
         update_times_per_day();
     }
-
     // constructor with name and list of courses
     public Schedule(String name, ArrayList<Course> courses) {
         this.name = name;
         this.courses = courses;
     }
-
     // full constructor
     public Schedule(String name, String semester, int year, List<Course> courses, int credits) {
         this.name = name;
@@ -102,7 +90,6 @@ public class Schedule {
     @Override
     public String toString() {
         return name + ", " + semester + ", " + year;
-        // could also be ' semester + ", " + year + ", " + name '
     }
 
     public void set_name_with_checks(String accountname) {
@@ -125,7 +112,6 @@ public class Schedule {
             catch(IllegalArgumentException iae) {Main.autoflush.println(iae.getMessage());}
         }
     }
-
     public void set_semester_with_checks() {
         while(true) {
             String newsem = Main.input("Enter new semester value (Warning: changing the schedule's semester will remove all courses from the schedule): ").toLowerCase();
@@ -142,7 +128,6 @@ public class Schedule {
             else Main.autoflush.println("Error: '" + newsem + "' is not a valid semester value");
         }
     }
-
     public void set_year_with_checks() {
         while(true) {
             //ensure either Fall or Spring
@@ -276,7 +261,7 @@ public class Schedule {
 
     //timesperday should always be initialized via this method.... timesperday should always be null if
     //init hasn't been called
-    private void init_timesperday() {
+    void init_timesperday() {
         if(timesperday == null) {
             timesperday = new HashMap<>();
             timesperday.put('M',new ArrayList<>());
@@ -387,6 +372,7 @@ public class Schedule {
                 courses.add(new Course(cname, section, major, coursenum, ccredits, numstudents, capacity, prof, cyear, csem, requiredby, daytimes));
                 update_times_per_day();
             }
+            System.out.println(courses);
         }
         fscn.close();
     }
@@ -443,23 +429,18 @@ public class Schedule {
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
-
     public String getSemester() {
         return semester;
     }
-
     public void setSemester(String semester) {
         this.semester = semester;
     }
-
     public int getYear() {
         return year;
     }
-
     public void setYear(int year) {
         this.year = year;
     }
@@ -538,7 +519,7 @@ public class Schedule {
                                 }
                             }
                         } else if (curr_day == 1) {
-                            if (day == 'T' && (start_time == converted_hour || end_time-0.45 == converted_hour)) {
+                            if (day == 'T' && (start_time == converted_hour || end_time-0.45 == converted_hour || (start_time - 0.05 == converted_hour)))  {
                                 if (morning && time_of_day.equals("A.M.")) {
                                     print_for_day += "| " + curr.getMajor() + " " + curr.getCourseNum() + " " + curr.getSection()+" ";
                                     printed = true;
@@ -547,7 +528,7 @@ public class Schedule {
                                     printed = true;
                                 }
                             }
-                            else if (day == 'T' && (end_time-0.15 == converted_hour || start_time-0.3 == converted_hour)){
+                            else if (day == 'T' && (end_time-0.15 == converted_hour || start_time-0.3 == converted_hour || end_time - 0.2 == converted_hour)){
                                 if (morning && time_of_day.equals("A.M.")) {
                                     print_for_day += "|------------";
                                     printed = true;
@@ -567,7 +548,7 @@ public class Schedule {
                                 }
                             }
                         } else if (curr_day == 3) {
-                            if (day == 'R' && (start_time == converted_hour || end_time-0.45 == converted_hour)) {
+                            if (day == 'R' && (start_time == converted_hour || end_time-0.45 == converted_hour || start_time - 0.05 == converted_hour)) {
                                 if (morning && time_of_day.equals("A.M.")) {
                                     print_for_day += "| " + curr.getMajor() + " " + curr.getCourseNum() + " " + curr.getSection()+" ";
                                     printed = true;
@@ -576,7 +557,7 @@ public class Schedule {
                                     printed = true;
                                 }
                             }
-                            else if (day == 'R' && (end_time-0.15 == converted_hour || start_time-0.3 == converted_hour)){
+                            else if (day == 'R' && (end_time-0.15 == converted_hour || start_time-0.3 == converted_hour || end_time - 0.2 == converted_hour)){
                                 if (morning && time_of_day.equals("A.M.")) {
                                     print_for_day += "|------------";
                                     printed = true;
