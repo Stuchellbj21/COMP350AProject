@@ -620,15 +620,6 @@ public class Main {
             autoflush.println(iae.getMessage());
             return false;
         }
-        for (int i = 0; i < userName.length(); i++) {
-            if (!Character.isLetter(userName.charAt(i)) && !Character.isDigit(userName.charAt(i))) {
-                autoflush.println("Error: username should only contain letters and digits");
-                return false;
-            } else if (userName.length() > 20) {
-                autoflush.println("Error: username length cannot exceed 20 characters");
-                return false;
-            }
-        }
         return true;
     }
 
