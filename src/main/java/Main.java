@@ -35,6 +35,7 @@ public class Main {
     */
 
     public static boolean is_valid_name(String name) throws IllegalArgumentException {
+        //various checks to ensure valid names
         if(name.isEmpty()) throw new IllegalArgumentException("Error: no blank schedule or account names allowed");
         if(name.equalsIgnoreCase("major") || name.equalsIgnoreCase("account") || name.equalsIgnoreCase("accounts")) throw new IllegalArgumentException("Error: you cannot name an account or schedule 'accounts', or 'account', or 'major'");
         if(name.length() > 20) throw new IllegalArgumentException("Error: account and schedule names cannot be longer than 20 characters");
@@ -46,6 +47,7 @@ public class Main {
     }
 
     public static boolean is_valid_password(String password) throws IllegalArgumentException {
+        //check if input password is valid
         if(accounts.containsKey(password.hashCode())) {
             throw new IllegalArgumentException("Error: that password is already taken");
         }
@@ -59,7 +61,7 @@ public class Main {
     public static void populate_allcourses() throws IOException {
         FileInputStream fis = new FileInputStream("2020-2021.csv");
         Scanner csvscn = new Scanner(fis);
-//        accounts = new HashMap<Integer, String>();
+        //accounts = new HashMap<Integer, String>();
         //skip the descriptors with nextLine()
         csvscn.nextLine();
         while (csvscn.hasNextLine()) {
@@ -110,6 +112,7 @@ public class Main {
                     case 8:
                         numstudents = Integer.parseInt(n);
                         break;
+                    //add days
                     case 9:
                     case 10:
                     case 11:
@@ -131,6 +134,7 @@ public class Main {
                 if (i > 17) break;
             }
             for (char d : days) daytimes.add(new DayTime(times[0], times[1], d));
+            //add courses
             Course add = new Course(name, section, major, coursenum, credits, numstudents, capacity, prof, year, sem, requiredby, daytimes);
             add_course(add);
             inline.close();
