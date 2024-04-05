@@ -19,7 +19,7 @@ public class Search {
         public int compare(Course c1, Course c2) {return c1.getCourseNum() - (c2.getCourseNum());}
     };
 
-    private Set<Filter> activefilters;
+    private List<Filter> activefilters;
 
     private String searchstr;
 
@@ -28,7 +28,7 @@ public class Search {
     Search() {
         searchstr = "";
         search_str_list = new ArrayList<>();
-        activefilters = new HashSet<>();
+        activefilters = new ArrayList<>();
         filteredresults = new ArrayList<>();
         searchresults = new ArrayList<>();
     }
@@ -36,10 +36,10 @@ public class Search {
     Search(String ss) {
         searchresults = new ArrayList<>();
         search(ss);
-        activefilters = new HashSet<>();
+        activefilters = new ArrayList<>();
     }
 
-    Search(String ss, Set<Filter> filters) {
+    Search(String ss, List<Filter> filters) {
         searchresults = new ArrayList<>();
         search(ss);
         activefilters = filters;
@@ -52,6 +52,14 @@ public class Search {
     //sets searchstr to ss and performs a new search on searchstr and gives results
     public List<Course> search(String ss,int threshold,boolean sorted) {
         set_search_str(ss);
+        //if user wants to see all classes, show them all classes  |  if user enters all, the
+        //results will always be sorted
+        if(searchstr.equalsIgnoreCase("all")) {
+            searchresults = new ArrayList<>(Main.allcourses);
+            filteredresults = new ArrayList<>(searchresults);
+            apply_all_filters();
+            return filteredresults;
+        }
         HashMap<Course,Integer> coursetoweight = new HashMap<>();
         for(Course c : Main.allcourses) coursetoweight.put(c,get_weight(c)); //now we have weighted courses
         //want ordering by weight, so use treemap
@@ -65,17 +73,21 @@ public class Search {
         searchresults.clear();
         int n = 0;
         for(Integer i : weighttocourse.descendingKeySet()) {
+            //sort if wanted
             if(sorted) {
                 Collections.sort(weighttocourse.get(i), bysection);
                 Collections.sort(weighttocourse.get(i), bycoursenum);
                 Collections.sort(weighttocourse.get(i), bymajor);
             }
+            //add all courses up to threshold to results
             for(Course c : weighttocourse.get(i)) {
                 searchresults.add(c);
                 if(++n >= threshold) break;
             }
         }
+        //filter results and return
         filteredresults = new ArrayList<>(searchresults);
+        apply_all_filters();
         return searchresults;
     }
 
@@ -100,7 +112,8 @@ public class Search {
     }
 
     public String to_str(int threshold) {
-        StringBuilder sb = new StringBuilder("Search Results for ").append('\'').append(searchstr).append('\'').append(':');
+        StringBuilder sb = new StringBuilder("Active Filters: ").append(activefilters != null && !activefilters.isEmpty() ? activefilters : "None").append('\n');
+        sb.append("Search Results for ").append('\'').append(searchstr).append('\'').append(':');
         if(filteredresults == null || filteredresults.isEmpty()) return sb.append("\nNone").toString();
         for(int i = 0; i < filteredresults.size() && i < threshold;i++)
             sb.append('\n').append(filteredresults.get(i));
@@ -131,7 +144,7 @@ public class Search {
     public void apply_all_filters() {for(Filter f : activefilters) f.apply_to(filteredresults);}
 
     public List<Course> activate_new_filter(Filter f) {
-        if(activefilters.add(f)) f.apply_to(filteredresults);;
+        if(activefilters.add(f)) f.apply_to(filteredresults);
         return filteredresults;
     }
 
@@ -142,8 +155,6 @@ public class Search {
      */
     //removes the filter of the same type as f if present, and activates f
     public List<Course> modify_filter(Filter f) {
-        //no modification was made.... the requested change was already in place
-        if(activefilters.contains(f)) return filteredresults;
         search(searchstr);
         Filter rm = null;
         for(Filter fil : activefilters) {
@@ -151,14 +162,15 @@ public class Search {
             if(!(fil.equals(f))) fil.apply_to(filteredresults);
             else rm = fil;
         }
-        //if the filter to remove was found, remove it
+        //if the filter to remove was found, remove it and activate its replacement.... if it wasn't found, activate
+        //the new filter
         if(rm != null) activefilters.remove(rm);
         return activate_new_filter(f);
     }
 
     //removes a filter and does something similar to modify_filter()
     public List<Course> deactivate_filter(Filter f) {
-        //if no change was made, just return og filtertedresults
+        //if no change was made, just return og filteredresults
         if(!activefilters.remove(f)) return filteredresults;
         //otherwise, perform new search, apply all filters, and return
         search(searchstr);
@@ -166,5 +178,17 @@ public class Search {
         return filteredresults;
     }
 
-    public List<Course> get_filteredresults() {return filteredresults;}
+    public List<Course> get_filtered_results() {return filteredresults;}
+
+    public List<Filter> get_active_filters() {return activefilters;}
+
+    /*public String active_filters_to_str() {
+        if(activefilters == null || activefilters.isEmpty()) return "No Active Filters";
+        StringBuilder sb = new StringBuilder();
+        sb.append("Active Filters:\n");
+        sb.append(activefilters.getFirst());
+        for(int i = 1; i < activefilters.size(); i++)
+            sb.append('\n').append(activefilters.get(i));
+        return sb.toString();
+    }*/
 }
