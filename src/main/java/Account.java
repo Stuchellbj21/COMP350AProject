@@ -1,5 +1,7 @@
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Account {
     //another thing of loading:
@@ -12,8 +14,6 @@ public class Account {
 
     private Major major;
 
-    private Schedule currentsched;
-
     private List<String> schednames;
 
     public Account(){
@@ -21,16 +21,16 @@ public class Account {
     }
 
     //Constructor without major
-    public Account(String username,String passwordhash){
+    public Account(String username,String password){
         this.username = username;
-        this.passwordhash = passwordhash.hashCode();
+        this.passwordhash = password.hashCode();
         schednames = new ArrayList<String>();
     }
 
     //Constructor with major
-    public Account(String username,String passwordhash,Major major){
+    public Account(String username,String password,Major major){
         this.username = username;
-        this.passwordhash = passwordhash.hashCode();
+        this.passwordhash = password.hashCode();
         this.major = major;
         schednames = new ArrayList<String>();
     }
@@ -58,10 +58,10 @@ public class Account {
         return true;
     }
 
-    public Schedule load_schedule(String schedname) {
-        currentsched = new Schedule(username,schedname);
-        return currentsched;
-    } //default is to work with new Schedule
+    /*public Schedule load_schedule(String schedname) {
+        //currentsched = new Schedule(username,schedname);
+        //return currentsched;
+    } //default is to work with new Schedule*/
 
     public boolean delete_schedule(String schedname) {
         schednames.remove(schedname);
@@ -100,6 +100,22 @@ public class Account {
         System.out.println("Name: " + this.username);
         System.out.println("Password: " + this.passwordhash);
         System.out.println("Major: " + this.major);
+    }
+
+    public void print_schedule_list() {
+        File account = new File("Accounts\\" + username);
+        Main.autoflush.println(username+" Schedules:");
+        boolean hasSchedule = false;
+        if(account.listFiles() != null) {
+            for (File f : account.listFiles()) {
+                if (f.getName().endsWith(".csv")) {
+                    //cut off .csv
+                    Main.autoflush.println("\t- " + f.getName().substring(0, f.getName().length() - 4));
+                    if (!hasSchedule) hasSchedule = true;
+                }
+            }
+        }
+        if(!hasSchedule) Main.autoflush.println("\tNone");
     }
 
     public int num_scheds(){
