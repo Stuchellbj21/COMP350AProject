@@ -40,8 +40,6 @@ public class Main {
         if(name.length() > 20) throw new IllegalArgumentException("Error: account and schedule names cannot be longer than 20 characters");
         //issue if name conflict with schedules
         if(currentaccnt != null && new File("Accounts\\" + currentaccnt.getUsername() + "\\" + name + (name.endsWith(".csv") ? "" : ".csv")).exists()) throw new IllegalArgumentException("Error: a schedule with name '" + name + "' already exists");
-        //issue if name conflict with accounts
-        if(currentaccnt != null && new File("Accounts\\" + currentaccnt.getUsername() + "\\").exists()) throw new IllegalArgumentException("Error: a schedule with name '" + name + "' already exists");
         for(char c : name.toCharArray())
             if(c == '<' || c == '>' || c == ':' || c == '\"' || c == '/' || c == '\\' || c == '|' || c == '?' || c == '*') throw new IllegalArgumentException("Error: account and schedule names cannot contain any of the following characters: '*','?','|','/','\\','>','<',':','\"'");
         return true;
@@ -613,6 +611,8 @@ public class Main {
 
     public static boolean check_username(String userName) {
         try{
+            //issue if name conflict with accounts
+            if(currentaccnt != null && new File("Accounts\\" + userName + "\\").exists()) throw new IllegalArgumentException("Error: a schedule with name '" + userName + "' already exists");
             is_valid_name(userName);
         }
         catch(IllegalArgumentException iae) {
