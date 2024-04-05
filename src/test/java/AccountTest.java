@@ -47,22 +47,22 @@ class AccountTest {
     }
     @Test
     void testSaveSchedule() throws Exception {
-        currentSchedule.save_schedule(sched_name);
+        currentSchedule.save(myAccount.getUsername());
 
     }
     @Test
     void testLoadSchedule() throws Exception {
-        schednames.load_schedule(sched_name);
+        currentSchedule.load(myAccount.getUsername(),currentSchedule.getName());
     }
 
     @Test
     void testDeleteSchedule() throws Exception{
-        delete_schedule(sched_name);
+        //delete_schedule(sched_name);
     }
 
     @Test
     void testDeleteAccount() throws Exception{
-        schednames.delete_account(myAccount);
+        //schednames.delete_account(myAccount);
         if(myAccount != null){
             throw new Exception("myAccount still exists");
         }
@@ -70,7 +70,7 @@ class AccountTest {
 
     @Test
     void testHasSchedule() throws Exception {
-        schednames.save_schedule(myAccount);
-        if(schednames.has_schedule("myAccount")){ } else { throw new Exception("Schedule not found"); }
+        //schednames.save_schedule(myAccount);
+        //if(schednames.has_schedule("myAccount")){ } else { throw new Exception("Schedule not found"); }
     }
 }

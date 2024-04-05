@@ -1,10 +1,8 @@
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 public class FilterTest {
     @Test
@@ -467,5 +465,43 @@ public class FilterTest {
         SemesterFilter sf = new SemesterFilter(courses, "Fall", 2021);
         assertEquals(expected.getFirst(), courses.getFirst());
         assertEquals(1, courses.size()); // only one course (c10) should remain
+    }
+
+    @Test
+    public void credit_filter_test() throws IOException {
+        Main.populate_allcourses();
+        List<Course> results = Main.search.search("101",true);
+        Main.autoflush.println(Main.search.to_str(50));
+        Main.search.activate_new_filter(new CreditFilter(results,2));
+        Main.autoflush.println("\n\n\n");
+        Main.autoflush.println(Main.search.to_str(50));
+        Main.autoflush.println("\n\n\n");
+        Main.search.deactivate_filter(Main.search.get_active_filters().get(Main.search.get_active_filters().indexOf(new CreditFilter())));
+        Main.autoflush.println("\n\n\n");
+        Main.autoflush.println(Main.search.to_str(50));
+    }
+
+    public void days_filter_test() {
+
+    }
+
+    public void major_filter_test() {
+
+    }
+
+    public void name_filter_test() {
+
+    }
+
+    public void prof_filter_test() {
+
+    }
+
+    public void semester_filter_test() {
+
+    }
+
+    public void time_filter_test() {
+
     }
 }
