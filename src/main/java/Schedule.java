@@ -123,6 +123,7 @@ public class Schedule {
             newsem = newsem.substring(0,1).toUpperCase() + newsem.substring(1);
             if(newsem.equals("Fall") || newsem.equals("Spring")) {
                 if(!newsem.equalsIgnoreCase(semester)) {
+                    //remove all courses if semester changed
                     for(Iterator<Course> cit = courses.iterator();cit.hasNext();cit.remove()) removal_update(cit.next());
                 }
                 semester = newsem;
@@ -144,6 +145,7 @@ public class Schedule {
                 else if(2020 > newyear) Main.autoflush.println("Error: " + newyear + " is too far in the past, schedules must be for 2020 or later");
                 else {
                     if(newyear != year) {
+                        //remove all courses if year changed
                         for(Iterator<Course> cit = courses.iterator();cit.hasNext();cit.remove()) removal_update(cit.next());
                     }
                     year = newyear;
