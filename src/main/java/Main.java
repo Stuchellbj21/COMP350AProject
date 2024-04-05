@@ -34,16 +34,17 @@ public class Main {
        \ (backslash),  | (vertical bar or pipe),  ? (question mark),  * (asterisk)
     */
 
-    public static boolean is_valid_name(String name) {
+    public static boolean is_valid_name(String name) throws IllegalArgumentException {
+        if(name.isEmpty()) throw new IllegalArgumentException("Error: no blank schedule or account names allowed");
         if(name.equalsIgnoreCase("major") || name.equalsIgnoreCase("account") || name.equalsIgnoreCase("accounts")) throw new IllegalArgumentException("Error: you cannot name an account or schedule 'accounts', or 'account', or 'major'");
         if(name.length() > 20) throw new IllegalArgumentException("Error: account and schedule names cannot be longer than 20 characters");
-        if(new File("Accounts\\" + currentaccnt.getUsername() + "\\" + name + (name.endsWith(".csv") ? "" : ".csv")).exists()) throw new IllegalArgumentException("Error: a schedule with name '" + name + "' already exists");
+        if(currentaccnt != null && new File("Accounts\\" + currentaccnt.getUsername() + "\\" + name + (name.endsWith(".csv") ? "" : ".csv")).exists()) throw new IllegalArgumentException("Error: a schedule with name '" + name + "' already exists");
         for(char c : name.toCharArray())
             if(c == '<' || c == '>' || c == ':' || c == '\"' || c == '/' || c == '\\' || c == '|' || c == '?' || c == '*') throw new IllegalArgumentException("Error: account and schedule names cannot contain any of the following characters: '*','?','|','/','\\','>','<',':','\"'");
         return true;
     }
 
-    public static boolean is_valid_password(String password) {
+    public static boolean is_valid_password(String password) throws IllegalArgumentException {
         if (password.length() < 7 || password.length() > 20) {
             throw new IllegalArgumentException("Error: password must be between 7 and 20 (inclusive) characters long");
         }
@@ -179,6 +180,7 @@ public class Main {
                     if(currentsched.get_name().equalsIgnoreCase("blank schedule")) autoflush.println("Error: rename schedule to something other than 'Blank Schedule' before saving");
                     else {
                         currentsched.save(currentaccnt.getUsername());
+                        currentaccnt.save_schedule(currentsched.get_name());
                         //currentaccnt.save_schedule(currentsched.get_name()); don't really have to keep track of things in the account list
                         autoflush.println(currentsched.get_name() + " saved successfully");
                     }
@@ -198,7 +200,7 @@ public class Main {
 
     public static void schedule_menu() {
         while(true) {
-            String in = input("(load) -> load a schedule/(new) -> create a new blank schedule/(ls) -> list saved schedules: ");
+            String in = input("(load) -> load a schedule/(new) -> create a new blank schedule/(ls) -> list saved schedules/(b) -> back to account menu: ");
             if(in.equalsIgnoreCase("load")) {
                 String schedname = input("Enter the name of the schedule to load: ");
                 try{
@@ -217,10 +219,8 @@ public class Main {
                 in_schedule();
             }
             else if(in.equalsIgnoreCase("ls")) currentaccnt.print_schedule_list();
-            else if(in.equalsIgnoreCase("exit")) {
-                autoflush.println("Good bye");
-                break;
-            }
+            //go back to account menu
+            else if(in.equalsIgnoreCase("b")) break;
             else autoflush.println("Error: invalid input");
         }
     }
@@ -481,7 +481,7 @@ public class Main {
         }
     }
 
-    public static void modify_schedule() throws IOException {
+    public static void modify_schedule() {
         while (true) {
             String in = input("What attribute of the current schedule would you like to modify? (name/semester/year/none): ");
             if(in.equalsIgnoreCase("name")) currentsched.set_name_with_checks(currentaccnt.getUsername());
@@ -588,26 +588,34 @@ public class Main {
                     "(close) -> exit program\n");
             if (in.equalsIgnoreCase("create")) {
                 if (createAccount()) {
-                    break; // account created successfully
+                    //successfully create account and move into schedule menu
+                    schedule_menu();
                 }
             } else if (in.equalsIgnoreCase("login")) {
                 if (login()) {
-                    break;
+                    schedule_menu();
                 }
             } else if (in.equalsIgnoreCase("close")) {
+                account_flush();
                 close_accounts();
                 System.exit(0); // kill the program with no errors
             } else {
                 autoflush.println("Error: '" + in + "' is an invalid response");
             }
         }
-        close_accounts();
     }
 
     public static boolean check_username(String userName) {
+        try{
+            is_valid_name(userName);
+        }
+        catch(IllegalArgumentException iae) {
+            autoflush.println(iae.getMessage());
+            return false;
+        }
         for (int i = 0; i < userName.length(); i++) {
             if (!Character.isLetter(userName.charAt(i)) && !Character.isDigit(userName.charAt(i))) {
-                autoflush.println("Error: username should only contains letters and digits");
+                autoflush.println("Error: username should only contain letters and digits");
                 return false;
             } else if (userName.length() > 20) {
                 autoflush.println("Error: username length cannot exceed 20 characters");
@@ -675,7 +683,6 @@ public class Main {
         if (un.equals(accounts.get(pw.hashCode()))) { //todo: ensure this is valid way to check password
             currentaccnt = new Account(un, pw, Major.COMP); //  todo: for now, this just makes a new schedule with default major;
             load_schedules();
-            scheduleMenu();
             return true;
         } else {
             autoflush.println("Incorrect password or username");
@@ -712,14 +719,14 @@ public class Main {
         return true;
     }
 
-    public static boolean create_new_Schedule() throws IOException {
+    /*public static boolean create_new_Schedule() throws IOException {
 
         String in = input("Enter <YourScheduleName> -> name schedule / (back) -> return to Schedule Menu\n");
         if (in.equalsIgnoreCase("back")) {
             scheduleMenu();
             return false;
         }
-        if (is_valid_nameAllred(in)) {
+        if (is_valid_name(in)) {
             currentaccnt.save_schedule(in); // adds course name to currentaccnt's list
             currentsched = new Schedule();
             currentsched.set_name(in);
@@ -739,19 +746,19 @@ public class Main {
                 break;
             } else if (in.equalsIgnoreCase("newS")) {
                 create_new_Schedule();
-                in_scheduleAllred();
+                scheduleMenu();
             } else if (in.equalsIgnoreCase("load")) {
                 autoflush.println("Your schedules: " + currentaccnt.get_schednames());
                 String current = input("Enter (<YourScheduleName>) --> load schedule\n");
                 if (currentaccnt.get_schednames().contains(current)) {
                     currentsched.load(currentaccnt.getUsername(), current);
-                    in_scheduleAllred();
+                    scheduleMenu();
                 } else {
                     autoflush.println("Schedule does not exist");
                 }
             }
         }
-    }
+    }*/
 
     /**
      * Reads from File that stores account identification information and stores it in accounts map
@@ -781,7 +788,6 @@ public class Main {
      * @throws IOException
      */
     public static void load_schedules() throws IOException {
-
         FileInputStream fis = new FileInputStream("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt");
         Scanner infoScan = new Scanner(fis);
         infoScan.nextLine(); // skip line that contains account information (password-hash, username, major)
@@ -817,7 +823,6 @@ public class Main {
      * @throws IOException
      */
     public static void account_flush() throws IOException {
-
         FileReader reader = new FileReader(("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt"));
         BufferedReader br = new BufferedReader(reader);
         String tempLine = br.readLine(); // save first line of file since it will be overwritten
@@ -827,7 +832,6 @@ public class Main {
         FileWriter fw = new FileWriter(f, false); // rewrite the whole file
         fw.write(tempLine + "\n");
         for (int i = 0; i < currentaccnt.get_schednames().size(); i++) {
-            System.out.println("writing file name");
             fw.write(currentaccnt.get_schednames().get(i) + ",");
         }
         fw.close();
@@ -837,10 +841,8 @@ public class Main {
         try {load_accounts();}
         catch (Exception e) {autoflush.println("no accounts to load");}
         populate_allcourses();
-        autoflush.println("Welcome to SchedulEase!");
+        autoflush.println("Welcome to Descartes Favorite Scheduling App.... Enjoy");
         accountMenu();
-        schedule_menu();
-        in_schedule();
     }
 
     public static void main(String[] args) {
