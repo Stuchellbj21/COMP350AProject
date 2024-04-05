@@ -195,6 +195,7 @@ public class Main {
                 catch(IOException ioe) {autoflush.println(ioe.getMessage());}
             }
             else if(in.equalsIgnoreCase("del")) {
+                currentaccnt.delete_schedule(currentsched.getName()); // todo
                 currentsched.delete(currentaccnt.getUsername());
                 autoflush.println("schedule deleted successfully");
                 break;
