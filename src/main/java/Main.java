@@ -185,7 +185,6 @@ public class Main {
                     else {
                         currentsched.save(currentaccnt.getUsername());
                         currentaccnt.save_schedule(currentsched.get_name());
-                        //currentaccnt.save_schedule(currentsched.get_name()); don't really have to keep track of things in the account list
                         autoflush.println(currentsched.get_name() + " saved successfully");
                     }
                 }
@@ -600,7 +599,9 @@ public class Main {
                     schedule_menu();
                 }
             } else if (in.equalsIgnoreCase("close")) {
-                account_flush();
+                if (currentaccnt != null) {
+                    account_flush(); // should not be called when no accounts have been made
+                }
                 close_accounts();
                 System.exit(0); // kill the program with no errors
             } else {

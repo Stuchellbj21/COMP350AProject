@@ -61,8 +61,11 @@ public class Account {
      * @return true once of the schedule has been added
      */
     public boolean save_schedule(String sched_name) {
-        schednames.add(sched_name);
-        return true;
+        if (!schednames.contains(sched_name)) { // Changed this to check for sched_name in list
+            schednames.add(sched_name);
+            return true;
+        }
+        return false;
     }
 
     /*public Schedule load_schedule(String schedname) {
