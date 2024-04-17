@@ -77,4 +77,15 @@ public class TestCourse {
         Course c = new Course("Imitation Game",'A',Major.COMP,477,3,3,20,"Willard Wongleton",2077,"Fall",null,dts);
         System.out.println(c);
     }
+
+    @Test
+    public void idTest() {
+        ArrayList<DayTime> times = new ArrayList<>();
+        times.add(new DayTime("09:00 AM","12:00 PM",'M'));
+        times.add(new DayTime("09:00 AM","12:00 PM",'W'));
+        times.add(new DayTime("09:00 AM","12:00 PM",'F'));
+        times.add(new DayTime("03:00 PM","06:00 PM",'R'));
+        Course c = new Course("Enrichment of the Mentality Complex",'B',Major.ACCT,820,3,10,10,"Greg Bilbod",2050,"Fall",null,times);
+        System.out.println(c.get_id());
+    }
 }
