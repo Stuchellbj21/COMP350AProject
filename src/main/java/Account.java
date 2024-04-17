@@ -12,6 +12,7 @@ public class Account {
     private int passwordhash;
     private Major major;
     private List<String> schednames;
+    private List<String> preffered_profs;
     public Account(){
         this.username = "empty";
     }
@@ -115,6 +116,30 @@ public class Account {
             }
         }
         if(!hasSchedule) Main.autoflush.println("\tNone");
+    }
+
+    public void add_pref_prof(String professor) {
+        preffered_profs.add(professor);
+    }
+
+    public void print_pref_profs(){
+        System.out.print("List of Preferred Professors: ");
+        for (int i = 0; i < preffered_profs.size(); i++){
+            if (i == preffered_profs.size()-1){
+                System.out.print(preffered_profs.get(i));
+            } else {
+                System.out.print(preffered_profs.get(i) + ", ");
+            }
+        }
+        System.out.println();
+    }
+
+    public boolean has_pref_profs(){
+        if (preffered_profs.isEmpty()){
+            return false;
+        } else {
+            return true;
+        }
     }
 
     //NOT IMPLEMENTED
