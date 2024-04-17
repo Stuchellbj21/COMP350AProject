@@ -13,6 +13,10 @@ public class Account {
     private Major major;
     private List<String> schednames;
     private List<String> preffered_profs;
+
+    private List<String> folders;
+
+    private List<String> list_of_folders;
     public Account(){
         this.username = "empty";
     }
@@ -30,6 +34,7 @@ public class Account {
         this.passwordhash = password.hashCode();
         this.major = major;
         schednames = new ArrayList<String>();
+        folders = new ArrayList<>();
     }
 
     //getters + setters not added yet
@@ -142,8 +147,38 @@ public class Account {
         }
     }
 
+    public List<String> get_pref_profs(){
+        return preffered_profs;
+    }
+
+    public StringBuilder str_pref_prof_list(){
+        StringBuilder profs = new StringBuilder();
+        for (String prefferedProf : preffered_profs) {
+            profs.append(prefferedProf).append(",");
+        }
+        return profs;
+    }
+
     //NOT IMPLEMENTED
     public int num_scheds(){
         return schednames.size();
+    }
+
+    public void load_folders(List<String> folder_names) {
+        for (int i = 0; i < folder_names.size(); i++) {
+            folders.add(folder_names.get(i));
+        }
+    }
+
+    public void add_folder(String folder_name){
+        folders.add(folder_name);
+    }
+
+    public List<String> get_folders(){
+        return folders;
+    }
+
+    public void add_to_folder(Folder folder_name, String schedule_name) {
+        folder_name.add_schedule(schedule_name);
     }
 }
