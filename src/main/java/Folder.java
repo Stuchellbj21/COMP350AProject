@@ -1,11 +1,23 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Folder {
     private List<String> list_of_scheds;
 
-    public Folder(){
+    private String f_name;
+
+    public Folder(String folder_name){
         list_of_scheds = new ArrayList<>();
+        f_name = folder_name;
+    }
+
+    public String getF_name(){
+        return f_name;
     }
 
     public void add_schedule(String sched_name) {
@@ -17,6 +29,67 @@ public class Folder {
             return false;
         } else {
             return true;
+        }
+    }
+
+    public void save_folder(String accountname) throws FileNotFoundException {
+        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + f_name + ".txt");
+        PrintWriter pw = new PrintWriter(fos);
+        pw.println(f_name);
+        for (int i = 0; i < list_of_scheds.size(); i++) {
+            if (i == list_of_scheds.size()-1){
+                pw.print(list_of_scheds.get(i));
+            } else {
+                pw.print(list_of_scheds.get(i) + ",");
+            }
+        }
+        pw.close();
+    }
+
+    public void load_folder(String account_name,String folder_name) throws FileNotFoundException {
+        FileInputStream fis = new FileInputStream("Accounts" + '\\' + account_name + '\\' + folder_name + (folder_name.endsWith(".txt") ? "" : ".txt"));
+        Scanner fscn = new Scanner(fis);
+        String name = fscn.nextLine().replace("\n","");
+        f_name = name;
+        Scanner scheds = new Scanner(fscn.nextLine());
+        scheds.useDelimiter(",");
+        while (scheds.hasNext()){
+            list_of_scheds.add(scheds.next());
+        }
+        to_str();
+        scheds.close();
+        fscn.close();
+    }
+
+    public StringBuilder to_str() {
+        StringBuilder folder = new StringBuilder();
+        System.out.println("Folder: " + f_name);
+        folder.append("List of schedules:\n");
+        for (int i = 0; i < list_of_scheds.size(); i++) {
+            String curr_num = String.valueOf(i+1);
+            folder.append(curr_num + ". " + list_of_scheds.get(i)+"\n");
+        }
+        return folder;
+    }
+
+    public List<String> getList_of_scheds(){
+        return list_of_scheds;
+    }
+
+    public boolean remove_sched(String sched_rem){
+        boolean found = false;
+        int index_rem = -500;
+        for (int i = 0; i < list_of_scheds.size(); i++) {
+            if (list_of_scheds.get(i).equals(sched_rem)){
+                found = true;
+                index_rem = i;
+            }
+        }
+        if (found){
+            list_of_scheds.remove(index_rem);
+            return true;
+        } else {
+            return false;
         }
     }
 }
