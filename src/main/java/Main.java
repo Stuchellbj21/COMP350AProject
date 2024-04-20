@@ -830,6 +830,10 @@ public class Main {
         fw.close();
     }
 
+    /**
+     * Method creates a new folder in the account and assigns the new folder to the current_folder object
+     * @throws IOException
+     */
     public static void create_folder() throws IOException {
         autoflush.println("Enter the name for your folder:");
         Scanner scnr = new Scanner(System.in);
