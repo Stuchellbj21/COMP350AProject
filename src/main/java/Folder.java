@@ -67,10 +67,15 @@ public class Folder {
     public StringBuilder to_str() {
         StringBuilder folder = new StringBuilder();
         System.out.println("Folder: " + f_name);
-        folder.append("List of schedules:\n");
-        for (int i = 0; i < list_of_scheds.size(); i++) {
-            String curr_num = String.valueOf(i+1);
-            folder.append(curr_num + ". " + list_of_scheds.get(i)+"\n");
+        folder.append("List of schedules: ");
+        if (list_of_scheds.isEmpty()) {
+            System.out.println("No schedules saved in folder\n");
+        } else {
+            System.out.println();
+            for (int i = 0; i < list_of_scheds.size(); i++) {
+                String curr_num = String.valueOf(i + 1);
+                folder.append(curr_num + ". " + list_of_scheds.get(i) + "\n");
+            }
         }
         return folder;
     }

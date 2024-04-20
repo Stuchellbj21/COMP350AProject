@@ -847,8 +847,12 @@ public class Main {
     public static void print_folder_list() {
         List<String> folders = currentaccnt.get_folders();
         autoflush.println("List of saved folders:");
-        for (String folder : folders) {
-            autoflush.println("   - " + folder);
+        if (folders.isEmpty()){
+            autoflush.println("No folders saved in account.");
+        } else {
+            for (String folder : folders) {
+                autoflush.println("   - " + folder);
+            }
         }
         autoflush.println();
     }
