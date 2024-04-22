@@ -16,7 +16,6 @@ public class Account {
 
     private List<String> folders;
 
-    private List<String> list_of_folders;
     public Account(){
         this.username = "empty";
     }
@@ -74,12 +73,6 @@ public class Account {
         return false;
     }
 
-    /*public Schedule load_schedule(String schedname) {
-        //currentsched = new Schedule(username,schedname);
-        //return currentsched;
-    } //default is to work with new Schedule*/
-
-    //NOT IMPLEMENTED
     public boolean delete_schedule(String schedname) {
         schednames.remove(schedname);
         return true;
@@ -178,7 +171,14 @@ public class Account {
         return folders;
     }
 
-    public void add_to_folder(Folder folder_name, String schedule_name) {
-        folder_name.add_schedule(schedule_name);
+    public void remove_folder(String folder_name) {
+        int index = -1;
+        for (int i = 0; i < folders.size(); i++) {
+            if (folders.get(i).equals(folder_name)){
+                index = i;
+            }
+        }
+        folders.remove(index);
+        System.out.println("Folder '" + folder_name + "' removed from account.\n");
     }
 }
