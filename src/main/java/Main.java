@@ -61,6 +61,7 @@ public class Main {
 
     //account has a schedule instance that is worked on
     public static void populate_allcourses() throws IOException {
+        allcourses = new ArrayList<>();
         FileInputStream fis = new FileInputStream("2020-2021.csv");
         Scanner csvscn = new Scanner(fis);
         //accounts = new HashMap<Integer, String>();
@@ -145,6 +146,7 @@ public class Main {
     }
 
     public static void add_course(Course add) {
+        //don't have to check null since we make allcourses a new ArrayList at start of populate_allcourses
         if (!allcourses.isEmpty()) {
             Course last = allcourses.getLast();
             //if the course is the same as the one before, just merge the daytimes into the last course
@@ -346,7 +348,8 @@ public class Main {
     public static DayTime get_time_for_filter(boolean modify) {
         while(true) {
             if(!filter_move_forward(modify,FilterType.TIME)) return null;
-            String start = input("Enter start time in the form XX:XX PM/AM (where X is a digit): ").toUpperCase();
+            String start = input("Enter start time in the form XX:XX PM/AM (where X is a digit), or none (to only get classes with no times listed): ").toUpperCase();
+            if(start.equalsIgnoreCase("none")) return new DayTime(start,"none",'_');
             if(!DayTime.is_valid_time(start)) {
                 autoflush.println("Error: '" + start + "' is not a valid time");
                 continue;
@@ -617,11 +620,11 @@ public class Main {
         }
     }
 
-    public static boolean check_username(String userName) {
+    public static boolean check_username(String username) {
         try{
             //issue if name conflict with accounts
-            if(currentaccnt != null && new File("Accounts\\" + userName + "\\").exists()) throw new IllegalArgumentException("Error: a schedule with name '" + userName + "' already exists");
-            is_valid_name(userName);
+            if(new File("Accounts\\" + username + "\\").exists() || accounts.containsValue(username)) throw new IllegalArgumentException("Error: an account with name '" + username + "' already exists");
+            is_valid_name(username);
         }
         catch(IllegalArgumentException iae) {
             autoflush.println(iae.getMessage());
@@ -731,7 +734,6 @@ public class Main {
      * @throws FileNotFoundException
      */
     public static void load_accounts() throws FileNotFoundException {
-        allcourses = new ArrayList<>();
         //Opens a file to the accoutns directory text file
         File accts = new File("Accounts\\account_direc.txt");
         Scanner acct_scnr = new Scanner(accts);
