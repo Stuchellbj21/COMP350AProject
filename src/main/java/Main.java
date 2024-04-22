@@ -206,9 +206,9 @@ public class Main {
         }
     }
 
-    public static void schedule_menu() {
+    public static void schedule_menu() throws IOException {
         while(true) {
-            String in = input("(load) -> load a schedule/(new) -> create a new blank schedule/(ls) -> list saved schedules/(b) -> back to account menu: ");
+            String in = input("(load) -> load a schedule/(new) -> create a new blank schedule/(ls) -> list saved schedules/(f) -> create a folder/(lf) -> list of folders/(b) -> back to account menu: ");
             if(in.equalsIgnoreCase("load")) {
                 String schedname = input("Enter the name of the schedule to load: ");
                 try{
@@ -229,6 +229,8 @@ public class Main {
             else if(in.equalsIgnoreCase("ls")) currentaccnt.print_schedule_list();
             //go back to account menu
             else if(in.equalsIgnoreCase("b")) break;
+            else if(in.equalsIgnoreCase("f")) create_folder();
+            else if(in.equalsIgnoreCase("lf")) print_folder_list();
             else autoflush.println("Error: invalid input");
         }
     }
@@ -686,6 +688,7 @@ public class Main {
         if (un.equals(accounts.get(pw.hashCode()))) { //todo: ensure this is valid way to check password
             currentaccnt = new Account(un, pw, Major.COMP); //  todo: for now, this just makes a new schedule with default major;
             load_schedules();
+            load_folders();
             return true;
         } else {
             autoflush.println("Incorrect password or username");
@@ -795,10 +798,28 @@ public class Main {
         FileInputStream fis = new FileInputStream("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt");
         Scanner infoScan = new Scanner(fis);
         infoScan.nextLine(); // skip line that contains account information (password-hash, username, major)
+        String schedules = infoScan.nextLine().replace("\n","");
+        Scanner schedScan = new Scanner(schedules);
+        schedScan.useDelimiter(",");
+        while (schedScan.hasNext()) {
+            String temp = schedScan.next();
+            currentaccnt.save_schedule(temp);
+        }
+        infoScan.close();
+        fis.close();
+    }
+
+    public static void load_folders() throws IOException {
+        FileInputStream fis = new FileInputStream("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt");
+        Scanner infoScan = new Scanner(fis);
+        infoScan.nextLine(); // skip line that contains account information (password-hash, username, major)
+        infoScan.nextLine();
         infoScan.useDelimiter(",");
         while (infoScan.hasNext()) {
             String temp = infoScan.next();
-            currentaccnt.save_schedule(temp);
+            if (!(temp.equals("\n"))) {
+                currentaccnt.add_folder(temp);
+            }
         }
         infoScan.close();
         fis.close();
@@ -837,9 +858,33 @@ public class Main {
         FileWriter fw = new FileWriter(f, false); // rewrite the whole file
         fw.write(tempLine + "\n");
         for (int i = 0; i < currentaccnt.get_schednames().size(); i++) {
-            fw.write(currentaccnt.get_schednames().get(i) + ",");
+            if (i != currentaccnt.get_schednames().size()-1) {
+                fw.write(currentaccnt.get_schednames().get(i) + ",");
+            } else {
+                fw.write(currentaccnt.get_schednames().get(i));
+            }
+        }
+        fw.write("\n");
+        for (int i = 0; i < currentaccnt.get_folders().size(); i++) {
+            fw.write(currentaccnt.get_folders().get(i) + ",");
         }
         fw.close();
+    }
+
+    public static void create_folder() throws IOException {
+        autoflush.println("Enter the name for your folder:");
+        Scanner scnr = new Scanner(System.in);
+        String folder_name = scnr.next();
+        currentaccnt.add_folder(folder_name);
+        autoflush.println("Folder " + folder_name + " created successfully!");
+    }
+
+    public static void print_folder_list() {
+        List<String> folders = currentaccnt.get_folders();
+        autoflush.println("List of saved folders:");
+        for (int i = 0; i < folders.size(); i++){
+            autoflush.println("   - " + folders.get(i));
+        }
     }
 
     public static void run() throws IOException {
