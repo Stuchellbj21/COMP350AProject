@@ -166,7 +166,21 @@ public class Schedule {
         add_classes_for_day_to_str('W',sb);
         add_classes_for_day_to_str('R',sb);
         add_classes_for_day_to_str('F',sb);
-        return sb.append("-------------------------------------").toString();
+        sb.append("-------------------------------------");
+        add_no_times(sb);
+        return sb.toString();
+    }
+
+    private void add_no_times(StringBuilder sb) {
+        int count = 0;
+        for(Course c : courses) {
+            if(c.has_no_times()) {
+                String coursestr = new StringBuilder(c.getMajor().name()).append(' ').append(c.getCourseNum()).append(' ').append(c.getSection()).toString();
+                if(count++ == 0) sb.append("\nNo Times Listed For: ").append(coursestr);
+                else sb.append(", ").append(coursestr);
+            }
+        }
+        if(count > 0) sb.append("\n-------------------------------------");
     }
 
     private void add_classes_for_day_to_str(char day, StringBuilder sb) {
@@ -196,7 +210,7 @@ public class Schedule {
      */
     public boolean add_course(Course course) {
         if(course.isFull()) throw new IllegalArgumentException("Error: " + course.short_str(true) + " is full already");
-        if(course.getTimes() == null || course.getTimes().isEmpty()) throw new IllegalArgumentException("Error: courses with no times listed cannot be added to schedules");
+        //if(course.has_no_times()) throw new IllegalArgumentException("Error: courses with no times listed cannot be added to schedules");
         if(!course.getSemester().equalsIgnoreCase(semester) || course.getYear() != year) throw new IllegalArgumentException("Error: " + course.short_str(true) + " cannot be added as it is for a different semester than this schedule is");
         for(Course c : courses) {
             //if the times overlap or they are the same class as something already in the schedule or the course is full

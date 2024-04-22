@@ -1,9 +1,11 @@
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestCourse {
 
     Course Course;
@@ -87,5 +89,13 @@ public class TestCourse {
         times.add(new DayTime("03:00 PM","06:00 PM",'R'));
         Course c = new Course("Enrichment of the Mentality Complex",'B',Major.ACCT,820,3,10,10,"Greg Bilbod",2050,"Fall",null,times);
         System.out.println(c.get_id());
+    }
+
+    @Test
+    public void test_no_times() throws IOException {
+        Main.populate_allcourses();
+        //astr 206 b has no times
+        Course astr206b = Main.search.search("fall astr 206 b").getFirst();
+        for(Course c : Main.allcourses) assertFalse(astr206b.times_overlap_with(c));
     }
 }

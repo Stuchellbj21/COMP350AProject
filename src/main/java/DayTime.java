@@ -15,11 +15,19 @@ public class DayTime implements Comparable<DayTime> {
     private int militaryend; //could represent 12:45 AM as 0045 and 3:50 PM as 1550.... 11:59 PM = 2359
 
     public DayTime(String st, String et, char d) {
-        starttime = put_in_correct_format(st);
-        endtime = put_in_correct_format(et);
-        militarystart = to_military_time(starttime);
-        militaryend = to_military_time(endtime);
-        day = Character.toUpperCase(d); //day is not initialized in this constructor
+        //special case for none in time filter
+        if (st.equalsIgnoreCase("none")) {
+            starttime = endtime = "none";
+            day = '_';
+            militarystart = militaryend = -1;
+        }
+        else {
+            starttime = put_in_correct_format(st);
+            endtime = put_in_correct_format(et);
+            militarystart = to_military_time(starttime);
+            militaryend = to_military_time(endtime);
+            day = Character.toUpperCase(d); //day is not initialized in this constructor
+        }
     }
 
     public DayTime() {
