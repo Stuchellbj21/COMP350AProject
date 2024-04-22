@@ -133,7 +133,7 @@ public class Search {
                 //section
                 if(s.length() == 1 && Character.isAlphabetic(s.charAt(0))) w++;
                 //coursenum
-                else if(s.length() == 3 && Main.is_numeric(s)) w+=3;
+                else if(s.length() == 3 && GeneralUtils.is_numeric(s)) w+=3;
                 //major
                 else if(s.length() == 4 && Major.is_major(s)) w+=4;
                 //everything else
@@ -193,4 +193,23 @@ public class Search {
             sb.append('\n').append(activefilters.get(i));
         return sb.toString();
     }*/
+
+    public static void prompt_and_search() {
+        int threshold;
+        boolean sorted = false;
+        while (true) {
+            String in = GeneralUtils.input("Enter maximum number of visible search results: ");
+            try {
+                threshold = Integer.parseInt(in);
+                sorted = GeneralUtils.want_more('s');
+                break;
+            } catch (NumberFormatException nfe) {
+                Main.autoflush.println("Error: " + in + " is not a valid integer. Enter an integer value.");
+            } catch (IllegalArgumentException iae) {
+                Main.autoflush.println(iae.getMessage());
+            }
+        }
+        Main.search.search(GeneralUtils.input("Enter search string: "), sorted);
+        Main.autoflush.println(Main.search.to_str(threshold));
+    }
 }
