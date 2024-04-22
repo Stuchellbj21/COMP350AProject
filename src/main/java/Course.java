@@ -174,6 +174,7 @@ public class Course {
     // this checks two classes to determine if time is the same, later will be accessed in search and schedule to prevent
     public boolean times_overlap_with(Course other) {
         //do I have to do an n^2? It seems like it
+        //should return false if there are no times listed
         for(DayTime thisdt : this.times) {
             for(DayTime otherdt : other.times) if(thisdt.equals(otherdt) || thisdt.overlaps(otherdt)) return true;
         }
@@ -190,6 +191,8 @@ public class Course {
         return o.section == section && o.major == major && o.coursenum == coursenum
         && o.year == this.year && o.semester.equals(semester);
     }
+
+    public boolean has_no_times() {return times == null || times.isEmpty();}
 
     @Override
     public String toString() {
