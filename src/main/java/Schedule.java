@@ -383,6 +383,87 @@ public class Schedule {
         fscn.close();
     }
 
+    public void f_load(String accountname,String fname,String sname) throws IOException {
+        FileInputStream fis = new FileInputStream("Accounts" + '\\' + accountname + '\\' + fname + '\\' + sname + (sname.endsWith(".csv") ? "" : ".csv"));
+        Scanner fscn = new Scanner(fis);
+        //skip descriptor line
+        if (!fscn.nextLine().equals("name,semester,year,credits"))
+            throw new InputMismatchException("input file is not in the correct format");
+        //don't let user make/save partially filled schedules (all of name, semester, year, and credits must be given)
+        //a schedule may have an empty course list however
+        String data = fscn.nextLine();
+        //if(!data.equals("--")) {
+        Scanner parser = new Scanner(data);
+        parser.useDelimiter(",");
+        //could add if checks to all of the following
+        name = parser.next();
+        semester = parser.next();
+        year = parser.nextInt();
+        credits = parser.nextInt();
+        courses.clear();
+        parser.close();
+        //else return false;
+        //get past descriptors
+        fscn.nextLine();
+        fscn.nextLine();
+        //read in courses
+        data = fscn.nextLine();
+        //'--' will denote that there are no courses
+        if (!data.equals("--")) {
+            boolean first = true;
+            while (first || fscn.hasNextLine()) {
+                //we've already got the new line for the first iteration
+                //but on later iterations we need to scan a new line
+                if (first) first = false;
+                else data = fscn.nextLine();
+                parser = new Scanner(data);
+                parser.useDelimiter(",");
+                //define defaults for all variables for Course
+                String cname = "", prof = "", csem = "";
+                char section = '_';
+                Major major = Major.COMP;
+                int coursenum = -1, ccredits = 0, numstudents = 0, capacity = 0, cyear = -1;
+                Set<Major> requiredby = new HashSet<>();
+                List<DayTime> daytimes = new ArrayList<>();
+                for (int i = 0; parser.hasNext(); i++) {
+                    data = parser.next();
+                    //shouldn't have to deal with blanks here (should have saved correctly)
+                    //name,section,major,coursenum,credits,numstudents,capacity,professor,year,semester,times(start-end-day-start-end-day-start-end-day-....),requiredby(m1-m2-m3-m4-....)
+                    switch (i) {
+                        //name
+                        case 0 -> cname = data;
+                        //section
+                        case 1 -> section = data.charAt(0);
+                        //major
+                        case 2 -> major = Major.valueOf(data);
+                        //coursenum
+                        case 3 -> coursenum = Integer.parseInt(data);
+                        //credits
+                        case 4 -> ccredits = Integer.parseInt(data);
+                        //numstudents
+                        case 5 -> numstudents = Integer.parseInt(data);
+                        //capacity
+                        case 6 -> capacity = Integer.parseInt(data);
+                        //prof
+                        case 7 -> prof = data;
+                        //year
+                        case 8 -> cyear = Integer.parseInt(data);
+                        //semester
+                        case 9 -> csem = data;
+                        //times
+                        case 10 -> load_daytimes(data, daytimes);
+                        //requiredby
+                        case 11 -> load_required_by(data, requiredby);
+                    }
+                }
+                courses.add(new Course(cname, section, major, coursenum, ccredits, numstudents, capacity, prof, cyear, csem, requiredby, daytimes));
+                update_times_per_day();
+            }
+            System.out.println(courses);
+        }
+        fscn.close();
+    }
+
     public void load_daytimes(String data, List<DayTime> daytimes) {
         if (!data.isBlank()) {
             Scanner t = new Scanner(data);
