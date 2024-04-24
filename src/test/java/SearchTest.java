@@ -47,4 +47,21 @@ public class SearchTest {
         s.activate_new_filter(new DaysFilter(s.get_filtered_results(), Set.of('W','M','F')));
         System.out.println(s.to_str(10));
     }
+
+    @Test
+    public void test_partial_matching() throws IOException {
+        Main.populate_allcourses();
+        //TODO: work with this and see what is going on with weights
+        Search s = new Search("no time");
+        s.search("astr 207 c no time",10,true);
+        Course c = s.get_filtered_results().getFirst();
+        System.out.println(c);
+        System.out.println(c.toString().length());
+        System.out.println(s.get_weight(c));
+        /*for(Course c : s.get_filtered_results()) {
+            System.out.println(c);
+            System.out.println(c.toString().length());
+            System.out.println(s.get_weight(c));
+        }*/
+    }
 }
