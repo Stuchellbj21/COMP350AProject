@@ -34,8 +34,10 @@ public class Folder {
         }
     }
 
-    public void save_folder(String accountname) throws FileNotFoundException {
-        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + f_name + ".txt");
+    public void save_folder(String accountname) throws IOException {
+        File f = new File("Accounts\\" + accountname + '\\' + f_name);
+        f.mkdir();
+        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + f_name + '\\' + f_name + ".txt");
         PrintWriter pw = new PrintWriter(fos);
         pw.print(f_name+"\n");
         for (int i = 0; i < list_of_scheds.size(); i++) {
@@ -49,7 +51,7 @@ public class Folder {
     }
 
     public void load_folder(String account_name,String folder_name) throws FileNotFoundException {
-        FileInputStream fis = new FileInputStream("Accounts" + '\\' + account_name + '\\' + folder_name + (folder_name.endsWith(".txt") ? "" : ".txt"));
+        FileInputStream fis = new FileInputStream("Accounts" + '\\' + account_name + '\\' + folder_name + '\\' + folder_name + (folder_name.endsWith(".txt") ? "" : ".txt"));
         Scanner fscn = new Scanner(fis);
         String name = fscn.nextLine().replace("\n","");
         f_name = name;
@@ -64,10 +66,27 @@ public class Folder {
         fscn.close();
     }
 
+    public List<String> print_schedule_list(String username) {
+        List<String> scheds = new ArrayList<>();
+        File account = new File("Accounts\\" + username);
+        boolean hasSchedule = false;
+        if(account.listFiles() != null) {
+            for (File f : account.listFiles()) {
+                if (f.getName().endsWith(".csv")) {
+                    //cut off .csv
+                    String name = (f.getName().substring(0, f.getName().length() - 4));
+                    scheds.add(name);
+                    if (!hasSchedule) hasSchedule = true;
+                }
+            }
+        }
+        return scheds;
+    }
+
     public StringBuilder to_str() {
         StringBuilder folder = new StringBuilder();
         System.out.println("Folder: " + f_name);
-        folder.append("List of schedules: ");
+        folder.append("List of schedules: \n");
         if (list_of_scheds.isEmpty()) {
             System.out.println("No schedules saved in folder\n");
         } else {

@@ -1,4 +1,7 @@
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class Main {
@@ -759,12 +762,14 @@ public class Main {
         FileInputStream fis = new FileInputStream("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt");
         Scanner infoScan = new Scanner(fis);
         infoScan.nextLine(); // skip line that contains account information (password-hash, username, major)
-        String schedules = infoScan.nextLine().replace("\n","");
-        Scanner schedScan = new Scanner(schedules);
-        schedScan.useDelimiter(",");
-        while (schedScan.hasNext()) {
-            String temp = schedScan.next();
-            currentaccnt.save_schedule(temp);
+        if (infoScan.hasNextLine()) {
+            String schedules = infoScan.nextLine().replace("\n", "");
+            Scanner schedScan = new Scanner(schedules);
+            schedScan.useDelimiter(",");
+            while (schedScan.hasNext()) {
+                String temp = schedScan.next();
+                currentaccnt.save_schedule(temp);
+            }
         }
         infoScan.close();
         fis.close();
@@ -774,12 +779,13 @@ public class Main {
         FileInputStream fis = new FileInputStream("Accounts\\" + currentaccnt.getUsername() + '\\' + "info.txt");
         Scanner infoScan = new Scanner(fis);
         infoScan.nextLine(); // skip line that contains account information (password-hash, username, major)
-        infoScan.nextLine();
-        infoScan.useDelimiter(",");
-        while (infoScan.hasNext()) {
-            String temp = infoScan.next();
-            if (!(temp.equals("\n"))) {
-                currentaccnt.add_folder(temp);
+        if (infoScan.hasNextLine()) {
+            infoScan.useDelimiter(",");
+            while (infoScan.hasNext()) {
+                String temp = infoScan.next();
+                if (!(temp.equals("\n"))) {
+                    currentaccnt.add_folder(temp);
+                }
             }
         }
         infoScan.close();
@@ -864,7 +870,7 @@ public class Main {
             String in = input("(load) -> load a folder/(new) -> create a new folder/(lf) -> list of folders/(b) -> back to account menu: \n");
             if(in.equalsIgnoreCase("load")) {
                 String folder_name = input("Enter the name of the folder to load: ");
-                if(new File("Accounts\\" + currentaccnt.getUsername() + "\\" + folder_name + (folder_name.endsWith(".txt") ? "" : ".txt")).exists()) {
+                if(new File("Accounts\\" + currentaccnt.getUsername() + "\\" + folder_name + '\\' + folder_name + (folder_name.endsWith(".txt") ? "" : ".txt")).exists()) {
                     current_folder.load_folder(currentaccnt.getUsername(), folder_name);
                     autoflush.println("Folder '" + folder_name + "' loaded successfully\n");
                     in_folder();
@@ -877,10 +883,11 @@ public class Main {
             else if(in.equalsIgnoreCase("b")) break;
             else if(in.equalsIgnoreCase("lf")) print_folder_list();
             else autoflush.println("Error: invalid input");
+            current_folder = new Folder();
         }
     }
 
-    public static void in_folder() throws FileNotFoundException {
+    public static void in_folder() throws IOException {
         while(true) {
             autoflush.println(current_folder.to_str());
             //modify will allow editing of the folder
@@ -890,8 +897,8 @@ public class Main {
             else if(in.equalsIgnoreCase("open")) {
                 String schedname = input("Enter the name of the schedule to load: ");
                 try{
-                    if(new File("Accounts\\" + currentaccnt.getUsername() + "\\" + schedname + (schedname.endsWith(".csv") ? "" : ".csv")).exists()) {
-                        currentsched.load(currentaccnt.getUsername(), schedname);
+                    if(new File("Accounts\\" + currentaccnt.getUsername() + "\\" + current_folder.getF_name() + "\\" + schedname + (schedname.endsWith(".csv") ? "" : ".csv")).exists()) {
+                        currentsched.f_load(currentaccnt.getUsername(), current_folder.getF_name(), schedname);
                         autoflush.println("Schedule '" + schedname + "' loaded successfully\n");
                         in_schedule();
                     }
@@ -911,30 +918,37 @@ public class Main {
         }
     }
 
-    public static void add_schedule(){
+    public static void add_schedule() throws IOException {
         autoflush.println("Enter the name number of the schedule you would like to add to the '" + current_folder.getF_name() + "' folder:");
-        for (int i = 0; i < currentaccnt.get_schednames().size(); i++) {
-            autoflush.println(i+1 + ". " + currentaccnt.get_schednames().get(i));
-        }
-        int num_scheds = currentaccnt.get_schednames().size();
-        Scanner input = new Scanner(System.in);
-        int choice = Integer.parseInt(input.next());
-        while (choice < 1 || choice > num_scheds){
-            autoflush.println("Invalid choice, please try again.");
-            choice = Integer.parseInt(input.next());
-        }
-        choice--;
-        String added_sched = currentaccnt.get_schednames().get(choice);
-        if (!(current_folder.contains_sched(added_sched))) {
-            current_folder.add_schedule(added_sched);
-            autoflush.println("Schedule '" + added_sched + "' has been added to folder '" + current_folder.getF_name()+"'");
+        List<String> curr_scheds = current_folder.print_schedule_list(currentaccnt.getUsername());
+        if (curr_scheds.isEmpty()){
+            autoflush.println("No schedules to add.");
         } else {
-            autoflush.println("Folder already contains schedule '" + added_sched +"'\n");
+            for (int i = 0; i < curr_scheds.size(); i++) {
+                autoflush.println(i + 1 + ". " + curr_scheds.get(i));
+            }
+            int num_scheds = curr_scheds.size();
+            Scanner input = new Scanner(System.in);
+            int choice = Integer.parseInt(input.next());
+            while (choice < 1 || choice > num_scheds) {
+                autoflush.println("Invalid choice, please try again.");
+                choice = Integer.parseInt(input.next());
+            }
+            choice--;
+            String added_sched = curr_scheds.get(choice);
+            if (!(current_folder.contains_sched(added_sched))) {
+                current_folder.add_schedule(added_sched);
+                Path temp = Files.move(Paths.get("Accounts" + '\\' + currentaccnt.getUsername() + '\\' + added_sched + ".csv"), Paths.get("Accounts" + '\\' + currentaccnt.getUsername() + '\\' + current_folder.getF_name() + '\\' + added_sched + ".csv"));
+                autoflush.println("Schedule '" + added_sched + "' has been added to folder '" + current_folder.getF_name() + "'");
+            } else {
+                autoflush.println("Folder already contains schedule '" + added_sched + "'\n");
+            }
         }
     }
 
-    public static void remove_sched(){
+    public static void remove_sched() throws IOException {
         autoflush.println("Enter the number of the schedule you'd like to remove from folder " + current_folder.getF_name());
+        current_folder.print_schedule_list(currentaccnt.getUsername());
         for (int i = 0; i < current_folder.getList_of_scheds().size(); i++) {
             autoflush.println(i+1 + ". " + current_folder.getList_of_scheds().get(i));
         }
@@ -949,6 +963,7 @@ public class Main {
             String added_sched = current_folder.getList_of_scheds().get(choice);
             if (current_folder.contains_sched(added_sched)) {
                 if (current_folder.remove_sched(added_sched)) {
+                    Path temp = Files.move(Paths.get("Accounts" + '\\' + currentaccnt.getUsername() + '\\' + current_folder.getF_name() + '\\' + added_sched + ".csv"), Paths.get("Accounts" + '\\' + currentaccnt.getUsername() + '\\' + added_sched + ".csv"));
                     autoflush.println("Schedule " + added_sched + " removed from folder " + current_folder.getF_name() +"\n");
                 } else {
                     autoflush.println("Removal unsuccessful. Sorry.");
@@ -976,6 +991,7 @@ public class Main {
         }
     }
 
+    //TODO: Fix so that schedules deleted in a folder are also deleted in an account
     public static void delete_folder(){
         String folder_name = current_folder.getF_name();
         currentaccnt.remove_folder(folder_name);
