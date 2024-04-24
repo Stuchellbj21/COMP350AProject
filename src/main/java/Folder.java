@@ -4,42 +4,35 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Folder {
-    private List<String> list_of_scheds;
+    private List<String> scheds;
 
-    private String f_name;
+    private String name;
 
     public Folder(String folder_name){
-        list_of_scheds = new ArrayList<>();
-        f_name = folder_name;
+        scheds = new ArrayList<>();
+        name = folder_name;
     }
 
     public Folder(){
-        list_of_scheds = new ArrayList<>();
-        f_name = "New folder";
+        scheds = new ArrayList<>();
+        name = "New folder";
     }
 
-    public String getF_name(){
-        return f_name;
-    }
-
-    public void add_schedule(String sched_name) {
-        list_of_scheds.add(sched_name);
+    public String getName(){
+        return name;
     }
 
     public boolean has_scheds(){
-        if (list_of_scheds.isEmpty()){
-            return false;
-        } else {
-            return true;
-        }
+        return scheds != null && !scheds.isEmpty();
     }
 
     public void save_folder(String accountname) throws IOException {
-        File f = new File("Accounts\\" + accountname + '\\' + f_name);
+        File f = new File("Accounts\\" + accountname + '\\' + name);
         f.mkdir();
-        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + f_name + '\\' + f_name + ".txt");
+        //FIXME: KEEPING A TXT FILE DOESN'T SEEM NECESSARY
+        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + name + '\\' + name + ".txt");
         PrintWriter pw = new PrintWriter(fos);
-        pw.print(f_name+"\n");
+        pw.print(name+"\n");
         for (int i = 0; i < list_of_scheds.size(); i++) {
             if (i == list_of_scheds.size()-1){
                 pw.print(list_of_scheds.get(i));
@@ -53,34 +46,35 @@ public class Folder {
     public void load_folder(String account_name,String folder_name) throws FileNotFoundException {
         FileInputStream fis = new FileInputStream("Accounts" + '\\' + account_name + '\\' + folder_name + '\\' + folder_name + (folder_name.endsWith(".txt") ? "" : ".txt"));
         Scanner fscn = new Scanner(fis);
-        String name = fscn.nextLine().replace("\n","");
-        f_name = name;
+        String n = fscn.nextLine().replace("\n","");
+        name = n;
         if (fscn.hasNextLine()) {
-            Scanner scheds = new Scanner(fscn.nextLine());
+            Scanner scn_scheds = new Scanner(fscn.nextLine());
             scheds.useDelimiter(",");
-            while (scheds.hasNext()) {
-                list_of_scheds.add(scheds.next());
+            while (scn_scheds.hasNext()) {
+                scheds.add(scn_scheds.next());
             }
-            scheds.close();
+            scn_scheds.close();
         }
         fscn.close();
     }
 
+    //FIXME: CHANGE NAME FROM PRINT -> get_schedules_from_folder or something
     public List<String> print_schedule_list(String username) {
-        List<String> scheds = new ArrayList<>();
+        List<String> schedules = new ArrayList<>();
         File account = new File("Accounts\\" + username);
-        boolean hasSchedule = false;
+        //boolean hasSchedule = false; this line seems unnecessary
         if(account.listFiles() != null) {
             for (File f : account.listFiles()) {
                 if (f.getName().endsWith(".csv")) {
                     //cut off .csv
-                    String name = (f.getName().substring(0, f.getName().length() - 4));
-                    scheds.add(name);
-                    if (!hasSchedule) hasSchedule = true;
+                    String sched_name = (f.getName().substring(0, f.getName().length() - 4));
+                    scheds.add(sched_name);
+                    //if (!hasSchedule) hasSchedule = true;
                 }
             }
         }
-        return scheds;
+        return schedules;
     }
 
     public StringBuilder to_str() {
@@ -103,7 +97,7 @@ public class Folder {
         return list_of_scheds;
     }
 
-    public boolean remove_sched(String sched_rem){
+    /*public boolean remove_sched(String sched_rem){
         boolean found = false;
         int index_rem = -500;
         for (int i = 0; i < list_of_scheds.size(); i++) {
@@ -118,9 +112,9 @@ public class Folder {
         } else {
             return false;
         }
-    }
+    } CAN JUST USE ArrayList remove*/
 
-    public boolean contains_sched(String sched_name){
+    /*public boolean contains_sched(String sched_name){
         boolean found = false;
         for (String schedule : list_of_scheds) {
             if (schedule.equals(sched_name)) {
@@ -128,7 +122,7 @@ public class Folder {
             }
         }
         return found;
-    }
+    }CAN JUST USE ArrayList contains*/
 
     public boolean delete(String accountname) {
         File folder = new File("Accounts\\"+accountname+"\\"+f_name+".txt");
