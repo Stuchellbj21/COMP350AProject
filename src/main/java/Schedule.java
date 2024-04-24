@@ -94,9 +94,9 @@ public class Schedule {
 
     public void set_name_with_checks(String accountname) {
         while(true) {
-            String newname = Main.input("Enter new schedule name: ");
+            String newname = GeneralUtils.input("Enter new schedule name: ");
             try{
-                if(Main.is_valid_name(newname)) {
+                if(Validations.is_valid_name(newname)) {
                     //don't have to replace existing because is_valid_name already checks to make sure the target doesn't exist
                     File oldf = new File("Accounts\\" + accountname + "\\" + name +(name.endsWith(".csv") ? "" : ".csv"));
                     File newf = new File("Accounts\\" + accountname + "\\" + newname + (newname.endsWith(".csv") ? "" : ".csv"));
@@ -114,7 +114,7 @@ public class Schedule {
     }
     public void set_semester_with_checks() {
         while(true) {
-            String newsem = Main.input("Enter new semester value (Warning: changing the schedule's semester will remove all courses from the schedule): ").toLowerCase();
+            String newsem = GeneralUtils.input("Enter new semester value (Warning: changing the schedule's semester will remove all courses from the schedule): ").toLowerCase();
             //ensure either Fall or Spring
             if(newsem.isEmpty()) {
                 Main.autoflush.println("Error: '" + newsem + "' is not a valid semester value");
@@ -138,7 +138,7 @@ public class Schedule {
             //ensure either Fall or Spring
             int newyear;
             try{
-                String in = Main.input("Enter new year value (Warning: changing the schedule's year will remove all courses from the schedule): ");
+                String in = GeneralUtils.input("Enter new year value (Warning: changing the schedule's year will remove all courses from the schedule): ");
                 newyear = Integer.parseInt(in);
                 if(in.length() != 4) Main.autoflush.println("Error: valid year values are only 4 digits long");
                 else if(newyear < 0) Main.autoflush.println("Error: the year value must be positive");
