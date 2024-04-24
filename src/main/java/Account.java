@@ -116,10 +116,6 @@ public class Account {
         if(!hasSchedule) Main.autoflush.println("\tNone");
     }
 
-    public void add_pref_prof(String professor) {
-        preffered_profs.add(professor);
-    }
-
     public void print_pref_profs(){
         System.out.print("List of Preferred Professors: ");
         for (int i = 0; i < preffered_profs.size(); i++){
@@ -133,23 +129,11 @@ public class Account {
     }
 
     public boolean has_pref_profs(){
-        if (preffered_profs.isEmpty()){
-            return false;
-        } else {
-            return true;
-        }
+        return preffered_profs != null && !preffered_profs.isEmpty();
     }
 
     public List<String> get_pref_profs(){
         return preffered_profs;
-    }
-
-    public StringBuilder str_pref_prof_list(){
-        StringBuilder profs = new StringBuilder();
-        for (String prefferedProf : preffered_profs) {
-            profs.append(prefferedProf).append(",");
-        }
-        return profs;
     }
 
     //NOT IMPLEMENTED
@@ -157,28 +141,7 @@ public class Account {
         return schednames.size();
     }
 
-    public void load_folders(List<String> folder_names) {
-        for (int i = 0; i < folder_names.size(); i++) {
-            folders.add(folder_names.get(i));
-        }
-    }
-
-    public void add_folder(String folder_name){
-        folders.add(folder_name);
-    }
-
     public List<String> get_folders(){
         return folders;
-    }
-
-    public void remove_folder(String folder_name) {
-        int index = -1;
-        for (int i = 0; i < folders.size(); i++) {
-            if (folders.get(i).equals(folder_name)){
-                index = i;
-            }
-        }
-        folders.remove(index);
-        System.out.println("Folder '" + folder_name + "' removed from account.\n");
     }
 }
