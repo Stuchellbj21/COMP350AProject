@@ -59,6 +59,7 @@ public class Main {
 
     //account has a schedule instance that is worked on
     public static void populate_allcourses() throws IOException {
+        allcourses = new ArrayList<>();
         FileInputStream fis = new FileInputStream("2020-2021.csv");
         Scanner csvscn = new Scanner(fis);
         //accounts = new HashMap<Integer, String>();
@@ -769,7 +770,6 @@ public class Main {
      * @throws FileNotFoundException
      */
     public static void load_accounts() throws FileNotFoundException {
-        allcourses = new ArrayList<>();
         //Opens a file to the accoutns directory text file
         File accts = new File("Accounts\\account_direc.txt");
         Scanner acct_scnr = new Scanner(accts);
