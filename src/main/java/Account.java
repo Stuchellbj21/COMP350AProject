@@ -12,6 +12,10 @@ public class Account {
     private int passwordhash;
     private Major major;
     private List<String> schednames;
+    private List<String> preffered_profs;
+
+    private List<String> folders;
+
     public Account(){
         this.username = "empty";
     }
@@ -29,6 +33,7 @@ public class Account {
         this.passwordhash = password.hashCode();
         this.major = major;
         schednames = new ArrayList<String>();
+        folders = new ArrayList<>();
     }
 
     //getters + setters not added yet
@@ -68,12 +73,6 @@ public class Account {
         return false;
     }
 
-    /*public Schedule load_schedule(String schedname) {
-        //currentsched = new Schedule(username,schedname);
-        //return currentsched;
-    } //default is to work with new Schedule*/
-
-    //NOT IMPLEMENTED
     public boolean delete_schedule(String schedname) {
         schednames.remove(schedname);
         return true;
@@ -117,8 +116,32 @@ public class Account {
         if(!hasSchedule) Main.autoflush.println("\tNone");
     }
 
+    public void print_pref_profs(){
+        System.out.print("List of Preferred Professors: ");
+        for (int i = 0; i < preffered_profs.size(); i++){
+            if (i == preffered_profs.size()-1){
+                System.out.print(preffered_profs.get(i));
+            } else {
+                System.out.print(preffered_profs.get(i) + ", ");
+            }
+        }
+        System.out.println();
+    }
+
+    public boolean has_pref_profs(){
+        return preffered_profs != null && !preffered_profs.isEmpty();
+    }
+
+    public List<String> get_pref_profs(){
+        return preffered_profs;
+    }
+
     //NOT IMPLEMENTED
     public int num_scheds(){
         return schednames.size();
+    }
+
+    public List<String> get_folders(){
+        return folders;
     }
 }
