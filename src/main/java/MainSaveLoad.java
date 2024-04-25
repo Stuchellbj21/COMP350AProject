@@ -29,7 +29,15 @@ public class MainSaveLoad {
         FileWriter fw = new FileWriter(f, false); // rewrite the whole file
         fw.write(tempLine + "\n");
         for (int i = 0; i < Main.currentaccnt.get_schednames().size(); i++) {
-            fw.write(Main.currentaccnt.get_schednames().get(i) + ",");
+            if (i != Main.currentaccnt.get_schednames().size()-1) {
+                fw.write(Main.currentaccnt.get_schednames().get(i) + ",");
+            } else {
+                fw.write(Main.currentaccnt.get_schednames().get(i));
+            }
+        }
+        fw.write("\n");
+        for (int i = 0; i < Main.currentaccnt.get_folders().size(); i++) {
+            fw.write(Main.currentaccnt.get_folders().get(i) + ",");
         }
         fw.close();
     }
@@ -75,7 +83,6 @@ public class MainSaveLoad {
         }
     }
 
-
     /**
      * Reads from user's info.txt file and adds all saved schedules to a static list in main
      * @throws IOException
@@ -84,10 +91,14 @@ public class MainSaveLoad {
         FileInputStream fis = new FileInputStream("Accounts\\" + Main.currentaccnt.getUsername() + '\\' + "info.txt");
         Scanner infoScan = new Scanner(fis);
         infoScan.nextLine(); // skip line that contains account information (password-hash, username, major)
-        infoScan.useDelimiter(",");
-        while (infoScan.hasNext()) {
-            String temp = infoScan.next();
-            Main.currentaccnt.save_schedule(temp);
+        if (infoScan.hasNextLine()) {
+            String schedules = infoScan.nextLine().replace("\n", "");
+            Scanner schedScan = new Scanner(schedules);
+            schedScan.useDelimiter(",");
+            while (schedScan.hasNext()) {
+                String temp = schedScan.next();
+                Main.currentaccnt.save_schedule(temp);
+            }
         }
         infoScan.close();
         fis.close();
@@ -192,5 +203,22 @@ public class MainSaveLoad {
             //otherwise, add the full course
             else Main.allcourses.add(add);
         } else Main.allcourses.add(add);
+    }
+
+    public static void load_folders() throws IOException {
+        FileInputStream fis = new FileInputStream("Accounts\\" + Main.currentaccnt.getUsername() + '\\' + "info.txt");
+        Scanner infoScan = new Scanner(fis);
+        infoScan.nextLine(); // skip line that contains account information (password-hash, username, major)
+        if (infoScan.hasNextLine()) {
+            infoScan.useDelimiter(",");
+            while (infoScan.hasNext()) {
+                String temp = infoScan.next();
+                if (!(temp.equals("\n"))) {
+                    Main.currentaccnt.get_folders().add(temp);
+                }
+            }
+        }
+        infoScan.close();
+        fis.close();
     }
 }
