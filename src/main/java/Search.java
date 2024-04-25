@@ -36,15 +36,14 @@ public class Search {
 
     Search(String ss) {
         searchresults = new ArrayList<>();
-        search(ss);
         activefilters = new ArrayList<>();
+        search(ss);
     }
 
     Search(String ss, List<Filter> filters) {
         searchresults = new ArrayList<>();
-        search(ss);
         activefilters = filters;
-        apply_all_filters();
+        search(ss);
     }
 
     //getters + setters yet to be added
@@ -131,16 +130,35 @@ public class Search {
         for(String s : search_str_list) {
             if (c.get_id().contains(s)) {
                 //section
-                if(s.length() == 1 && Character.isAlphabetic(s.charAt(0))) w++;
+                if(s.length() == 1 && Character.isAlphabetic(s.charAt(0)) && c.getSection() == Character.toUpperCase(s.charAt(0))) w+=2;
                 //coursenum
-                else if(s.length() == 3 && Main.is_numeric(s)) w+=3;
+                else if(s.length() == 3 && Main.is_numeric(s)) w+=4;
                 //major
-                else if(s.length() == 4 && Major.is_major(s)) w+=4;
+                else if(s.length() == 4 && Major.is_major(s)) w+=5;
                 //everything else
-                else w+=2;
+                else w+=3;
             }
+            w += partial_match_weight(c,s);
         }
         return w;
+    }
+
+    public int partial_match_weight(Course c, String s) {
+        if(c.toString().toUpperCase().contains(s.toUpperCase())) return 1;
+        return 0;
+        //if there's a partial match within the course's string, increase the weight slightly
+        //initialize p (for present) along with i so we have it at loop scope
+        /*for(int i = 0,p = c.toString().toUpperCase().indexOf(s.toUpperCase(),i); i < c.toString().length();) {
+            //System.out.println("i = " + i + " p = " + p);
+            //if the string was found in the remainder of the string, increment weight
+            if(p >= 0) w++;
+            //if p wasn't found return the current weight value
+            else return w;
+            //move past place where we found it and see if we find it again
+            i = p+1;
+            p = c.toString().toUpperCase().indexOf(s.toUpperCase(),i);
+        }
+        return w;*/
     }
 
     public void apply_all_filters() {for(Filter f : activefilters) f.apply_to(filteredresults);}
