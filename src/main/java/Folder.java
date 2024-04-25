@@ -33,11 +33,11 @@ public class Folder {
         FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + name + '\\' + name + ".txt");
         PrintWriter pw = new PrintWriter(fos);
         pw.print(name+"\n");
-        for (int i = 0; i < list_of_scheds.size(); i++) {
-            if (i == list_of_scheds.size()-1){
-                pw.print(list_of_scheds.get(i));
+        for (int i = 0; i < scheds.size(); i++) {
+            if (i == scheds.size()-1){
+                pw.print(scheds.get(i));
             } else {
-                pw.print(list_of_scheds.get(i) + ",");
+                pw.print(scheds.get(i) + ",");
             }
         }
         pw.close();
@@ -46,11 +46,10 @@ public class Folder {
     public void load_folder(String account_name,String folder_name) throws FileNotFoundException {
         FileInputStream fis = new FileInputStream("Accounts" + '\\' + account_name + '\\' + folder_name + '\\' + folder_name + (folder_name.endsWith(".txt") ? "" : ".txt"));
         Scanner fscn = new Scanner(fis);
-        String n = fscn.nextLine().replace("\n","");
-        name = n;
+        name = fscn.nextLine().replace("\n","");
         if (fscn.hasNextLine()) {
             Scanner scn_scheds = new Scanner(fscn.nextLine());
-            scheds.useDelimiter(",");
+            scn_scheds.useDelimiter(",");
             while (scn_scheds.hasNext()) {
                 scheds.add(scn_scheds.next());
             }
@@ -79,22 +78,22 @@ public class Folder {
 
     public StringBuilder to_str() {
         StringBuilder folder = new StringBuilder();
-        System.out.println("Folder: " + f_name);
+        System.out.println("Folder: " + name);
         folder.append("List of schedules: \n");
-        if (list_of_scheds.isEmpty()) {
+        if (scheds.isEmpty()) {
             System.out.println("No schedules saved in folder\n");
         } else {
             System.out.println();
-            for (int i = 0; i < list_of_scheds.size(); i++) {
+            for (int i = 0; i < scheds.size(); i++) {
                 String curr_num = String.valueOf(i + 1);
-                folder.append(curr_num + ". " + list_of_scheds.get(i) + "\n");
+                folder.append(curr_num + ". " + scheds.get(i) + "\n");
             }
         }
         return folder;
     }
 
-    public List<String> getList_of_scheds(){
-        return list_of_scheds;
+    public List<String> get_scheds(){
+        return scheds;
     }
 
     /*public boolean remove_sched(String sched_rem){
@@ -125,7 +124,7 @@ public class Folder {
     }CAN JUST USE ArrayList contains*/
 
     public boolean delete(String accountname) {
-        File folder = new File("Accounts\\"+accountname+"\\"+f_name+".txt");
+        File folder = new File("Accounts\\"+accountname+"\\"+name+".txt");
         return folder.delete();
     }
 }
