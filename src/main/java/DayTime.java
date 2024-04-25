@@ -141,8 +141,8 @@ public class DayTime implements Comparable<DayTime> {
         if(s.charAt(2) != ':' || s.charAt(5) != ' ') return false;
         String hrs = s.substring(0,2),mins = s.substring(3,5);
         //check hours and minutes
-        if(!Main.is_numeric(hrs) || Integer.parseInt(hrs) > 12 || Integer.parseInt(hrs) < 1) return false;
-        if(!Main.is_numeric(mins) || Integer.parseInt(mins) > 59 || Integer.parseInt(mins) < 0) return false;
+        if(!GeneralUtils.is_numeric(hrs) || Integer.parseInt(hrs) > 12 || Integer.parseInt(hrs) < 1) return false;
+        if(!GeneralUtils.is_numeric(mins) || Integer.parseInt(mins) > 59 || Integer.parseInt(mins) < 0) return false;
         //all good
         return true;
     }
