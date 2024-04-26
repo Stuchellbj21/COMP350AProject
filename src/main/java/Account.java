@@ -1,4 +1,5 @@
 import java.io.File;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -65,16 +66,26 @@ public class Account {
      * @param sched_name the name of the new schedule
      * @return true once of the schedule has been added
      */
-    public boolean save_schedule(String sched_name) {
+    public boolean save_schedule(String sched_name) throws SQLException {
         if (!schednames.contains(sched_name)) { // Changed this to check for sched_name in list
             schednames.add(sched_name);
+
+            //-------------------------------------------------------
+            System.out.println("got here");
+            // DATABASE save
+            Main.db.insert_into_schedules(sched_name, Main.currentaccnt.getUsername());
+            //--------------------------------------------------------
             return true;
         }
         return false;
     }
 
-    public boolean delete_schedule(String schedname) {
-        schednames.remove(schedname);
+    public boolean delete_schedule(String sched_name) {
+        schednames.remove(sched_name);
+        //-----------------------------------------------
+        // DATABASE delete
+        Main.db.delete_from_schedules(sched_name, Main.currentaccnt.getUsername());
+        //-----------------------------------------------
         return true;
     }
 
@@ -101,19 +112,24 @@ public class Account {
     }
 
     public void print_schedule_list() {
-        File account = new File("Accounts\\" + username);
-        Main.autoflush.println(username+" Schedules:");
-        boolean hasSchedule = false;
-        if(account.listFiles() != null) {
-            for (File f : account.listFiles()) {
-                if (f.getName().endsWith(".csv")) {
-                    //cut off .csv
-                    Main.autoflush.println("\t- " + f.getName().substring(0, f.getName().length() - 4));
-                    if (!hasSchedule) hasSchedule = true;
-                }
-            }
-        }
-        if(!hasSchedule) Main.autoflush.println("\tNone");
+//        File account = new File("Accounts\\" + username);
+//        Main.autoflush.println(username+" Schedules:");
+//        boolean hasSchedule = false;
+//        if(account.listFiles() != null) {
+//            for (File f : account.listFiles()) {
+//                if (f.getName().endsWith(".csv")) {
+//                    //cut off .csv
+//                    Main.autoflush.println("\t- " + f.getName().substring(0, f.getName().length() - 4));
+//                    if (!hasSchedule) hasSchedule = true;
+//                }
+//            }
+//        }
+//        if(!hasSchedule) Main.autoflush.println("\tNone");
+
+        //----------------------------------------------------
+        // DATABASE
+        Main.autoflush.println("Your Schedules: " + Main.currentaccnt.get_schednames());
+
     }
 
     public void print_pref_profs(){
@@ -144,4 +160,6 @@ public class Account {
     public List<String> get_folders(){
         return folders;
     }
+
+    //Make the generated schedules in here
 }

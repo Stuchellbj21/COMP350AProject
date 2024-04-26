@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.Set;
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -27,14 +28,15 @@ public class MainSaveLoad {
 
         File f = new File("Accounts\\" + Main.currentaccnt.getUsername() + '\\' + "info.txt");
         FileWriter fw = new FileWriter(f, false); // rewrite the whole file
-        fw.write(tempLine + "\n");
-        for (int i = 0; i < Main.currentaccnt.get_schednames().size(); i++) {
-            if (i != Main.currentaccnt.get_schednames().size()-1) {
-                fw.write(Main.currentaccnt.get_schednames().get(i) + ",");
-            } else {
-                fw.write(Main.currentaccnt.get_schednames().get(i));
-            }
-        }
+//        fw.write(tempLine + "\n");
+//        for (int i = 0; i < Main.currentaccnt.get_schednames().size(); i++) {
+//            if (i != Main.currentaccnt.get_schednames().size()-1) {
+//                fw.write(Main.currentaccnt.get_schednames().get(i) + ",");
+//            } else {
+//                fw.write(Main.currentaccnt.get_schednames().get(i));
+//            }
+//        }
+        fw.write("Folders:");
         fw.write("\n");
         for (int i = 0; i < Main.currentaccnt.get_folders().size(); i++) {
             fw.write(Main.currentaccnt.get_folders().get(i) + ",");
@@ -49,15 +51,15 @@ public class MainSaveLoad {
      * @throws FileNotFoundException
      */
     public static void close_accounts() throws FileNotFoundException {
-        PrintWriter pw = new PrintWriter("Accounts\\account_direc.txt");
-        //Gets a list of the keys of the accounts Map to loop through the map
-        Set<Integer> keys = Main.accounts.keySet();
-        for (int key : keys) {
-            String hash_password = String.valueOf(key);
-            String username = Main.accounts.get(key);
-            pw.write(hash_password + ":" + username + "\n"); //Gets the username and password for each account and prints both to the directory file seperated by a colon and ending with a newline
-        }
-        pw.close();
+//        PrintWriter pw = new PrintWriter("Accounts\\account_direc.txt");
+//        //Gets a list of the keys of the accounts Map to loop through the map
+//        Set<Integer> keys = Main.accounts.keySet();
+//        for (int key : keys) {
+//            String hash_password = String.valueOf(key);
+//            String username = Main.accounts.get(key);
+//            pw.write(hash_password + ":" + username + "\n"); //Gets the username and password for each account and prints both to the directory file seperated by a colon and ending with a newline
+//        }
+//        pw.close();
     }
 
     /**
@@ -65,42 +67,47 @@ public class MainSaveLoad {
      *
      * @throws FileNotFoundException
      */
-    public static void load_accounts() throws FileNotFoundException {
-        //Opens a file to the accoutns directory text file
-        File accts = new File("Accounts\\account_direc.txt");
-        Scanner acct_scnr = new Scanner(accts);
-        acct_scnr.useDelimiter(":");
-        Scanner line_reader;
-        while (acct_scnr.hasNextLine()) {
-            line_reader = new Scanner(acct_scnr.nextLine());
-            //Gets the line on which each accounts username and password is stored
-            line_reader.useDelimiter(":");
-            String str_pass_hash = line_reader.next(); //gets the string hash password and converts it to int in order to add it to the accounts Map
-            int int_pass_hash = Integer.parseInt(str_pass_hash);
-            String account_name = line_reader.next();
-            Main.accounts.put(int_pass_hash, account_name); //Adds the accounts username and hash password to the accounts Map
-        }
-    }
+//  public static void load_accounts() throws FileNotFoundException {
+//        //Opens a file to the accoutns directory text file
+//        File accts = new File("Accounts\\account_direc.txt");
+//        Scanner acct_scnr = new Scanner(accts);
+//        acct_scnr.useDelimiter(":");
+//        Scanner line_reader;
+//        while (acct_scnr.hasNextLine()) {
+//            line_reader = new Scanner(acct_scnr.nextLine());
+//            //Gets the line on which each accounts username and password is stored
+//            line_reader.useDelimiter(":");
+//            String str_pass_hash = line_reader.next(); //gets the string hash password and converts it to int in order to add it to the accounts Map
+//            int int_pass_hash = Integer.parseInt(str_pass_hash);
+//            String account_name = line_reader.next();
+//            Main.accounts.put(int_pass_hash, account_name); //Adds the accounts username and hash password to the accounts Map
+//        }
+//  }
 
     /**
      * Reads from user's info.txt file and adds all saved schedules to a static list in main
      * @throws IOException
      */
-    public static void load_schedules() throws IOException {
-        FileInputStream fis = new FileInputStream("Accounts\\" + Main.currentaccnt.getUsername() + '\\' + "info.txt");
-        Scanner infoScan = new Scanner(fis);
-        infoScan.nextLine(); // skip line that contains account information (password-hash, username, major)
-        if (infoScan.hasNextLine()) {
-            String schedules = infoScan.nextLine().replace("\n", "");
-            Scanner schedScan = new Scanner(schedules);
-            schedScan.useDelimiter(",");
-            while (schedScan.hasNext()) {
-                String temp = schedScan.next();
-                Main.currentaccnt.save_schedule(temp);
-            }
-        }
-        infoScan.close();
-        fis.close();
+    public static void load_schedules() throws IOException, SQLException {
+//        FileInputStream fis = new FileInputStream("Accounts\\" + Main.currentaccnt.getUsername() + '\\' + "info.txt");
+//        Scanner infoScan = new Scanner(fis);
+//        infoScan.nextLine(); // skip line that contains account information (password-hash, username, major)
+//        if (infoScan.hasNextLine()) {
+//            String schedules = infoScan.nextLine().replace("\n", "");
+//            Scanner schedScan = new Scanner(schedules);
+//            schedScan.useDelimiter(",");
+//            while (schedScan.hasNext()) {
+//                String temp = schedScan.next();
+//                Main.currentaccnt.save_schedule(temp);
+//            }
+//        }
+        // DATABASE version
+        List<String> tempList = Main.db.get_schedules(Main.currentaccnt.getUsername());
+        Main.currentaccnt.get_schednames().addAll(tempList);
+        //--------------------------------------------------
+
+//        infoScan.close();
+//        fis.close();
     }
 
     public static void load_allcourses() throws IOException {
