@@ -66,7 +66,6 @@ public class MainSaveLoad {
      * @throws FileNotFoundException
      */
     public static void load_accounts() throws FileNotFoundException {
-        Main.allcourses = new ArrayList<>();
         //Opens a file to the accoutns directory text file
         File accts = new File("Accounts\\account_direc.txt");
         Scanner acct_scnr = new Scanner(accts);
@@ -105,6 +104,7 @@ public class MainSaveLoad {
     }
 
     public static void load_allcourses() throws IOException {
+        Main.allcourses = new ArrayList<>();
         FileInputStream fis = new FileInputStream("2020-2021.csv");
         Scanner csvscn = new Scanner(fis);
         //accounts = new HashMap<Integer, String>();
