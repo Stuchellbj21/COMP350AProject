@@ -30,6 +30,7 @@ public class Folder {
         File f = new File("Accounts\\" + accountname + '\\' + name);
         f.mkdir();
         //FIXME: KEEPING A TXT FILE DOESN'T SEEM NECESSARY
+        // todo: add file name to info.txt file so it can be loaded by the load_folders method in line 33 of 'Menus'
         FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + name + '\\' + name + ".txt");
         PrintWriter pw = new PrintWriter(fos);
         pw.print(name+"\n");
