@@ -144,4 +144,6 @@ public class Account {
     public List<String> get_folders(){
         return folders;
     }
+
+    //Make the generated schedules in here
 }
