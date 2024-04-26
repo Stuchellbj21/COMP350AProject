@@ -1,4 +1,5 @@
 import java.io.*;
+import java.sql.SQLException;
 import java.util.*;
 
 public class Main {
@@ -16,6 +17,7 @@ public class Main {
     //change default value to null if actually having account selection
     //public static Account currentaccnt = new Account("NateAccount","password1234",Major.COMP);
     public static Map<Integer, String> accounts = new HashMap<>();
+    public static Database db = new Database();
     public static Account currentaccnt = null;
 
     public static Folder current_folder = new Folder();
@@ -26,18 +28,22 @@ public class Main {
     A new blank schedule leaves the attributes of the current schedule as they are. */
     public static Schedule currentsched = new Schedule();
   
-    public static void run() throws IOException {
+    public static void run() throws IOException, SQLException {
+        try{Main.db.connect();}
+        catch(Exception dbException) {} // todo: change exception
         try {MainSaveLoad.load_accounts();}
         catch (Exception e) {autoflush.println("no accounts to load");}
         MainSaveLoad.load_allcourses();
         autoflush.println("Welcome to Descartes Favorite Scheduling App.... Enjoy");
         Menus.accountMenu();
+        try{Main.db.disconnectDB();}
+        catch(Exception dbException) {} // todo: change exception
     }
 
     public static void main(String[] args) {
         try {
             run();
-        } catch (IOException ioe) {
+        } catch (IOException | SQLException ioe) {
             autoflush.println(ioe.getMessage() + "\n" + ioe.getCause());
         }
     }
