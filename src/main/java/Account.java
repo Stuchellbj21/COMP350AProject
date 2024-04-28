@@ -1,7 +1,5 @@
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Account {
     //another thing of loading:
@@ -13,6 +11,8 @@ public class Account {
     private Major major;
     private List<String> schednames;
     private List<String> preffered_profs;
+
+    public static Set<String> prof_list = new HashSet<>();
 
     private List<String> folders;
 
@@ -145,5 +145,32 @@ public class Account {
         return folders;
     }
 
+    public void pref_prof_menu(){
+        Scanner scn = new Scanner(System.in);
+        System.out.println("(add) -> add professor | (rem) -> remove professor | (lp) -> print list of professors | (back) -> exit preferred prof menu");
+        String input = scn.next();
+        while (true) {
+            if (input.equalsIgnoreCase("add")){
+                //TODO: Add menu
+            }
+            else if (input.equalsIgnoreCase("rem")){
+                //TODO: Functionality for add
+            }
+            else if (input.equalsIgnoreCase("lp")){
+                //TODO: Functionality for print
+            }
+            else if (input.equalsIgnoreCase("back")){
+                break;
+            }
+            else {
+                input = scn.next("Invalid input");
+            }
+        }
+    }
+
     //Make the generated schedules in here
+    public static void main(String[] arg){
+        Account test = new Account("benjam","1234567",Major.COMP);
+
+    }
 }

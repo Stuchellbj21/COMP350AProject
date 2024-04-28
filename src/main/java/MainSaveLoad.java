@@ -173,8 +173,10 @@ public class MainSaveLoad {
                         break;
                     case 16:
                     case 17:
+                        String last_name = prof;
                         if (i == 17) prof = " " + prof;
                         prof = n + prof;
+                        if (i == 17) Account.prof_list.add(last_name);
                         break;
                 }
                 if (i > 17) break;
