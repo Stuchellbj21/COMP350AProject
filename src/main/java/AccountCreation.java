@@ -5,7 +5,7 @@ import java.io.FileWriter;
 public class AccountCreation {
     public static String create_username() {
         while (true) {
-            String un = GeneralUtils.input("Enter (<YourUserName>) --> set new username / (back) --> return to Account screen\n");
+            String un = GeneralUtils.input("Enter (<YourUserName>) -> set new username / (back) -> return to Account screen\n");
             if (un.equalsIgnoreCase("back")) {
                 return "back";
             } else if (Validations.check_username(un)) {
@@ -57,15 +57,22 @@ public class AccountCreation {
             return false;
         }
         Major major = Major.valueOf(m);
+
+        // ------------------------------------
+        // DATABASE
+        Main.db.insert_into_users(username, password.hashCode(), major);
+        // ------------------------------------
+
         Main.currentaccnt = new Account(username, password, major);
-        Main.accounts.put(password.hashCode(), username); // add account to the map
+//        Main.accounts.put(password.hashCode(), username); // add account to the map
         File accountDir = new File("Accounts\\" + Main.currentaccnt.getUsername());
         accountDir.mkdir(); // create new folder for each new account that's created
-
-        // store user's password-hash, username, and major in user-specific txt file
+//
+        // After adding databasem, this file is not used for username, password, or major.
         File f = new File("Accounts\\" + Main.currentaccnt.getUsername() + '\\' + "info.txt");
         FileWriter fw = new FileWriter(f, true);
-        fw.write(username + ", " + password.hashCode() + ", " + major + "\n");
+        fw.write("Folders: ");
+//        fw.write(username + ", " + password.hashCode() + ", " + major + "\n");
         fw.close();
         //---------------------------------------------------------
         Main.autoflush.println("Account successfully created\n");

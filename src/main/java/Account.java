@@ -1,5 +1,8 @@
 import java.io.File;
-import java.util.*;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class Account {
     //another thing of loading:
@@ -11,8 +14,6 @@ public class Account {
     private Major major;
     private List<String> schednames;
     private List<String> preffered_profs;
-
-    public static Set<String> prof_list = new HashSet<>();
 
     private List<String> folders;
 
@@ -65,16 +66,26 @@ public class Account {
      * @param sched_name the name of the new schedule
      * @return true once of the schedule has been added
      */
-    public boolean save_schedule(String sched_name) {
+    public boolean save_schedule(String sched_name) throws SQLException {
         if (!schednames.contains(sched_name)) { // Changed this to check for sched_name in list
             schednames.add(sched_name);
+
+            //-------------------------------------------------------
+            System.out.println("got here");
+            // DATABASE save
+            Main.db.insert_into_schedules(sched_name, Main.currentaccnt.getUsername());
+            //--------------------------------------------------------
             return true;
         }
         return false;
     }
 
-    public boolean delete_schedule(String schedname) {
-        schednames.remove(schedname);
+    public boolean delete_schedule(String sched_name) {
+        schednames.remove(sched_name);
+        //-----------------------------------------------
+        // DATABASE delete
+        Main.db.delete_from_schedules(sched_name, Main.currentaccnt.getUsername());
+        //-----------------------------------------------
         return true;
     }
 
@@ -101,19 +112,24 @@ public class Account {
     }
 
     public void print_schedule_list() {
-        File account = new File("Accounts\\" + username);
-        Main.autoflush.println(username+" Schedules:");
-        boolean hasSchedule = false;
-        if(account.listFiles() != null) {
-            for (File f : account.listFiles()) {
-                if (f.getName().endsWith(".csv")) {
-                    //cut off .csv
-                    Main.autoflush.println("\t- " + f.getName().substring(0, f.getName().length() - 4));
-                    if (!hasSchedule) hasSchedule = true;
-                }
-            }
-        }
-        if(!hasSchedule) Main.autoflush.println("\tNone");
+//        File account = new File("Accounts\\" + username);
+//        Main.autoflush.println(username+" Schedules:");
+//        boolean hasSchedule = false;
+//        if(account.listFiles() != null) {
+//            for (File f : account.listFiles()) {
+//                if (f.getName().endsWith(".csv")) {
+//                    //cut off .csv
+//                    Main.autoflush.println("\t- " + f.getName().substring(0, f.getName().length() - 4));
+//                    if (!hasSchedule) hasSchedule = true;
+//                }
+//            }
+//        }
+//        if(!hasSchedule) Main.autoflush.println("\tNone");
+
+        //----------------------------------------------------
+        // DATABASE
+        Main.autoflush.println("Your Schedules: " + Main.currentaccnt.get_schednames());
+
     }
 
     public void print_pref_profs(){
@@ -145,32 +161,5 @@ public class Account {
         return folders;
     }
 
-    public void pref_prof_menu(){
-        Scanner scn = new Scanner(System.in);
-        System.out.println("(add) -> add professor | (rem) -> remove professor | (lp) -> print list of professors | (back) -> exit preferred prof menu");
-        String input = scn.next();
-        while (true) {
-            if (input.equalsIgnoreCase("add")){
-                //TODO: Add menu
-            }
-            else if (input.equalsIgnoreCase("rem")){
-                //TODO: Functionality for add
-            }
-            else if (input.equalsIgnoreCase("lp")){
-                //TODO: Functionality for print
-            }
-            else if (input.equalsIgnoreCase("back")){
-                break;
-            }
-            else {
-                input = scn.next("Invalid input");
-            }
-        }
-    }
-
     //Make the generated schedules in here
-    public static void main(String[] arg){
-        Account test = new Account("benjam","1234567",Major.COMP);
-
-    }
 }
