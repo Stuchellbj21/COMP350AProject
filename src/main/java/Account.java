@@ -1,8 +1,6 @@
 import java.io.File;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Account {
     //another thing of loading:
@@ -13,7 +11,10 @@ public class Account {
     private int passwordhash;
     private Major major;
     private List<String> schednames;
+
     private List<String> preffered_profs;
+
+    public static Set<String> prof_list = new HashSet<>();
 
     private List<String> folders;
 
@@ -35,6 +36,7 @@ public class Account {
         this.major = major;
         schednames = new ArrayList<String>();
         folders = new ArrayList<>();
+        preffered_profs = new ArrayList<>();
     }
 
     //getters + setters not added yet
@@ -112,54 +114,84 @@ public class Account {
     }
 
     public void print_schedule_list() {
-//        File account = new File("Accounts\\" + username);
-//        Main.autoflush.println(username+" Schedules:");
-//        boolean hasSchedule = false;
-//        if(account.listFiles() != null) {
-//            for (File f : account.listFiles()) {
-//                if (f.getName().endsWith(".csv")) {
-//                    //cut off .csv
-//                    Main.autoflush.println("\t- " + f.getName().substring(0, f.getName().length() - 4));
-//                    if (!hasSchedule) hasSchedule = true;
-//                }
-//            }
-//        }
-//        if(!hasSchedule) Main.autoflush.println("\tNone");
-
+        File account = new File("Accounts\\" + username);
+        Main.autoflush.println(username+" Schedules:");
+        boolean hasSchedule = false;
+        if(account.listFiles() != null) {
+            for (File f : account.listFiles()) {
+                if (f.getName().endsWith(".csv")) {
+                    //cut off .csv
+                    Main.autoflush.println("\t- " + f.getName().substring(0, f.getName().length() - 4));
+                    if (!hasSchedule) hasSchedule = true;
+                }
+            }
+        }
+        if(!hasSchedule) Main.autoflush.println("\tNone");
+        //TODO: Database is incorrectly printing out schedules that are in a folder, maybe use old print?
         //----------------------------------------------------
         // DATABASE
         Main.autoflush.println("Your Schedules: " + Main.currentaccnt.get_schednames());
 
     }
 
-    public void print_pref_profs(){
-        System.out.print("List of Preferred Professors: ");
-        for (int i = 0; i < preffered_profs.size(); i++){
-            if (i == preffered_profs.size()-1){
-                System.out.print(preffered_profs.get(i));
-            } else {
-                System.out.print(preffered_profs.get(i) + ", ");
-            }
-        }
-        System.out.println();
-    }
-
-    public boolean has_pref_profs(){
-        return preffered_profs != null && !preffered_profs.isEmpty();
-    }
-
-    public List<String> get_pref_profs(){
-        return preffered_profs;
-    }
-
-    //NOT IMPLEMENTED
-    public int num_scheds(){
-        return schednames.size();
-    }
-
     public List<String> get_folders(){
         return folders;
     }
 
+    public void pref_prof_menu(){
+        Scanner scn = new Scanner(System.in);
+        System.out.println("(add) -> add professor | (rem) -> remove professor | (lp) -> print list of professors | (back) -> exit preferred prof menu");
+        String input = scn.next();
+        while (true) {
+            if (input.equalsIgnoreCase("add")){
+                System.out.println("Enter the last name of the professor you'd like to add\n");
+                String professor = scn.next();
+                if (prof_list.contains(professor)){
+                    preffered_profs.add(professor);
+                }
+                else {
+                    System.out.println("Invalid entry\n");
+                }
+            }
+            else if (input.equalsIgnoreCase("rem")){
+                System.out.println("Enter the name of the professor you'd like to remove");
+                String professor = scn.next();
+                if (preffered_profs.contains(professor)){
+                    preffered_profs.remove(professor);
+                }
+                else {
+                    System.out.println("Invalid entry\n");
+                }
+            }
+            else if (input.equalsIgnoreCase("lp")){
+                if (preffered_profs.isEmpty()){
+                    System.out.println("No professors saved.\n");
+                }
+                else {
+                    System.out.println("Saved list of preferred professors:");
+                    for (int i = 0; i < preffered_profs.size(); i++) {
+                        System.out.println("  " + i + ". " + preffered_profs.get(i));
+                    }
+                }
+            }
+            else if (input.equalsIgnoreCase("back")){
+                break;
+            }
+            else {
+                System.out.println("Invalid input\n");
+            }
+            System.out.print("(add) -> add professor | (rem) -> remove professor | (lp) -> print list of professors | (back) -> exit preferred prof menu");
+            input = scn.next();
+        }
+    }
+
+    public void add_prof(String professor){
+        preffered_profs.add(professor);
+    }
+
     //Make the generated schedules in here
+    public static void main(String[] arg){
+        Account test = new Account("benjam","1234567",Major.COMP);
+        test.pref_prof_menu();
+    }
 }

@@ -1,4 +1,7 @@
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -29,38 +32,27 @@ public class Folder {
     public void save_folder(String accountname) throws IOException {
         File f = new File("Accounts\\" + accountname + '\\' + name);
         f.mkdir();
-        //FIXME: KEEPING A TXT FILE DOESN'T SEEM NECESSARY
-        // todo: add file name to info.txt file so it can be loaded by the load_folders method in line 33 of 'Menus'
-        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + name + '\\' + name + ".txt");
-        PrintWriter pw = new PrintWriter(fos);
-        pw.print(name+"\n");
-        for (int i = 0; i < scheds.size(); i++) {
-            if (i == scheds.size()-1){
-                pw.print(scheds.get(i));
-            } else {
-                pw.print(scheds.get(i) + ",");
-            }
-        }
-        pw.close();
+////        //FIXME: KEEPING A TXT FILE DOESN'T SEEM NECESSARY
+////        // todo: add file name to info.txt file so it can be loaded by the load_folders method in line 33 of 'Menus'
+////        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + name + '\\' + name + ".txt");
+//        PrintWriter pw = new PrintWriter(fos);
+//        pw.print(name+"\n");
+//        for (int i = 0; i < scheds.size(); i++) {
+//            if (i == scheds.size()-1){
+//                pw.print(scheds.get(i));
+//            } else {
+//                pw.print(scheds.get(i) + ",");
+//            }
+//        }
+//        pw.close();
     }
 
     public void load_folder(String account_name,String folder_name) throws FileNotFoundException {
-        FileInputStream fis = new FileInputStream("Accounts" + '\\' + account_name + '\\' + folder_name + '\\' + folder_name + (folder_name.endsWith(".txt") ? "" : ".txt"));
-        Scanner fscn = new Scanner(fis);
-        name = fscn.nextLine().replace("\n","");
-        if (fscn.hasNextLine()) {
-            Scanner scn_scheds = new Scanner(fscn.nextLine());
-            scn_scheds.useDelimiter(",");
-            while (scn_scheds.hasNext()) {
-                scheds.add(scn_scheds.next());
-            }
-            scn_scheds.close();
-        }
-        fscn.close();
+        name = folder_name;
+        scheds = get_folder_scheds(account_name);
     }
 
-    //FIXME: CHANGE NAME FROM PRINT -> get_schedules_from_folder or something
-    public List<String> print_schedule_list(String username) {
+    public List<String> get_schedules(String username) {
         List<String> schedules = new ArrayList<>();
         File account = new File("Accounts\\" + username);
         //boolean hasSchedule = false; this line seems unnecessary
@@ -69,7 +61,24 @@ public class Folder {
                 if (f.getName().endsWith(".csv")) {
                     //cut off .csv
                     String sched_name = (f.getName().substring(0, f.getName().length() - 4));
-                    scheds.add(sched_name);
+                    schedules.add(sched_name);
+                    //if (!hasSchedule) hasSchedule = true;
+                }
+            }
+        }
+        return schedules;
+    }
+
+    public List<String> get_folder_scheds(String username) {
+        List<String> schedules = new ArrayList<>();
+        File folder = new File("Accounts\\" + username + "\\" + getName());
+        //boolean hasSchedule = false; this line seems unnecessary
+        if(folder.listFiles() != null) {
+            for (File f : folder.listFiles()) {
+                if (f.getName().endsWith(".csv")) {
+                    //cut off .csv
+                    String sched_name = (f.getName().substring(0, f.getName().length() - 4));
+                    schedules.add(sched_name);
                     //if (!hasSchedule) hasSchedule = true;
                 }
             }
@@ -79,12 +88,11 @@ public class Folder {
 
     public StringBuilder to_str() {
         StringBuilder folder = new StringBuilder();
-        System.out.println("Folder: " + name);
-        folder.append("List of schedules: \n");
+        System.out.println("Folder -- " + name);
         if (scheds.isEmpty()) {
-            System.out.println("No schedules saved in folder\n");
+            System.out.println("No schedules saved in folder");
         } else {
-            System.out.println();
+            folder.append("List of schedules: \n");
             for (int i = 0; i < scheds.size(); i++) {
                 String curr_num = String.valueOf(i + 1);
                 folder.append(curr_num + ". " + scheds.get(i) + "\n");
@@ -97,35 +105,16 @@ public class Folder {
         return scheds;
     }
 
-    /*public boolean remove_sched(String sched_rem){
-        boolean found = false;
-        int index_rem = -500;
-        for (int i = 0; i < list_of_scheds.size(); i++) {
-            if (list_of_scheds.get(i).equals(sched_rem)){
-                found = true;
-                index_rem = i;
-            }
-        }
-        if (found){
-            list_of_scheds.remove(index_rem);
-            return true;
-        } else {
-            return false;
-        }
-    } CAN JUST USE ArrayList remove*/
-
-    /*public boolean contains_sched(String sched_name){
-        boolean found = false;
-        for (String schedule : list_of_scheds) {
-            if (schedule.equals(sched_name)) {
-                found = true;
-            }
-        }
-        return found;
-    }CAN JUST USE ArrayList contains*/
-
-    public boolean delete(String accountname) {
+    public boolean delete(String accountname) throws IOException {
         File folder = new File("Accounts\\"+accountname+"\\"+name+".txt");
+        ArrayList<String> scheds_to_del = new ArrayList<>();
+        for (int i = 0; i < scheds.size(); i++) {
+            scheds_to_del.add(scheds.get(i));
+        }
+        for (int i = 0; i < scheds_to_del.size(); i++) {
+            Main.currentaccnt.get_schednames().remove(scheds_to_del.get(i));
+        }
+        Files.delete(Path.of("Accounts\\" + accountname + "\\" + name));
         return folder.delete();
     }
 }

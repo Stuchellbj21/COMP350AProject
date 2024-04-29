@@ -36,10 +36,13 @@ public class MainSaveLoad {
 //                fw.write(Main.currentaccnt.get_schednames().get(i));
 //            }
 //        }
-        fw.write("Folders:");
-        fw.write("\n");
+        fw.write("Folders:\n");
         for (int i = 0; i < Main.currentaccnt.get_folders().size(); i++) {
-            fw.write(Main.currentaccnt.get_folders().get(i) + ",");
+            if (i == Main.currentaccnt.get_folders().size()-1){
+                fw.write(Main.currentaccnt.get_folders().get(i));
+            } else {
+                fw.write(Main.currentaccnt.get_folders().get(i) + ",");
+            }
         }
         fw.close();
     }

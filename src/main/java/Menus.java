@@ -45,11 +45,11 @@ public class Menus {
             if (in.equalsIgnoreCase("create")) {
                 if (AccountCreation.createAccount()) {
                     //successfully create account and move into schedule menu
-                    sched_or_folder_menu();
+                    acct_options();
                 }
             } else if (in.equalsIgnoreCase("login")) {
                 if (login_menu()) {
-                    sched_or_folder_menu();
+                    acct_options();
                 }
             } else if (in.equalsIgnoreCase("close")) {
                 if (Main.currentaccnt != null) {
@@ -148,7 +148,7 @@ public class Menus {
             String in = GeneralUtils.input("(load) -> load a folder/(new) -> create a new folder/(lf) -> list of folders/(b) -> back to account menu: \n");
             if (in.equalsIgnoreCase("load")) {
                 String folder_name = GeneralUtils.input("Enter the name of the folder to load: ");
-                if (new File("Accounts\\" + Main.currentaccnt.getUsername() + "\\" + folder_name + '\\' + folder_name + (folder_name.endsWith(".txt") ? "" : ".txt")).exists()) {
+                if (new File("Accounts\\" + Main.currentaccnt.getUsername() + "\\" + folder_name).exists()) {
                     Main.current_folder.load_folder(Main.currentaccnt.getUsername(), folder_name);
                     Main.autoflush.println("Folder '" + folder_name + "' loaded successfully\n");
                     in_folder_menu();
@@ -190,16 +190,19 @@ public class Menus {
         }
     }
 
-    public static void sched_or_folder_menu() throws IOException, SQLException {
+    public static void acct_options() throws IOException, SQLException {
         while (true) {
-            String in = GeneralUtils.input("Enter (sched) -> schedule menu/(folder) -> folder menu/(exit) -> exit to login");
+            String in = GeneralUtils.input("Enter (sched) -> schedule menu/(folder) -> folder menu/(prof) -> add preferred professors/(exit) -> exit to login");
             if (in.equals("sched")) {
                 schedule_menu();
             } else if (in.equals("folder")) {
                 folder_menu();
             } else if (in.equals("exit")) {
                 break;
-            } else {
+            } else if (in.equals("prof")){
+                Main.currentaccnt.pref_prof_menu();
+            }
+            else {
                 Main.autoflush.println("Invalid input, please try again.");
             }
         }
