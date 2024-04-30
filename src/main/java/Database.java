@@ -71,6 +71,23 @@ public class Database {
         }
     }
 
+    boolean username_exists(String username) {
+        try {
+            PreparedStatement ps = conn.prepareStatement("" +
+                    "SELECT * FROM users WHERE username = ?");
+            ps.setString(1, username);
+            ResultSet rst = ps.executeQuery();
+            int cntr = 0;
+            if (rst.next()) {
+                cntr += 1;
+            }
+            return cntr > 0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     String get_major(String username) {
         try {
             PreparedStatement ps = conn.prepareStatement("" +
