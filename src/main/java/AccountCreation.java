@@ -69,6 +69,7 @@ public class AccountCreation {
         // ------------------------------------
 
         Main.currentaccnt = new Account(username, password, major);
+
         File accountDir = new File("Accounts\\" + Main.currentaccnt.getUsername());
         accountDir.mkdir(); // create new folder for each new account that's created
 //
