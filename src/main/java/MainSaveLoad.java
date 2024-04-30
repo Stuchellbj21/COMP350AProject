@@ -67,8 +67,7 @@ public class MainSaveLoad {
      *
      * @throws FileNotFoundException
      */
-    public static void load_accounts() throws FileNotFoundException {
-        Main.allcourses = new ArrayList<>();
+//  public static void load_accounts() throws FileNotFoundException {
 //        //Opens a file to the accoutns directory text file
 //        File accts = new File("Accounts\\account_direc.txt");
 //        Scanner acct_scnr = new Scanner(accts);
@@ -83,7 +82,7 @@ public class MainSaveLoad {
 //            String account_name = line_reader.next();
 //            Main.accounts.put(int_pass_hash, account_name); //Adds the accounts username and hash password to the accounts Map
 //        }
-    }
+//  }
 
     /**
      * Reads from user's info.txt file and adds all saved schedules to a static list in main
@@ -112,6 +111,7 @@ public class MainSaveLoad {
     }
 
     public static void load_allcourses() throws IOException {
+        Main.allcourses = new ArrayList<>();
         FileInputStream fis = new FileInputStream("2020-2021.csv");
         Scanner csvscn = new Scanner(fis);
         //accounts = new HashMap<Integer, String>();
