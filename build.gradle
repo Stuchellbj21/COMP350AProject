@@ -15,6 +15,9 @@ dependencies {
     implementation 'org.xerial:sqlite-jdbc:3.44.1.0'
     implementation 'commons-dbutils:commons-dbutils:1.6'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.0.1'
+    implementation 'org.apache.tika:tika-core:2.4.1'
+    implementation 'org.apache.tika:tika-parsers:2.4.1'
+    implementation 'org.apache.tika:tika-parsers-standard-package:2.4.1'
 }
 
 test {
