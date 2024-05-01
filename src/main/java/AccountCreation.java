@@ -1,6 +1,4 @@
-import java.io.File;
-import java.io.IOException;
-import java.io.FileWriter;
+import java.io.*;
 
 public class AccountCreation {
     public static String create_username() {
@@ -25,7 +23,7 @@ public class AccountCreation {
                 }
             }
             catch(IllegalArgumentException e) {
-                Main.autoflush.println(e.getMessage());
+                Main.afl.println(e.getMessage());
             }
         }
     }
@@ -38,7 +36,7 @@ public class AccountCreation {
             } else if (Major.is_major(in.toUpperCase())) {
                 return in.toUpperCase();
             } else {
-                Main.autoflush.println("Error: '" + in + "' is an invalid major");
+                Main.afl.println("Error: '" + in + "' is an invalid major");
             }
         }
     }
@@ -75,7 +73,11 @@ public class AccountCreation {
 //        fw.write(username + ", " + password.hashCode() + ", " + major + "\n");
         fw.close();
         //---------------------------------------------------------
-        Main.autoflush.println("Account successfully created\n");
+
+        try{Main.currentaccnt.enter_courses_taken();}
+        catch(IOException ioe) {Main.afl.println("Error: " + ioe.getMessage());}
+
+        Main.afl.println("Account successfully created\n");
         return true;
     }
 }
