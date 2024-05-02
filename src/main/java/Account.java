@@ -166,13 +166,13 @@ public class Account {
     }
 
     public void print_wishlist(){
-        Main.autoflush.println("Your wishlist:");
+        Main.afl.println("Your wishlist:");
         if(wishlist == null || wishlist.isEmpty()){
-            Main.autoflush.println("\tNone");
+            Main.afl.println("\tNone");
             return;
         }
         for(Course c: wishlist)
-            Main.autoflush.println("\t- " +c.short_str(true));
+            Main.afl.println("\t- " +c.short_str(true));
     }
 
     public boolean has_pref_profs(){

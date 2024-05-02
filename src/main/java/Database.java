@@ -69,7 +69,8 @@ public class Database {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-   
+    }
+
     boolean username_exists(String username) {
         try {
             PreparedStatement ps = conn.prepareStatement("" +

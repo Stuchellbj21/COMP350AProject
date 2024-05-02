@@ -261,7 +261,7 @@ public class Search {
     }
 
     public static void main(String[] args) throws IOException {
-        MainSaveLoad.load_allcourses();
+        SaveLoad.load_allcourses();
         do prompt_and_search();
         while(!GeneralUtils.input("q to quit: ").equalsIgnoreCase("q"));
     }

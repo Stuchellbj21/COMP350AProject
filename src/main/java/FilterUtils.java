@@ -32,7 +32,7 @@ public class FilterUtils {
                     if(days != null) add_or_modify_filter(modify,new DaysFilter(Main.search.get_filtered_results(),days));
                 }
                 case TIME -> {
-                    DayTime time = get_time_for_filter(modify);
+                    DayTime time = GeneralUtils.get_time_for_something(modify);
                     if(time != null) add_or_modify_filter(modify,new TimeFilter(Main.search.get_filtered_results(),time));
                 }
                 case SEMESTER -> {
@@ -112,28 +112,6 @@ public class FilterUtils {
             }
             //if yes return true
             return true;
-        }
-    }
-
-    public static DayTime get_time_for_filter(boolean modify) {
-        while(true) {
-            if(!filter_move_forward(modify,FilterType.TIME)) return null;
-            String start = GeneralUtils.input("Enter start time in the form XX:XX PM/AM (where X is a digit): ").toUpperCase();
-            if(!DayTime.is_valid_time(start)) {
-                Main.afl.println("Error: '" + start + "' is not a valid time");
-                continue;
-            }
-            String end = GeneralUtils.input("Enter end time in the form XX:XX PM/AM (where X is a digit): ").toUpperCase();
-            if(!DayTime.is_valid_time(end)) {
-                Main.afl.println("Error: '" + end + "' is not a valid time");
-                continue;
-            }
-            DayTime r = new DayTime(start,end);
-            if(DayTime.military_to_minutes(r.get_militarystart()) >= DayTime.military_to_minutes(r.get_militaryend())) {
-                Main.afl.println("Error: start time must be earlier than end time");
-                continue;
-            }
-            return r;
         }
     }
 
