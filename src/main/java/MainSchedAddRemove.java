@@ -4,8 +4,8 @@ public class MainSchedAddRemove {
         while (true) {
             if (first) first = false;
             else if (!GeneralUtils.want_more('a')) return;
-            Main.autoflush.println("Warning: you will only be able to add courses for " + Main.currentsched.get_semester() + " " + Main.currentsched.get_year());
-            String[] cc = GeneralUtils.get_course_code(true);
+            Main.afl.println("Warning: you will only be able to add courses for " + Main.currentsched.get_semester() + " " + Main.currentsched.get_year());
+            String[] cc = GeneralUtils.get_course_code("add");
             if (!Validations.valid_course_code(cc)) continue;
             String coursecode = cc[0] + " " + cc[1];
             String section = GeneralUtils.input("Enter the section of the course to add: ").toUpperCase();
@@ -17,11 +17,11 @@ public class MainSchedAddRemove {
             boolean addattempted = false;
             for(Course c : Main.search.get_filtered_results())
                 if(toadd.equals(c.short_str(true))) {
-                    try {if(Main.currentsched.add_course(c)) Main.autoflush.println(toadd + " has been added to the current schedule");}
-                    catch(IllegalArgumentException iae) {Main.autoflush.println(iae.getMessage());}
+                    try {if(Main.currentsched.add_course(c)) Main.afl.println(toadd + " has been added to the current schedule");}
+                    catch(IllegalArgumentException iae) {Main.afl.println(iae.getMessage());}
                     addattempted = true;
                 }
-            if (!addattempted) Main.autoflush.println("Error: " + toadd + " not found in search results");
+            if (!addattempted) Main.afl.println("Error: " + toadd + " not found in search results");
         }
     }
 
@@ -31,10 +31,10 @@ public class MainSchedAddRemove {
             if(first) first = false;
             else if(!GeneralUtils.want_more('r')) return;
             if(Main.currentsched.get_courses().isEmpty()) {
-                Main.autoflush.println("Error: the current schedule does not contain any courses for removal");
+                Main.afl.println("Error: the current schedule does not contain any courses for removal");
                 return;
             }
-            String[] cc = GeneralUtils.get_course_code(false);
+            String[] cc = GeneralUtils.get_course_code("rm");
             if (!Validations.valid_course_code(cc)) continue;
             //we don't have to check the section.... we know only 1 section of a given course code can be added
             //we don't have to check the semester in this case.... we know that the user is only able to add courses
@@ -46,10 +46,10 @@ public class MainSchedAddRemove {
                     break;
                 }
             }
-            if (rm == null) Main.autoflush.println("Error: " + cc[0] + " " + cc[1] + " not found in schedule");
+            if (rm == null) Main.afl.println("Error: " + cc[0] + " " + cc[1] + " not found in schedule");
             else {
                 Main.currentsched.remove_course(rm);
-                Main.autoflush.println(cc[0] + " " + cc[1] + " successfully removed from the schedule");
+                Main.afl.println(cc[0] + " " + cc[1] + " successfully removed from the schedule");
             }
         }
     }
