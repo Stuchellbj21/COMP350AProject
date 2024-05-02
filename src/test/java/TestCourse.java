@@ -93,7 +93,7 @@ public class TestCourse {
 
     @Test
     public void test_no_times() throws IOException {
-        Main.populate_allcourses();
+        SaveLoad.load_allcourses();
         //astr 206 b has no times
         Course astr206b = Main.search.search("fall astr 206 b").getFirst();
         for(Course c : Main.allcourses) assertFalse(astr206b.times_overlap_with(c));

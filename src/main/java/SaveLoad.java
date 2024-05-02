@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.Set;
 import java.util.Scanner;
@@ -14,7 +13,7 @@ import java.util.List;
 import java.util.HashSet;
 
 
-public class MainSaveLoad {
+public class SaveLoad {
     /**
      * Completes the info.txt file associated with each account by writing password-hash, username, major
      * and schedule names to file in the user's account directory.
@@ -67,7 +66,7 @@ public class MainSaveLoad {
      *
      * @throws FileNotFoundException
      */
-//  public static void load_accounts() throws FileNotFoundException {
+    public static void load_accounts() throws FileNotFoundException {
 //        //Opens a file to the accoutns directory text file
 //        File accts = new File("Accounts\\account_direc.txt");
 //        Scanner acct_scnr = new Scanner(accts);
@@ -82,7 +81,7 @@ public class MainSaveLoad {
 //            String account_name = line_reader.next();
 //            Main.accounts.put(int_pass_hash, account_name); //Adds the accounts username and hash password to the accounts Map
 //        }
-//  }
+    }
 
     /**
      * Reads from user's info.txt file and adds all saved schedules to a static list in main
@@ -227,5 +226,13 @@ public class MainSaveLoad {
         }
         infoScan.close();
         fis.close();
+    }
+
+    //load the courses already in the 'courses_taken.txt' file into accounts courses taken.... this will ONLY be called on login
+    public static void load_courses_taken() throws IOException {
+        FileInputStream fis = new FileInputStream("Accounts\\" + Main.currentaccnt.getUsername() + "\\courses_taken.txt");
+        Scanner fscn = new Scanner(fis);
+        while(fscn.hasNextLine()) Main.currentaccnt.get_coursestaken().add(fscn.nextLine().strip());
+        fscn.close();
     }
 }

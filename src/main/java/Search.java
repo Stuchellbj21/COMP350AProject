@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.*;
 
 public class Search {
@@ -54,12 +55,7 @@ public class Search {
         set_search_str(ss);
         //if user wants to see all classes, show them all classes  |  if user enters all, the
         //results will always be sorted
-        if(searchstr.equalsIgnoreCase("all")) {
-            searchresults = new ArrayList<>(Main.allcourses);
-            filteredresults = new ArrayList<>(searchresults);
-            apply_all_filters();
-            return filteredresults;
-        }
+        if(searchstr.equalsIgnoreCase("all")) return search_all(threshold,sorted);
         HashMap<Course,Integer> coursetoweight = new HashMap<>();
         for(Course c : Main.allcourses) coursetoweight.put(c,get_weight(c)); //now we have weighted courses
         //want ordering by weight, so use treemap
@@ -73,7 +69,7 @@ public class Search {
         searchresults.clear();
         int n = 0;
         for(Integer i : weighttocourse.descendingKeySet()) {
-            //sort if wanted
+            //sort bin if wanted
             if(sorted) {
                 Collections.sort(weighttocourse.get(i), bysection);
                 Collections.sort(weighttocourse.get(i), bycoursenum);
@@ -81,14 +77,27 @@ public class Search {
             }
             //add all courses up to threshold to results
             for(Course c : weighttocourse.get(i)) {
-                searchresults.add(c);
-                if(++n >= threshold) break;
+                //only add the course to search results if the course wasn't already taken by
+                //the current user
+                if(!Main.currentaccnt.already_took(c)) {
+                    if(n++ >= threshold) break;
+                    searchresults.add(c);
+                }
             }
         }
         //filter results and return
         filteredresults = new ArrayList<>(searchresults);
         apply_all_filters();
         return searchresults;
+    }
+
+    public List<Course> search_all(int threshold,boolean sorted) {
+        searchresults = new ArrayList<>(Main.allcourses);
+        filteredresults = new ArrayList<>();
+        for(int i = 0; i < threshold && i < searchresults.size(); i++) filteredresults.add(searchresults.get(i));
+        apply_all_filters();
+        if(!sorted) System.out.println("Searching for 'ALL' gives classes in the order they were loaded.");
+        return filteredresults;
     }
 
     public void set_search_str(String ss) {
@@ -100,6 +109,8 @@ public class Search {
     }
 
     public List<Course> search(String ss) {return search(ss,Integer.MAX_VALUE,true);}
+
+    public List<Course> search(String ss,int threshold) {return search(ss,threshold,true);}
 
     public List<Course> search(String ss,boolean sorted) {return search(ss,Integer.MAX_VALUE,sorted);}
 
@@ -116,13 +127,15 @@ public class Search {
         return sb.toString();
     }
 
-    public String to_str(int threshold) {
+    public String to_str(boolean numbered) {
         StringBuilder sb = new StringBuilder("Active Filters: ").append(activefilters != null && !activefilters.isEmpty() ? activefilters : "None").append('\n');
         sb.append("Search Results for ").append('\'').append(searchstr).append('\'').append(':');
         if(filteredresults == null || filteredresults.isEmpty()) return sb.append("\nNone").toString();
         //give results up to threshold
-        for(int i = 0; i < filteredresults.size() && i < threshold;i++){
-            sb.append('\n').append(filteredresults.get(i));
+        for(int i = 0; i < filteredresults.size();i++) {
+            sb.append('\n');
+            if(numbered) sb.append(i+1).append(". ");
+            sb.append(filteredresults.get(i));
             if(Main.currentaccnt.get_wishlist().contains(filteredresults.get(i))) {
                 sb.append("☆");
             }
@@ -208,6 +221,11 @@ public class Search {
         return filteredresults;
     }
 
+    public void reset() {
+        activefilters.clear();
+        search("",0);
+    }
+
     public List<Course> get_filtered_results() {return filteredresults;}
 
     public List<Filter> get_active_filters() {return activefilters;}
@@ -226,18 +244,25 @@ public class Search {
         int threshold;
         boolean sorted = false;
         while (true) {
-            String in = GeneralUtils.input("Enter maximum number of visible search results: ");
+            String in = GeneralUtils.input("Enter maximum number search results: ");
             try {
                 threshold = Integer.parseInt(in);
+                if(threshold < 1) throw new IllegalArgumentException("Error: maximum number of search results should be greater than zero.");
                 sorted = GeneralUtils.want_more('s');
                 break;
             } catch (NumberFormatException nfe) {
-                Main.autoflush.println("Error: " + in + " is not a valid integer. Enter an integer value.");
+                Main.afl.println("Error: '" + in + "' is not a valid integer. Enter an integer value.");
             } catch (IllegalArgumentException iae) {
-                Main.autoflush.println(iae.getMessage());
+                Main.afl.println(iae.getMessage());
             }
         }
-        Main.search.search(GeneralUtils.input("Enter search string: "), sorted);
-        Main.autoflush.println(Main.search.to_str(threshold));
+        Main.search.search(GeneralUtils.input("Enter search string: "), threshold, sorted);
+        Main.afl.println(Main.search.to_str(true));
+    }
+
+    public static void main(String[] args) throws IOException {
+        MainSaveLoad.load_allcourses();
+        do prompt_and_search();
+        while(!GeneralUtils.input("q to quit: ").equalsIgnoreCase("q"));
     }
 }

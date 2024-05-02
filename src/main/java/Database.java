@@ -38,7 +38,7 @@ public class Database {
             return true;
 
         } catch (SQLException e) {
-            System.out.println("connection to database unsuccessful");
+            Main.afl.println("connection to database unsuccessful");
             return false;
         }
     }
@@ -46,7 +46,7 @@ public class Database {
     void disconnectDB() throws SQLException {
         if (conn != null) {
             conn.close();
-            System.out.println("connection to \"jdbc:sqlite3:C://SQLite/scrumptious.db\" closed");
+            Main.afl.println("connection to \"jdbc:sqlite3:C://SQLite/scrumptious.db\" closed");
         }
     }
 
@@ -61,11 +61,27 @@ public class Database {
             if (rst.next()) {
                 String temp = rst.getString(1); // grab username
                 if (temp.equals(username)) {
-                    Main.autoflush.println("Login successful");
+                    Main.afl.println("Login successful");
                     return true;
                 }
             }
             return false;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+   
+    boolean username_exists(String username) {
+        try {
+            PreparedStatement ps = conn.prepareStatement("" +
+                    "SELECT * FROM users WHERE username = ?");
+            ps.setString(1, username);
+            ResultSet rst = ps.executeQuery();
+            int cntr = 0;
+            if (rst.next()) {
+                cntr += 1;
+            }
+            return cntr > 0;
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -80,7 +96,7 @@ public class Database {
             if (rst.next()) {
                 return rst.getString(1);
             }
-            System.out.println("get major didn't work");
+            Main.afl.println("get major didn't work");
             return "COMP";
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -102,7 +118,7 @@ public class Database {
             if (rows > 0) {
                 return true;
             } else {
-                Main.autoflush.println("Insert into 'users' failed");
+                Main.afl.println("Insert into 'users' failed");
                 return false;
             }
         } catch (SQLException e) {
@@ -118,10 +134,10 @@ public class Database {
 
             int rows = ps.executeUpdate();
             if (rows > 0) {
-                Main.autoflush.println("Deletion from 'users' was successful");
+                Main.afl.println("Deletion from 'users' was successful");
                 return true;
             }
-            Main.autoflush.println("Deletion from 'users' failed");
+            Main.afl.println("Deletion from 'users' failed");
             return false;
 
         } catch (SQLException e) {
@@ -140,10 +156,10 @@ public class Database {
             PreparedStatement ps = conn.prepareStatement("DELETE FROM users");
             int rows = ps.executeUpdate();
             if (rows > 0) {
-                System.out.println("All tuples deleted from 'users'");
+                Main.afl.println("All tuples deleted from 'users'");
                 return true;
             }
-            Main.autoflush.println("'users' table was not cleared");
+            Main.afl.println("'users' table was not cleared");
             return false;
 
         } catch (SQLException e) {
@@ -177,10 +193,10 @@ public class Database {
             ps.setString(2, username);
             int rows = ps.executeUpdate();
             if (rows > 0) {
-                Main.autoflush.println("Successful insert into 'schedules' ");
+                Main.afl.println("Successful insert into 'schedules' ");
                 return true;
             }
-            Main.autoflush.println("Insert into 'schedules' failed");
+            Main.afl.println("Insert into 'schedules' failed");
             return false; // probably wrong spot for this
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -196,10 +212,10 @@ public class Database {
             ps.setString(2, username);
             int rows = ps.executeUpdate();
             if (rows > 0) {
-                Main.autoflush.println("Succesfully deleted from 'schedules'");
+                Main.afl.println("Succesfully deleted from 'schedules'");
                 return true;
             }
-            Main.autoflush.println("Deletion from 'schedules' failed ");
+            Main.afl.println("Deletion from 'schedules' failed ");
             return false;
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -216,10 +232,10 @@ public class Database {
             PreparedStatement ps = conn.prepareStatement("DELETE FROM schedules");
             int rows = ps.executeUpdate();
             if (rows > 0) {
-                Main.autoflush.println("All tuples deleted from 'schedules'");
+                Main.afl.println("All tuples deleted from 'schedules'");
                 return true;
             }
-            Main.autoflush.println("'schedules' table was not cleared ");
+            Main.afl.println("'schedules' table was not cleared ");
             return false;
 
         } catch (SQLException e) {
@@ -236,10 +252,10 @@ public class Database {
             ps.setString(3, username);
             int rows = ps.executeUpdate();
             if (rows > 0) {
-                Main.autoflush.println("Updated 'schedules' successfully");
+                Main.afl.println("Updated 'schedules' successfully");
                 return true;
             }
-            Main.autoflush.println("Update to 'schedules' failed");
+            Main.afl.println("Update to 'schedules' failed");
             return false;
 
         } catch (SQLException e) {
@@ -304,10 +320,10 @@ public class Database {
             // launch statement
             int rows = ps.executeUpdate();
             if (rows > 0) {
-                System.out.println("Insert into 'courses' was successful");
+                Main.afl.println("Insert into 'courses' was successful");
                 return true;
             } else {
-                System.out.println("Insert into 'courses' failed");
+                Main.afl.println("Insert into 'courses' failed");
                 return false;
             }
         } catch (SQLException e) {
