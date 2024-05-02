@@ -99,7 +99,7 @@ public class Menus {
             }
             //go back to account menu
             else if (in.equalsIgnoreCase("b")) {
-                Main.search.deactivate_all_filters();
+                Main.search.reset();
                 break;
             }
             else Main.afl.println("Error: invalid input");
