@@ -209,7 +209,7 @@ public class Course {
         DayTime[] r_mc = rarest_most_common(get_time_counts());
 
         StringBuilder sb = new StringBuilder();
-        if(Main.currentaccnt.is_major_course(this)) sb.append("** ");
+        if(Main.currentaccnt.is_major_course(this)) sb.append("✵ ");
         sb.append(semester).append(' ').append(year).append(": ").append(professor).append(" - ");
         sb.append(major.name()).append(' ').append(coursenum).append(' ').append(section).append(" - ");
         sb.append(name).append(" - ");
@@ -232,7 +232,7 @@ public class Course {
             sb.append(rare.get_end_time()).append(')');
         }
         sb.append(' ').append("[credits: ").append(credits).append(']').toString();
-        if(Main.currentaccnt.is_major_course(this)) sb.append(" **");
+        if(Main.currentaccnt.is_major_course(this)) sb.append(" ✵");
         return sb.toString();
     }
 

@@ -472,14 +472,14 @@ public class FilterTest {
         Main.currentaccnt = new Account("username","passwrd",Major.PHIL);
         SaveLoad.load_allcourses();
         List<Course> results = Main.search.search("101",true);
-        Main.afl.println(Main.search.to_str(50));
+        Main.afl.println(Main.search.to_str(true));
         Main.search.activate_new_filter(new CreditFilter(results,2));
         Main.afl.println("\n\n\n");
-        Main.afl.println(Main.search.to_str(50));
+        Main.afl.println(Main.search.to_str(true));
         Main.afl.println("\n\n\n");
         Main.search.deactivate_filter(Main.search.get_active_filters().get(Main.search.get_active_filters().indexOf(new CreditFilter())));
         Main.afl.println("\n\n\n");
-        Main.afl.println(Main.search.to_str(50));
+        Main.afl.println(Main.search.to_str(true));
     }
 
     public void days_filter_test() {

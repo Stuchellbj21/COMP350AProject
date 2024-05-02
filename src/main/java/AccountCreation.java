@@ -11,7 +11,7 @@ public class AccountCreation {
                     return un;
                 }
                 else {
-                    Main.autoflush.println("username already exists");
+                    Main.afl.println("username already exists");
                 }
             }
         }

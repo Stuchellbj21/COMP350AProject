@@ -57,7 +57,7 @@ public class Menus {
                 if (Main.currentaccnt != null) {
                     SaveLoad.account_flush(); // should not be called when no accounts have been made
                 }
-                SaveLoad.close_accounts();
+                //SaveLoad.close_accounts();
                 System.exit(0); // kill the program with no errors
             } else {
                 Main.afl.println("Error: '" + in + "' is an invalid response");
@@ -127,21 +127,21 @@ public class Menus {
             else if (in.equalsIgnoreCase("ac")) {
                 if (Main.search.get_filtered_results() == null || Main.search.get_filtered_results().isEmpty())
                     Main.afl.println("Error: if you wish to add a course, you must add it from search results and you currently have no search results");
-                else MainSchedAddRemove.add_course_to_schedule();
+                else SchedAddRemove.add_course_to_schedule();
             } else if (in.equalsIgnoreCase("rc")) {
                 if (Main.currentsched.get_courses().isEmpty())
                     Main.afl.println("Error: the current schedule does not contain any courses for removal");
-                else MainSchedAddRemove.remove_course_from_schedule();
+                else SchedAddRemove.remove_course_from_schedule();
             } else if (in.equalsIgnoreCase("extra")) {
-                MainSchedAddRemove.extracurricular();
+                SchedAddRemove.extracurricular();
             } else if (in.equalsIgnoreCase("ws")) {
                 if (Main.search.get_filtered_results() == null || Main.search.get_filtered_results().isEmpty())
-                    Main.autoflush.println("Error: If you wish to add a course to wishlist, you must add it from search results and you currently have no search results.");
+                    Main.afl.println("Error: If you wish to add a course to wishlist, you must add it from search results and you currently have no search results.");
                 else {
-                    MainSchedAddRemove.wish_list();
+                    SchedAddRemove.wish_list();
                 }
             } else if (in.equalsIgnoreCase("undo")){
-                MainSchedAddRemove.revert_change();
+                SchedAddRemove.revert_change();
             } else if (in.equalsIgnoreCase("save")) {
 //                try {
                 if (Main.currentsched.get_name().equalsIgnoreCase("blank schedule"))

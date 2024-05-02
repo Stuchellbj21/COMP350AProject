@@ -1,17 +1,18 @@
 import java.io.IOException;
+import java.sql.SQLException;
 
-public class MainSchedAddRemove {
+public class SchedAddRemove {
     public static void add_course_to_schedule() {
         boolean first = true;
         while (true) {
             if (first) first = false;
             else if (!GeneralUtils.want_more('a')) return;
-            Main.autoflush.println("Warning: you will only be able to add courses for " + Main.currentsched.get_semester() + " " + Main.currentsched.get_year());
+            Main.afl.println("Warning: you will only be able to add courses for " + Main.currentsched.get_semester() + " " + Main.currentsched.get_year());
             //display search results to add from to user
-            Main.autoflush.println(Main.search.to_str(true));
+            Main.afl.println(Main.search.to_str(true));
             /*String how = GeneralUtils.input("Enter 'i' to add a course by index, or enter 'c' to add a course by code and section: ").toLowerCase();
             if(!how.equalsIgnoreCase("i") && !how.equalsIgnoreCase("c")) {
-                Main.autoflush.println("Error: invalid input.");
+                Main.afl.println("Error: invalid input.");
                 continue;
             }
             if(how.equalsIgnoreCase("i")) add_course_by_index();
@@ -27,13 +28,13 @@ public class MainSchedAddRemove {
             if(idx < 1) throw new IllegalArgumentException("Error: index must be greater than zero.");
             if(idx > Main.search.get_filtered_results().size()) throw new IllegalArgumentException("Error: that index is too large.");
             if(Main.currentsched.add_course(Main.search.get_filtered_results().get(idx-1)))
-                Main.autoflush.println(Main.search.get_filtered_results().get(idx-1).short_str(true) + " has been added to the current schedule");
+                Main.afl.println(Main.search.get_filtered_results().get(idx-1).short_str(true) + " has been added to the current schedule");
         }
         catch (NumberFormatException nfe) {
-            Main.autoflush.println("Error: you did not enter a valid integer.");
+            Main.afl.println("Error: you did not enter a valid integer.");
         }
         catch (IllegalArgumentException iae) {
-            Main.autoflush.println(iae.getMessage());
+            Main.afl.println(iae.getMessage());
         }
     }
 
@@ -52,11 +53,11 @@ public class MainSchedAddRemove {
         boolean addattempted = false;
         for(Course c : Main.search.get_filtered_results())
             if(toadd.equals(c.short_str(true))) {
-                try {if(Main.currentsched.add_course(c)) Main.autoflush.println(toadd + " has been added to the current schedule");}
-                catch(IllegalArgumentException iae) {Main.autoflush.println(iae.getMessage());}
+                try {if(Main.currentsched.add_course(c)) Main.afl.println(toadd + " has been added to the current schedule");}
+                catch(IllegalArgumentException iae) {Main.afl.println(iae.getMessage());}
                 addattempted = true;
             }
-        if (!addattempted) Main.autoflush.println("Error: " + toadd + " not found in search results");
+        if (!addattempted) Main.afl.println("Error: " + toadd + " not found in search results");
     }
     */
 
@@ -97,32 +98,37 @@ public class MainSchedAddRemove {
         String yon = "";
         // Class period
         String cpd = "";
-        //TODO: change System.outs to Main.autoflush
         cc = GeneralUtils.get_course_code(true, "Enter invalid course code to quit");
         if (Validations.valid_course_code(cc)) {
             String coursecode = cc[0] + " " + cc[1];
-            yon = GeneralUtils.input("Would you like to specify a class period? (Y / N): ").toUpperCase();
+            //search for that course
+            Search findcourse = new Search();
+            yon = GeneralUtils.input("Would you like to specify a section? (y/n): ").toUpperCase();
             if (yon.equals("Y")) {
                 cpd = GeneralUtils.input("Enter the class section you would like to add to your wishlist: ").toUpperCase();
-                for (int i = 0; i < Main.search.get_filtered_results().size(); i++) {
-                    String course = Main.search.get_filtered_results().get(i).getMajor() + " " + Main.search.get_filtered_results().get(i).getCourseNum();
-                    if (course.equals(coursecode) && Main.search.get_filtered_results().get(i).getSection() == cpd.charAt(0)) {
-                        Main.currentaccnt.get_wishlist().add(Main.search.get_filtered_results().get(i));
-                        Main.autoflush.println("course added to wishlist");
+                findcourse.search(coursecode + " " + cpd,15);
+                for (int i = 0; i < findcourse.get_filtered_results().size(); i++) {
+                    String course = findcourse.get_filtered_results().get(i).getMajor() + " " + findcourse.get_filtered_results().get(i).getCourseNum();
+                    if (course.equals(coursecode) && findcourse.get_filtered_results().get(i).getSection() == cpd.charAt(0)) {
+                        Main.currentaccnt.get_wishlist().add(findcourse.get_filtered_results().get(i));
+                        Main.afl.println("course added to wishlist");
                         break;
                     }
                 }
             }
-            else {
-                for (int i = 0; i < Main.search.get_filtered_results().size(); i++) {
-                    String course = Main.search.get_filtered_results().get(i).getMajor() + " " + Main.search.get_filtered_results().get(i).getCourseNum();
+            else if(yon.equals("N")){
+                findcourse.search(coursecode + " ",15);
+                for (int i = 0; i < findcourse.get_filtered_results().size(); i++) {
+                    String course = findcourse.get_filtered_results().get(i).getMajor() + " " + findcourse.get_filtered_results().get(i).getCourseNum();
                     if (course.equals(coursecode)) {
-                        Main.currentaccnt.get_wishlist().add(Main.search.get_filtered_results().get(i));
-                        Main.autoflush.println("course added to wishlist");
+                        Main.currentaccnt.get_wishlist().add(findcourse.get_filtered_results().get(i));
+                        Main.afl.println("course added to wishlist");
                     }
                 }
             }
+            else Main.afl.println("Error: invalid input");
         }
+        else Main.afl.println("Error: invalid input");
     }
 
     public static void extracurricular() {
@@ -130,14 +136,14 @@ public class MainSchedAddRemove {
         name = GeneralUtils.input("Enter the name for the extracurricular activity you choose to add: ");
         char day = GeneralUtils.input("Enter the day the extracurricular activity will occur: ").toUpperCase().charAt(0);
         if (day != 'M' && day != 'T' && day != 'W' && day != 'R' && day != 'F') {
-            Main.autoflush.println("Error: invalid day given");
+            Main.afl.println("Error: invalid day given");
             return;
         }
-        DayTime time = MainFilterUtils.get_time_for_filter(false, day);
+        DayTime time = GeneralUtils.get_time_for_something(day);
         Extracurricular e = new Extracurricular(time, name);
         for (Course c : Main.currentsched.get_courses()) {
             if (c.times_overlap_with(time)) {
-                Main.autoflush.println("Error: extracurricular overlaps with a course in schedule");
+                Main.afl.println("Error: extracurricular overlaps with a course in schedule");
                 return;
             }
         }
@@ -147,17 +153,17 @@ public class MainSchedAddRemove {
 
     public static void revert_change() {
         if (Main.currentsched.get_undocoursestack().isEmpty()) {
-            Main.autoflush.println("Error: no course has been added to undo its addition");
+            Main.afl.println("Error: no course has been added to undo its addition");
         } else {
             Course temp = Main.currentsched.get_undocoursestack().pop();
             Main.currentsched.remove_course(temp);
-            System.out.println("Undid last course addition: " + temp.getName());
+            Main.afl.println("Undid last course addition: " + temp.getName());
         }
     }
   
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, SQLException {
         Main.currentaccnt = new Account();
-        MainSaveLoad.load_allcourses();
+        SaveLoad.load_allcourses();
         Menus.in_schedule_menu();
     }
 }
