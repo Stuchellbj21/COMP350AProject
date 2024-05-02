@@ -1,6 +1,4 @@
-import java.io.File;
-import java.io.IOException;
-import java.io.FileWriter;
+import java.io.*;
 
 public class AccountCreation {
     public static String create_username() {
@@ -13,7 +11,7 @@ public class AccountCreation {
                     return un;
                 }
                 else {
-                    Main.autoflush.println("username already exists");
+                    Main.afl.println("username already exists");
                 }
             }
         }
@@ -30,7 +28,7 @@ public class AccountCreation {
                 }
             }
             catch(IllegalArgumentException e) {
-                Main.autoflush.println(e.getMessage());
+                Main.afl.println(e.getMessage());
             }
         }
     }
@@ -43,7 +41,7 @@ public class AccountCreation {
             } else if (Major.is_major(in.toUpperCase())) {
                 return in.toUpperCase();
             } else {
-                Main.autoflush.println("Error: '" + in + "' is an invalid major");
+                Main.afl.println("Error: '" + in + "' is an invalid major");
             }
         }
     }
@@ -69,6 +67,7 @@ public class AccountCreation {
         // ------------------------------------
 
         Main.currentaccnt = new Account(username, password, major);
+
         File accountDir = new File("Accounts\\" + Main.currentaccnt.getUsername());
         accountDir.mkdir(); // create new folder for each new account that's created
 //
@@ -78,7 +77,11 @@ public class AccountCreation {
         fw.write("Folders: ");
         fw.close();
         //---------------------------------------------------------
-        Main.autoflush.println("Account successfully created\n");
+
+        try{Main.currentaccnt.enter_courses_taken();}
+        catch(IOException ioe) {Main.afl.println("Error: " + ioe.getMessage());}
+
+        Main.afl.println("Account successfully created\n");
         return true;
     }
 }

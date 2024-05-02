@@ -4,7 +4,7 @@ public class GeneralUtils {
     public static Scanner userin = new Scanner(System.in);
     public static String input(String prompt) {
         if (prompt != null) {
-            Main.autoflush.print(prompt);
+            Main.afl.print(prompt);
         }
         //strip the new line off the end and any starting whitespace
         return userin.nextLine().strip();
@@ -30,12 +30,26 @@ public class GeneralUtils {
             else throw new IllegalArgumentException("Error: didn't correctly specify type");
             if (ans.equalsIgnoreCase("no") || ans.equalsIgnoreCase("n")) return false;
             else if (ans.equalsIgnoreCase("yes") || ans.equalsIgnoreCase("y") || ans.isEmpty()) return true;
-            else Main.autoflush.println("Invalid");
+            else Main.afl.println("Invalid");
         }
     }
 
-    public static String[] get_course_code(boolean add) {
+    public static String[] get_course_code(String type) {
         String[] cc;
+        if (type.equalsIgnoreCase("add")) cc = input("Enter the course code of the course to add (major course_number): ").strip().split("\\s+");
+        else if(type.equalsIgnoreCase("rm")) cc = input("Enter the course code of the course to remove (major course_number): ").strip().split("\\s+");
+        //tkn for taken
+        else if(type.equalsIgnoreCase("tkn")) cc = input("Enter course taken (<major> <course_number>) or 'done': ").strip().split("\\s+");
+        else {
+            Main.afl.println("Error: wrong arg(s) given to get_course_code");
+            cc = null;
+        }
+        cc[0] = cc[0].toUpperCase();
+        return cc;
+    }
+    public static String[] get_course_code(boolean add, String exit_condition) {
+        String[] cc;
+        Main.afl.println(exit_condition);
         if (add) cc = input("Enter the course code of the course to add (major course_number): ").strip().split("\\s+");
         else cc = input("Enter the course code of the course to remove (major course_number): ").strip().split("\\s+");
         cc[0] = cc[0].toUpperCase();
@@ -47,7 +61,50 @@ public class GeneralUtils {
             sem[0] = sem[0].substring(0,1).toUpperCase() + sem[0].substring(1).toLowerCase();
             return true;
         }
-        Main.autoflush.println("Error: invalid semester-year input");
+        Main.afl.println("Error: invalid semester-year input");
         return false;
+    }
+
+    public static DayTime get_time_for_something(boolean modify) {
+        while(true) {
+            if(!FilterUtils.filter_move_forward(modify,FilterType.TIME)) return null;
+            String start = GeneralUtils.input("Enter start time in the form XX:XX PM/AM (where X is a digit): ").toUpperCase();
+            if(!DayTime.is_valid_time(start)) {
+                Main.afl.println("Error: '" + start + "' is not a valid time");
+                continue;
+            }
+            String end = GeneralUtils.input("Enter end time in the form XX:XX PM/AM (where X is a digit): ").toUpperCase();
+            if(!DayTime.is_valid_time(end)) {
+                Main.afl.println("Error: '" + end + "' is not a valid time");
+                continue;
+            }
+            DayTime r = new DayTime(start,end);
+            if(DayTime.military_to_minutes(r.get_militarystart()) >= DayTime.military_to_minutes(r.get_militaryend())) {
+                Main.afl.println("Error: start time must be earlier than end time");
+                continue;
+            }
+            return r;
+        }
+    }
+
+    public static DayTime get_time_for_something(char extracurday) {
+        while(true) {
+            String start = GeneralUtils.input("Enter start time in the form XX:XX PM/AM (where X is a digit): ").toUpperCase();
+            if(!DayTime.is_valid_time(start)) {
+                Main.afl.println("Error: '" + start + "' is not a valid time");
+                continue;
+            }
+            String end = GeneralUtils.input("Enter end time in the form XX:XX PM/AM (where X is a digit): ").toUpperCase();
+            if(!DayTime.is_valid_time(end)) {
+                Main.afl.println("Error: '" + end + "' is not a valid time");
+                continue;
+            }
+            DayTime r = new DayTime(start,end,extracurday);
+            if(DayTime.military_to_minutes(r.get_militarystart()) >= DayTime.military_to_minutes(r.get_militaryend())) {
+                Main.afl.println("Error: start time must be earlier than end time");
+                continue;
+            }
+            return r;
+        }
     }
 }
