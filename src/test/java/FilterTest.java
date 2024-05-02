@@ -469,16 +469,17 @@ public class FilterTest {
 
     @Test
     public void credit_filter_test() throws IOException {
-        Main.populate_allcourses();
+        Main.currentaccnt = new Account("username","passwrd",Major.PHIL);
+        SaveLoad.load_allcourses();
         List<Course> results = Main.search.search("101",true);
-        Main.autoflush.println(Main.search.to_str(50));
+        Main.afl.println(Main.search.to_str(50));
         Main.search.activate_new_filter(new CreditFilter(results,2));
-        Main.autoflush.println("\n\n\n");
-        Main.autoflush.println(Main.search.to_str(50));
-        Main.autoflush.println("\n\n\n");
+        Main.afl.println("\n\n\n");
+        Main.afl.println(Main.search.to_str(50));
+        Main.afl.println("\n\n\n");
         Main.search.deactivate_filter(Main.search.get_active_filters().get(Main.search.get_active_filters().indexOf(new CreditFilter())));
-        Main.autoflush.println("\n\n\n");
-        Main.autoflush.println(Main.search.to_str(50));
+        Main.afl.println("\n\n\n");
+        Main.afl.println(Main.search.to_str(50));
     }
 
     public void days_filter_test() {

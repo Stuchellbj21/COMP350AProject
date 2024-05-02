@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class IOTest {
     @Test
     public void takeInClassesFileTest() throws IOException {
-        Main.populate_allcourses();
+        SaveLoad.load_allcourses();
         for(Course c : Main.allcourses) System.out.println(c);
     }
 }
