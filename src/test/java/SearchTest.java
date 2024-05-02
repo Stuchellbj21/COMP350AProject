@@ -15,13 +15,13 @@ public class SearchTest {
         Search s = new Search();
         //System.out.println(s.search(""));
         s.search("comp 220");
-        System.out.println(s.to_str(10));
+        System.out.println(s.to_str(true));
         s.search("comp 222 A");
-        System.out.println(s.to_str(10));
+        System.out.println(s.to_str(true));
         s.search("MWF 2-2:50");
-        System.out.println(s.to_str(10));
+        System.out.println(s.to_str(true));
         s.search("M");
-        System.out.println(s.to_str(10));
+        System.out.println(s.to_str(true));
     }
 
     @Test
@@ -43,9 +43,9 @@ public class SearchTest {
         try{SaveLoad.load_allcourses();}
         catch(IOException ioe) {System.out.println(ioe.getMessage() + " " + ioe.getCause());}
         Search s = new Search("writ 101 c");
-        System.out.println(s.to_str(10));
+        System.out.println(s.to_str(true));
         s.activate_new_filter(new DaysFilter(s.get_filtered_results(), Set.of('W','M','F')));
-        System.out.println(s.to_str(10));
+        System.out.println(s.to_str(true));
     }
 
     @Test
