@@ -107,7 +107,12 @@ public class Search {
     public String toString() {
         StringBuilder sb = new StringBuilder("Search Results: ");
         if(filteredresults == null || filteredresults.isEmpty()) return sb.append("None").toString();
-        for(Course c : filteredresults) sb.append('\n').append(c);
+        for(Course c : filteredresults)
+            if(Main.currentaccnt.get_wishlist().contains(c)) {
+                sb.append('\n').append(c + "*");
+            } else{
+                    sb.append('\n').append(c);
+        }
         return sb.toString();
     }
 
@@ -116,10 +121,15 @@ public class Search {
         sb.append("Search Results for ").append('\'').append(searchstr).append('\'').append(':');
         if(filteredresults == null || filteredresults.isEmpty()) return sb.append("\nNone").toString();
         //give results up to threshold
-        for(int i = 0; i < filteredresults.size() && i < threshold;i++)
+        for(int i = 0; i < filteredresults.size() && i < threshold;i++){
             sb.append('\n').append(filteredresults.get(i));
+            if(Main.currentaccnt.get_wishlist().contains(filteredresults.get(i))) {
+                sb.append("☆");
+            }
+        }
         return sb.toString();
     }
+
 
     //may want to make different attributes get weighted more than others....
     //thinking 3 digit num + Major strings could get weight 3, everything else aside from

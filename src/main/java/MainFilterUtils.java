@@ -132,6 +132,27 @@ public class MainFilterUtils {
         }
     }
 
+    public static DayTime get_time_for_filter(boolean modify, char extracurday) {
+        while(true) {
+            String start = GeneralUtils.input("Enter start time in the form XX:XX PM/AM (where X is a digit): ").toUpperCase();
+            if(!DayTime.is_valid_time(start)) {
+                Main.autoflush.println("Error: '" + start + "' is not a valid time");
+                continue;
+            }
+            String end = GeneralUtils.input("Enter end time in the form XX:XX PM/AM (where X is a digit): ").toUpperCase();
+            if(!DayTime.is_valid_time(end)) {
+                Main.autoflush.println("Error: '" + end + "' is not a valid time");
+                continue;
+            }
+            DayTime r = new DayTime(start,end,extracurday);
+            if(DayTime.military_to_minutes(r.get_militarystart()) >= DayTime.military_to_minutes(r.get_militaryend())) {
+                Main.autoflush.println("Error: start time must be earlier than end time");
+                continue;
+            }
+            return r;
+        }
+    }
+
     public static Set<Character> get_days_for_filter(boolean modify) {
         String[] days;
         while(true) {

@@ -41,6 +41,14 @@ public class GeneralUtils {
         cc[0] = cc[0].toUpperCase();
         return cc;
     }
+    public static String[] get_course_code(boolean add, String exit_condition) {
+        String[] cc;
+        Main.autoflush.println(exit_condition);
+        if (add) cc = input("Enter the course code of the course to add (major course_number): ").strip().split("\\s+");
+        else cc = input("Enter the course code of the course to remove (major course_number): ").strip().split("\\s+");
+        cc[0] = cc[0].toUpperCase();
+        return cc;
+    }
 
     public static boolean get_semester_formatted(String[] sem) {
         if(sem.length == 2 && sem[0] != null && sem[0].length() > 1) {

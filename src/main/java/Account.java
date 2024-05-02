@@ -13,6 +13,8 @@ public class Account {
     private int passwordhash;
     private Major major;
     private List<String> schednames;
+    private List<Course> wishlist = new ArrayList<>(); //TODO: Initialize a wishlist on an account-basis
+    // will be added after courses have been searched
     private List<String> preffered_profs;
 
     private List<String> folders;
@@ -144,6 +146,16 @@ public class Account {
         System.out.println();
     }
 
+    public void print_wishlist(){
+        Main.autoflush.println("Your wishlist:");
+        if(wishlist == null || wishlist.isEmpty()){
+            Main.autoflush.println("\tNone");
+            return;
+        }
+        for(Course c: wishlist)
+            Main.autoflush.println("\t- " +c.short_str(true));
+    }
+
     public boolean has_pref_profs(){
         return preffered_profs != null && !preffered_profs.isEmpty();
     }
@@ -160,6 +172,9 @@ public class Account {
     public List<String> get_folders(){
         return folders;
     }
+
+    public List<Course> get_wishlist(){ return wishlist; }
+
 
     //Make the generated schedules in here
 }
