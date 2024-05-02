@@ -9,7 +9,12 @@ public class AccountCreation {
             if (un.equalsIgnoreCase("back")) {
                 return "back";
             } else if (Validations.check_username(un)) {
-                return un;
+                if (!Main.db.username_exists(un)) {
+                    return un;
+                }
+                else {
+                    Main.autoflush.println("username already exists");
+                }
             }
         }
     }
@@ -64,7 +69,7 @@ public class AccountCreation {
         // ------------------------------------
 
         Main.currentaccnt = new Account(username, password, major);
-//        Main.accounts.put(password.hashCode(), username); // add account to the map
+
         File accountDir = new File("Accounts\\" + Main.currentaccnt.getUsername());
         accountDir.mkdir(); // create new folder for each new account that's created
 //
@@ -72,7 +77,6 @@ public class AccountCreation {
         File f = new File("Accounts\\" + Main.currentaccnt.getUsername() + '\\' + "info.txt");
         FileWriter fw = new FileWriter(f, true);
         fw.write("Folders: ");
-//        fw.write(username + ", " + password.hashCode() + ", " + major + "\n");
         fw.close();
         //---------------------------------------------------------
         Main.autoflush.println("Account successfully created\n");

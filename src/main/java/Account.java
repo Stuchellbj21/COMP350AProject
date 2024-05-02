@@ -26,6 +26,7 @@ public class Account {
         this.username = username;
         this.passwordhash = password.hashCode();
         schednames = new ArrayList<String>();
+
     }
 
     //Constructor with major
