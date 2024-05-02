@@ -30,7 +30,7 @@ public class Menus {
             String major = Main.db.get_major(un); // get major from database
             Main.currentaccnt = new Account(un, pw, Major.valueOf(major));
             MainSaveLoad.load_schedules();
-            MainSaveLoad.load_folders(); // todo: Rework load folders with info.txt file
+            MainSaveLoad.load_acct_info(); // todo: Rework load folders with info.txt file
             return true;
         } else {
             Main.autoflush.println("Incorrect password or username");
@@ -45,11 +45,12 @@ public class Menus {
             if (in.equalsIgnoreCase("create")) {
                 if (AccountCreation.createAccount()) {
                     //successfully create account and move into schedule menu
-                    acct_options();
+                    schedule_menu();
                 }
             } else if (in.equalsIgnoreCase("login")) {
                 if (login_menu()) {
-                    acct_options();
+                    schedule_menu();
+                    MainSaveLoad.account_flush();
                 }
             } else if (in.equalsIgnoreCase("close")) {
                 if (Main.currentaccnt != null) {
@@ -65,14 +66,10 @@ public class Menus {
 
     public static void schedule_menu() throws SQLException, IOException {
         while (true) {
-            String in = GeneralUtils.input("(load) -> load a schedule/(new) -> create a new blank schedule/(ls) -> list saved schedules/(b) -> back to account menu: ");
+            String in = GeneralUtils.input("(load) -> load a schedule/(new) -> create a new blank schedule/(ls) -> list saved schedules/(f) -> access folders/(gen) -> generate schesules/(b) -> back to account menu: ");
             if (in.equalsIgnoreCase("load")) {
                 String schedname = GeneralUtils.input("Enter the name of the schedule to load: ");
                 try {
-//                    if (new File("Accounts\\" + Main.currentaccnt.getUsername() + "\\" + schedname + (schedname.endsWith(".csv") ? "" : ".csv")).exists()) {
-//                        Main.currentsched.load(Main.currentaccnt.getUsername(), schedname);
-//                        Main.autoflush.println("Schedule '" + schedname + "' loaded successfully");
-//                        in_schedule_menu();
                     if (Main.currentaccnt.get_schednames().contains(schedname)) {
                         Main.currentsched.load(Main.currentaccnt.getUsername(), schedname);
                         Main.autoflush.println("Schedule '" + schedname + "' loaded successfully"); //todo: go to sched menu?
@@ -86,6 +83,10 @@ public class Menus {
                 Main.currentsched = new Schedule();
                 Main.autoflush.println("New blank schedule created");
                 in_schedule_menu();
+            } else if (in.equalsIgnoreCase("f")){
+                folder_menu();
+            } else if (in.equalsIgnoreCase("gen")){
+                Main.currentaccnt.gen_sched_menu();
             } else if (in.equalsIgnoreCase("ls")) Main.currentaccnt.print_schedule_list();
                 //go back to account menu
             else if (in.equalsIgnoreCase("b")) break;
@@ -120,16 +121,12 @@ public class Menus {
                     Main.autoflush.println("Error: the current schedule does not contain any courses for removal");
                 else MainSchedAddRemove.remove_course_from_schedule();
             } else if (in.equalsIgnoreCase("save")) {
-//                try {
                     if (Main.currentsched.get_name().equalsIgnoreCase("blank schedule"))
                         Main.autoflush.println("Error: rename schedule to something other than 'Blank Schedule' before saving");
                     else {
                         Main.currentsched.save(Main.currentaccnt.getUsername()); // save to file
                         Main.currentaccnt.save_schedule(Main.currentsched.get_name()); // save to list
                         Main.autoflush.println(Main.currentsched.get_name() + " saved successfully");
-//                    }
-//                } catch (IOException | SQLException ioe) {
-//                    Main.autoflush.println(ioe.getMessage());
                 }
             } else if (in.equalsIgnoreCase("del")) {
                 Main.currentaccnt.delete_schedule(Main.currentsched.getName()); // todo
@@ -187,24 +184,6 @@ public class Menus {
                 FolderOps.delete_folder();
                 break;
             } else Main.autoflush.println("Error: '" + in + "' is an invalid response");
-        }
-    }
-
-    public static void acct_options() throws IOException, SQLException {
-        while (true) {
-            String in = GeneralUtils.input("Enter (sched) -> schedule menu/(folder) -> folder menu/(prof) -> add preferred professors/(exit) -> exit to login");
-            if (in.equals("sched")) {
-                schedule_menu();
-            } else if (in.equals("folder")) {
-                folder_menu();
-            } else if (in.equals("exit")) {
-                break;
-            } else if (in.equals("prof")){
-                Main.currentaccnt.pref_prof_menu();
-            }
-            else {
-                Main.autoflush.println("Invalid input, please try again.");
-            }
         }
     }
 }

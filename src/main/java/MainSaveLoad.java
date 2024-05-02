@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.Set;
 import java.util.Scanner;
@@ -28,18 +27,10 @@ public class MainSaveLoad {
 
         File f = new File("Accounts\\" + Main.currentaccnt.getUsername() + '\\' + "info.txt");
         FileWriter fw = new FileWriter(f, false); // rewrite the whole file
-//        fw.write(tempLine + "\n");
-//        for (int i = 0; i < Main.currentaccnt.get_schednames().size(); i++) {
-//            if (i != Main.currentaccnt.get_schednames().size()-1) {
-//                fw.write(Main.currentaccnt.get_schednames().get(i) + ",");
-//            } else {
-//                fw.write(Main.currentaccnt.get_schednames().get(i));
-//            }
-//        }
         fw.write("Folders:\n");
         for (int i = 0; i < Main.currentaccnt.get_folders().size(); i++) {
             if (i == Main.currentaccnt.get_folders().size()-1){
-                fw.write(Main.currentaccnt.get_folders().get(i));
+                fw.write(Main.currentaccnt.get_folders().get(i) + "\n");
             } else {
                 fw.write(Main.currentaccnt.get_folders().get(i) + ",");
             }
@@ -186,7 +177,6 @@ public class MainSaveLoad {
                         String last_name = prof;
                         if (i == 17) prof = " " + prof;
                         prof = n + prof;
-                        if (i == 17) Account.prof_list.add(last_name);
                         break;
                 }
                 if (i > 17) break;
@@ -217,7 +207,7 @@ public class MainSaveLoad {
         } else Main.allcourses.add(add);
     }
 
-    public static void load_folders() throws IOException {
+    public static void load_acct_info() throws IOException {
         FileInputStream fis = new FileInputStream("Accounts\\" + Main.currentaccnt.getUsername() + '\\' + "info.txt");
         Scanner infoScan = new Scanner(fis);
         infoScan.nextLine(); // skip line that contains account information (password-hash, username, major)

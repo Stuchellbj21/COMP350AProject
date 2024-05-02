@@ -19,6 +19,7 @@ public class Main {
     public static Map<Integer, String> accounts = new HashMap<>();
     public static Database db = new Database();
     public static Account currentaccnt = null;
+    public static Set<String> prof_list = new HashSet<>();
 
     public static Folder current_folder = new Folder();
 
