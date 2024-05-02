@@ -5,12 +5,17 @@ import java.util.*;
 public class Schedule {
     private String name;
     private String semester; // Spring or Fall
+
+    private Stack<Course> undocoursestack = new Stack<Course>();
     private int year;
     private List<Course> courses;
     private int credits;
 
     //associates days to sorted lists of times that are on that day
     private Map<Character,List<DayTime>> timesperday;
+
+    private List<Extracurricular> extracurriculars = new ArrayList<>();
+    // will be listed below the current schedule.
 
     //getters + setters
     public String get_name() {
@@ -43,6 +48,10 @@ public class Schedule {
     public void set_credits(int credits) {
         this.credits = credits;
     }
+
+    public Stack<Course> get_undocoursestack(){return undocoursestack;}
+
+    public List<Extracurricular> get_extracurriculars(){ return extracurriculars;}
 
     // default constructor
     public Schedule() {

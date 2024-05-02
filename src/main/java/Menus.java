@@ -121,7 +121,7 @@ public class Menus {
         while (true) {
             Main.afl.println(Main.currentsched.to_str());
             //modify will allow editing of the schedule
-            String in = GeneralUtils.input("Enter (modify) -> modify schedule/(search) -> search for courses/(ac) -> add_course/\n(rc) -> remove course/(save) -> save schedule/(filter) -> edit filters/(del) -> delete schedule/\n(exit) -> exit to schedule selection: ");
+            String in = GeneralUtils.input("Enter (modify) -> modify schedule/(search) -> search for courses/(ac) -> add_course/\n(rc) -> remove course/(save) -> save schedule/(filter) -> edit filters/(del) -> delete schedule/\n(extra) -> add extracurricular/(ws) -> add to wishlist/(undo) -> revert last course addition/\n(exit) -> exit to schedule selection: ");
             if (in.equalsIgnoreCase("modify")) modify_schedule_menu();
             else if (in.equalsIgnoreCase("search")) Search.prompt_and_search();
             else if (in.equalsIgnoreCase("ac")) {
@@ -132,6 +132,16 @@ public class Menus {
                 if (Main.currentsched.get_courses().isEmpty())
                     Main.afl.println("Error: the current schedule does not contain any courses for removal");
                 else MainSchedAddRemove.remove_course_from_schedule();
+            } else if (in.equalsIgnoreCase("extra")) {
+                MainSchedAddRemove.extracurricular();
+            } else if (in.equalsIgnoreCase("ws")) {
+                if (Main.search.get_filtered_results() == null || Main.search.get_filtered_results().isEmpty())
+                    Main.autoflush.println("Error: If you wish to add a course to wishlist, you must add it from search results and you currently have no search results.");
+                else {
+                    MainSchedAddRemove.wish_list();
+                }
+            } else if (in.equalsIgnoreCase("undo")){
+                MainSchedAddRemove.revert_change();
             } else if (in.equalsIgnoreCase("save")) {
 //                try {
                 if (Main.currentsched.get_name().equalsIgnoreCase("blank schedule"))

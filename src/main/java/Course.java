@@ -181,6 +181,15 @@ public class Course {
         return false;
     }
 
+    public boolean times_overlap_with(DayTime time) {
+        //do I have to do an n^2? It seems like it
+        //should return false if there are no times listed
+        for(DayTime thisdt : this.times) {
+            if(thisdt.equals(time) || thisdt.overlaps(time)) return true;
+        }
+        return false;
+    }
+
     public boolean has_time(DayTime dt) {return times.contains(dt);}
 
     // determines if two courses are the same course
