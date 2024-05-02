@@ -77,8 +77,12 @@ public class Search {
             }
             //add all courses up to threshold to results
             for(Course c : weighttocourse.get(i)) {
-                if(n++ >= threshold) break;
-                searchresults.add(c);
+                //only add the course to search results if the course wasn't already taken by
+                //the current user
+                if(!Main.currentaccnt.already_took(c)) {
+                    if(n++ >= threshold) break;
+                    searchresults.add(c);
+                }
             }
         }
         //filter results and return
@@ -105,6 +109,8 @@ public class Search {
     }
 
     public List<Course> search(String ss) {return search(ss,Integer.MAX_VALUE,true);}
+
+    public List<Course> search(String ss,int threshold) {return search(ss,threshold,true);}
 
     public List<Course> search(String ss,boolean sorted) {return search(ss,Integer.MAX_VALUE,sorted);}
 
@@ -206,6 +212,11 @@ public class Search {
         return filteredresults;
     }
 
+    public void reset() {
+        activefilters.clear();
+        search("",0);
+    }
+
     public List<Course> get_filtered_results() {return filteredresults;}
 
     public List<Filter> get_active_filters() {return activefilters;}
@@ -231,13 +242,13 @@ public class Search {
                 sorted = GeneralUtils.want_more('s');
                 break;
             } catch (NumberFormatException nfe) {
-                Main.autoflush.println("Error: '" + in + "' is not a valid integer. Enter an integer value.");
+                Main.afl.println("Error: '" + in + "' is not a valid integer. Enter an integer value.");
             } catch (IllegalArgumentException iae) {
-                Main.autoflush.println(iae.getMessage());
+                Main.afl.println(iae.getMessage());
             }
         }
         Main.search.search(GeneralUtils.input("Enter search string: "), threshold, sorted);
-        Main.autoflush.println(Main.search.to_str(true));
+        Main.afl.println(Main.search.to_str(true));
     }
 
     public static void main(String[] args) throws IOException {

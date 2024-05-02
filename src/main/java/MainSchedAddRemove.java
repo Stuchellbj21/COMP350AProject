@@ -66,10 +66,10 @@ public class MainSchedAddRemove {
             if(first) first = false;
             else if(!GeneralUtils.want_more('r')) return;
             if(Main.currentsched.get_courses().isEmpty()) {
-                Main.autoflush.println("Error: the current schedule does not contain any courses for removal");
+                Main.afl.println("Error: the current schedule does not contain any courses for removal");
                 return;
             }
-            String[] cc = GeneralUtils.get_course_code(false);
+            String[] cc = GeneralUtils.get_course_code("rm");
             if (!Validations.valid_course_code(cc)) continue;
             //we don't have to check the section.... we know only 1 section of a given course code can be added
             //we don't have to check the semester in this case.... we know that the user is only able to add courses
@@ -81,10 +81,10 @@ public class MainSchedAddRemove {
                     break;
                 }
             }
-            if (rm == null) Main.autoflush.println("Error: " + cc[0] + " " + cc[1] + " not found in schedule");
+            if (rm == null) Main.afl.println("Error: " + cc[0] + " " + cc[1] + " not found in schedule");
             else {
                 Main.currentsched.remove_course(rm);
-                Main.autoflush.println(cc[0] + " " + cc[1] + " successfully removed from the schedule");
+                Main.afl.println(cc[0] + " " + cc[1] + " successfully removed from the schedule");
             }
         }
     }

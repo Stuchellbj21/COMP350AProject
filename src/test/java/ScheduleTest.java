@@ -62,7 +62,7 @@ public class ScheduleTest {
 
     @Test
     public void test_save() {
-        try{Main.populate_allcourses();}
+        try{SaveLoad.load_allcourses();}
         catch(IOException ioe) {System.out.println(ioe.getMessage() + " " + ioe.getCause());}
         Schedule s = new Schedule("NateDog(0_0)","Schedule1");
         s.remove_course(s.get_courses().getFirst());
