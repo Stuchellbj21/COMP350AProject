@@ -12,7 +12,7 @@ public class Extracurricular {
 
     @Override
     public String toString(){
-        return name + " " + time.get_start_time() + "-" + time.get_end_time() + " " + time.get_day();
+        return name + " " + time.get_start_time() + "-" + time.get_end_time() + " on " + time.get_day();
     }
 
     public void set_time(DayTime dt){ this.time = dt;}

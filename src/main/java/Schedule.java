@@ -177,6 +177,7 @@ public class Schedule {
         add_classes_for_day_to_str('F',sb);
         sb.append("-------------------------------------");
         add_no_times(sb);
+        if(!extracurriculars.isEmpty()) sb.append("\nExtracurriculars: ").append(extracurriculars);
         return sb.toString();
     }
 
@@ -226,6 +227,7 @@ public class Schedule {
             //there's an issue
             if(c.getCourseNum() == course.getCourseNum() && c.getMajor() == course.getMajor()) throw new IllegalArgumentException("Error: " + course.getMajor() + " " + course.getCourseNum() + " is already in your schedule");
             if(c.times_overlap_with(course)) throw new IllegalArgumentException("Error: the course you attempted to add has a time overlap with " + c.short_str(true) + " in your schedule");
+            for(Extracurricular e : extracurriculars) if(c.times_overlap_with(e.get_time())) throw new IllegalArgumentException("Error: the course you attempted to add has a time overlap with extracurricular " + e.get_name());
         }
         courses.add(course);
         //not going to change numstudents of course because don't want to have to update the csv file
