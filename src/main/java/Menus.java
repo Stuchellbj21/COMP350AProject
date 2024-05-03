@@ -151,7 +151,7 @@ public class Menus {
                         Main.afl.println(Main.currentsched.get_name() + " saved successfully");
 //                    }
 //                } catch (IOException | SQLException ioe) {
-//                    Main.autoflush.println(ioe.getMessage());
+//                    Main.afl.println(ioe.getMessage());
                 }
             } else if (in.equalsIgnoreCase("del")) {
                 Main.currentaccnt.delete_schedule(Main.currentsched.getName()); // todo
@@ -177,7 +177,10 @@ public class Menus {
                 } else Main.afl.println("Error: that folder does not exist\n");
             } else if (in.equalsIgnoreCase("new")) {
                 FolderOps.create_folder();
-            } else if (in.equalsIgnoreCase("b")) break;
+            } else if (in.equalsIgnoreCase("b")) {
+                //SaveLoad.load_acct_info(); //
+                break;
+            }
             else if (in.equalsIgnoreCase("lf")) FolderOps.print_folder_list();
             else Main.afl.println("Error: invalid input");
             Main.current_folder = new Folder();
@@ -207,6 +210,7 @@ public class Menus {
                 break; //exit to schedule selection menu -> load schedule, new blank schedule, edit schedule (back to account menu)
             } else if (in.equalsIgnoreCase("del")) {
                 FolderOps.delete_folder();
+                Main.afl.println("Folder successfully deleted");
                 break;
             } else Main.afl.println("Error: '" + in + "' is an invalid response");
         }

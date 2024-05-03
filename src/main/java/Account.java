@@ -98,7 +98,6 @@ public class Account {
             schednames.add(sched_name);
 
             //-------------------------------------------------------
-            System.out.println("got here");
             // DATABASE save
             Main.db.insert_into_schedules(sched_name, Main.currentaccnt.getUsername());
             //--------------------------------------------------------
@@ -142,18 +141,18 @@ public class Account {
 
     public void print_schedule_list() {
         File account = new File("Accounts\\" + username);
-        Main.autoflush.println(username + " Schedules:");
+        Main.afl.println(username + " Schedules:");
         boolean hasSchedule = false;
         if (account.listFiles() != null) {
             for (File f : account.listFiles()) {
                 if (f.getName().endsWith(".csv")) {
                     //cut off .csv
-                    Main.autoflush.println("\t- " + f.getName().substring(0, f.getName().length() - 4));
+                    Main.afl.println("\t- " + f.getName().substring(0, f.getName().length() - 4));
                     if (!hasSchedule) hasSchedule = true;
                 }
             }
         }
-        if (!hasSchedule) Main.autoflush.println("\tNone");
+        if (!hasSchedule) Main.afl.println("\tNone");
         //TODO: Database is incorrectly printing out schedules that are in a folder, maybe use old print?
         //----------------------------------------------------
         // DATABASE
@@ -234,7 +233,7 @@ public class Account {
                     found_select = electives.get(selected);
                 }
             }
-            System.out.println(curr_sched.to_str() + "\n");
+            Main.afl.println(curr_sched.to_str() + "\n");
             generated_scheds.add(curr_sched);
             courses_added = 0;
         }
@@ -258,12 +257,10 @@ public class Account {
     //Make the generated schedules in here
     public void gen_sched_menu() throws IOException, SQLException {
         String semester;
-        System.out.println("What semester would you like a schedule generated for?");
-        Scanner scn = new Scanner(System.in);
-        String choice = scn.next();
+        String choice = GeneralUtils.input("What semester would you like a schedule generated for?");
         while (!(choice.equalsIgnoreCase("Fall")) && !(choice.equalsIgnoreCase("Spring"))) {
-            System.out.println("Invalid semester. Please enter 'Fall' or 'Spring'");
-            choice = scn.next();
+            Main.afl.println("Invalid semester. Please enter 'Fall' or 'Spring'");
+            choice = GeneralUtils.input("");
         }
         if (choice.equalsIgnoreCase("Fall")) {
             semester = "Fall";
@@ -272,28 +269,28 @@ public class Account {
         }
 
         //Provide space inbetween
-        System.out.println();
+        Main.afl.println();
         List<Schedule> potential_scheds = random_gen(2020, semester);
-        System.out.println();
-        System.out.println("Would you like to add any of the following schedules (y/n)?");
+        Main.afl.println();
+        Main.afl.println("Would you like to add any of the following schedules (y/n)?");
         while(true) {
             Scanner scnr = new Scanner(System.in);
             String sched_choice = scnr.next();
             while (!(sched_choice.equalsIgnoreCase("n")) && !(sched_choice.equalsIgnoreCase("y"))) {
-                System.out.println("Invalid choice. Please re-enter.");
+                Main.afl.println("Invalid choice. Please re-enter.");
                 sched_choice = scnr.next();
             }
             if (sched_choice.equalsIgnoreCase("y")) {
-                System.out.println("Which schedule would you like to add?");
+                Main.afl.println("Which schedule would you like to add?");
                 for (int i = 0; i < potential_scheds.size(); i++) {
                     int number = i + 1;
-                    System.out.println("   " + number + ". " + potential_scheds.get(i).get_name());
+                    Main.afl.println("   " + number + ". " + potential_scheds.get(i).get_name());
                 }
                 int sched_num = int_input();
                 boolean invalid_choice = true;
                 while (invalid_choice) {
                     if (!(sched_num >= 1 && sched_num <= potential_scheds.size())) {
-                        System.out.println("Choice is out of range. Please re-enter.");
+                        Main.afl.println("Choice is out of range. Please re-enter.");
                         sched_num = int_input();
                     } else {
                         invalid_choice = false;
@@ -301,28 +298,29 @@ public class Account {
                 }
                 sched_num--;
                 Main.currentsched = potential_scheds.get(sched_num);
-                System.out.println("Please enter a new name for your schedule:");
+                Main.afl.println("Please enter a new name for your schedule:");
                 Scanner naming = new Scanner(System.in);
                 String sched_name = naming.next();
                 if (sched_name.length() > 15) {
-                    System.out.println("Schedule name is too long. Please try again.");
+                    Main.afl.println("Schedule name is too long. Please try again.");
                     boolean invalid = true;
                     while (invalid) {
                         sched_name = naming.next();
                         if (sched_name.length() <= 15){
                             invalid = false;
                             Main.currentsched.setName(sched_name);
-                            System.out.println("New schedule name successfully set!");
+                            Main.afl.println("New schedule name successfully set!");
                         } else {
-                            System.out.println("Schedule name is too long. Please try again.");
+                            Main.afl.println("Schedule name is too long. Please try again.");
                         }
                     }
                 }
+                naming.close(); // close Scanner so file deletion works
                 potential_scheds.remove(sched_num);
                 Main.currentsched.save(Main.currentaccnt.getUsername()); // save to file
                 Main.currentaccnt.save_schedule(Main.currentsched.get_name()); // save to list
-                Main.autoflush.println(Main.currentsched.get_name() + " saved successfully");
-                System.out.println("\nWould you like to add any additional scheules (y/n)?");
+                Main.afl.println(Main.currentsched.get_name() + " saved successfully");
+                Main.afl.println("\nWould you like to add any additional scheules (y/n)?");
             } else {
                 break;
             }
@@ -337,8 +335,9 @@ public class Account {
                 input = input_scnr.nextInt();
                 break;
             } else {
-                System.out.println("Invalid input. Please enter an integer.");
+                Main.afl.println("Invalid input. Please enter an integer.");
             }
+            input_scnr.close(); // close Scanner for file deletion
         }
         return input;
     }
