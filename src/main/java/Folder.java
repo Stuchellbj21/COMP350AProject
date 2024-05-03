@@ -88,9 +88,9 @@ public class Folder {
 
     public StringBuilder to_str() {
         StringBuilder folder = new StringBuilder();
-        System.out.println("Folder -- " + name);
+        Main.afl.println("Folder -- " + name);
         if (scheds.isEmpty()) {
-            System.out.println("No schedules saved in folder");
+            Main.afl.println("No schedules saved in folder");
         } else {
             folder.append("List of schedules: \n");
             for (int i = 0; i < scheds.size(); i++) {
