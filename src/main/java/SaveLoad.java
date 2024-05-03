@@ -27,18 +27,13 @@ public class SaveLoad {
 
         File f = new File("Accounts\\" + Main.currentaccnt.getUsername() + '\\' + "info.txt");
         FileWriter fw = new FileWriter(f, false); // rewrite the whole file
-//        fw.write(tempLine + "\n");
-//        for (int i = 0; i < Main.currentaccnt.get_schednames().size(); i++) {
-//            if (i != Main.currentaccnt.get_schednames().size()-1) {
-//                fw.write(Main.currentaccnt.get_schednames().get(i) + ",");
-//            } else {
-//                fw.write(Main.currentaccnt.get_schednames().get(i));
-//            }
-//        }
-        fw.write("Folders:");
-        fw.write("\n");
+        fw.write("Folders:\n");
         for (int i = 0; i < Main.currentaccnt.get_folders().size(); i++) {
-            fw.write(Main.currentaccnt.get_folders().get(i) + ",");
+            if (i == Main.currentaccnt.get_folders().size()-1){
+                fw.write(Main.currentaccnt.get_folders().get(i) + "\n");
+            } else {
+                fw.write(Main.currentaccnt.get_folders().get(i) + ",");
+            }
         }
         fw.close();
     }
@@ -179,6 +174,7 @@ public class SaveLoad {
                         break;
                     case 16:
                     case 17:
+                        String last_name = prof;
                         if (i == 17) prof = " " + prof;
                         prof = n + prof;
                         break;
@@ -211,7 +207,7 @@ public class SaveLoad {
         } else Main.allcourses.add(add);
     }
 
-    public static void load_folders() throws IOException {
+    public static void load_acct_info() throws IOException {
         FileInputStream fis = new FileInputStream("Accounts\\" + Main.currentaccnt.getUsername() + '\\' + "info.txt");
         Scanner infoScan = new Scanner(fis);
         infoScan.nextLine(); // skip line that contains account information (password-hash, username, major)
