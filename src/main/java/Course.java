@@ -181,6 +181,15 @@ public class Course {
         return false;
     }
 
+    public boolean times_overlap_with(DayTime time) {
+        //do I have to do an n^2? It seems like it
+        //should return false if there are no times listed
+        for(DayTime thisdt : this.times) {
+            if(thisdt.equals(time) || thisdt.overlaps(time)) return true;
+        }
+        return false;
+    }
+
     public boolean has_time(DayTime dt) {return times.contains(dt);}
 
     // determines if two courses are the same course
@@ -198,10 +207,13 @@ public class Course {
     public String toString() {
         //rarest and most common
         DayTime[] r_mc = rarest_most_common(get_time_counts());
-        StringBuilder sb = new StringBuilder(semester);
-        sb.append(' ').append(year).append(": ").append(professor).append(" - ").append(major.name());
-        sb.append(' ').append(coursenum).append(' ').append(section).append(" - ");
+
+        StringBuilder sb = new StringBuilder();
+        if(Main.currentaccnt.is_major_course(this)) sb.append("✵ ");
+        sb.append(semester).append(' ').append(year).append(": ").append(professor).append(" - ");
+        sb.append(major.name()).append(' ').append(coursenum).append(' ').append(section).append(" - ");
         sb.append(name).append(" - ");
+
         if(!days_to_str().isEmpty()) sb.append(days_to_str()).append(" ");
         //give them most common time as the generic time
         if(times != null && !times.isEmpty()) sb.append(r_mc[1].get_start_time()).append(" - ").append(r_mc[1].get_end_time());
@@ -219,7 +231,9 @@ public class Course {
             sb.append(" (").append(rare.get_day()).append(": ").append(rare.get_start_time()).append(" - ");
             sb.append(rare.get_end_time()).append(')');
         }
-        return sb.append(' ').append("[credits: ").append(credits).append(']').toString();
+        sb.append(' ').append("[credits: ").append(credits).append(']').toString();
+        if(Main.currentaccnt.is_major_course(this)) sb.append(" ✵");
+        return sb.toString();
     }
 
     //method returns a map from DayTime (with uninitialized day -> only records time) to Integer
@@ -249,4 +263,8 @@ public class Course {
     }
 
     public boolean isFull() {return numstudents >= capacity;}
+
+    //all courses should have a unique short_str string
+    @Override
+    public int hashCode() {return short_str(true).hashCode();}
 }

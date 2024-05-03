@@ -5,12 +5,17 @@ import java.util.*;
 public class Schedule {
     private String name;
     private String semester; // Spring or Fall
+
+    private Stack<Course> undocoursestack = new Stack<Course>();
     private int year;
     private List<Course> courses;
     private int credits;
 
     //associates days to sorted lists of times that are on that day
     private Map<Character,List<DayTime>> timesperday;
+
+    private List<Extracurricular> extracurriculars = new ArrayList<>();
+    // will be listed below the current schedule.
 
     //getters + setters
     public String get_name() {
@@ -44,6 +49,10 @@ public class Schedule {
         this.credits = credits;
     }
 
+    public Stack<Course> get_undocoursestack(){return undocoursestack;}
+
+    public List<Extracurricular> get_extracurriculars(){ return extracurriculars;}
+
     // default constructor
     public Schedule() {
         name = "Blank Schedule";
@@ -59,7 +68,7 @@ public class Schedule {
         init_timesperday();
         //name, semeseter, year, and credits are set in load
         try {load(accountname, name);}
-        catch(InputMismatchException | IOException error) {Main.autoflush.println(error.getMessage() + ' ' + error.getCause());}
+        catch(InputMismatchException | IOException error) {Main.afl.println(error.getMessage() + ' ' + error.getCause());}
         update_times_per_day();
     }
     // constructor with name and list of courses
@@ -103,13 +112,13 @@ public class Schedule {
                     //only need to rename if old file exists
                     if(oldf.exists()) Files.move(oldf.toPath(),newf.toPath());
                     name = newname;
-                    Main.autoflush.println("Schedule name successfully changed to '" + newname + "'");
+                    Main.afl.println("Schedule name successfully changed to '" + newname + "'");
                     break;
                 }
-                else Main.autoflush.println("Error: '" + newname + "' is not a valid schedule name");
+                else Main.afl.println("Error: '" + newname + "' is not a valid schedule name");
             }
-            catch(IOException ioe) {Main.autoflush.println("Error: renaming of file failed: " + ioe.getMessage());}
-            catch(IllegalArgumentException iae) {Main.autoflush.println(iae.getMessage());}
+            catch(IOException ioe) {Main.afl.println("Error: renaming of file failed: " + ioe.getMessage());}
+            catch(IllegalArgumentException iae) {Main.afl.println(iae.getMessage());}
         }
     }
     public void set_semester_with_checks() {
@@ -117,7 +126,7 @@ public class Schedule {
             String newsem = GeneralUtils.input("Enter new semester value (Warning: changing the schedule's semester will remove all courses from the schedule): ").toLowerCase();
             //ensure either Fall or Spring
             if(newsem.isEmpty()) {
-                Main.autoflush.println("Error: '" + newsem + "' is not a valid semester value");
+                Main.afl.println("Error: '" + newsem + "' is not a valid semester value");
                 continue;
             }
             newsem = newsem.substring(0,1).toUpperCase() + newsem.substring(1);
@@ -127,10 +136,10 @@ public class Schedule {
                     for(Iterator<Course> cit = courses.iterator();cit.hasNext();cit.remove()) removal_update(cit.next());
                 }
                 semester = newsem;
-                Main.autoflush.println("Warning: you will now only be able to add courses for the " + semester + " to this schedule");
+                Main.afl.println("Warning: you will now only be able to add courses for the " + semester + " to this schedule");
                 return;
             }
-            else Main.autoflush.println("Error: '" + newsem + "' is not a valid semester value");
+            else Main.afl.println("Error: '" + newsem + "' is not a valid semester value");
         }
     }
     public void set_year_with_checks() {
@@ -140,20 +149,20 @@ public class Schedule {
             try{
                 String in = GeneralUtils.input("Enter new year value (Warning: changing the schedule's year will remove all courses from the schedule): ");
                 newyear = Integer.parseInt(in);
-                if(in.length() != 4) Main.autoflush.println("Error: valid year values are only 4 digits long");
-                else if(newyear < 0) Main.autoflush.println("Error: the year value must be positive");
-                else if(2020 > newyear) Main.autoflush.println("Error: " + newyear + " is too far in the past, schedules must be for 2020 or later");
+                if(in.length() != 4) Main.afl.println("Error: valid year values are only 4 digits long");
+                else if(newyear < 0) Main.afl.println("Error: the year value must be positive");
+                else if(2020 > newyear) Main.afl.println("Error: " + newyear + " is too far in the past, schedules must be for 2020 or later");
                 else {
                     if(newyear != year) {
                         //remove all courses if year changed
                         for(Iterator<Course> cit = courses.iterator();cit.hasNext();cit.remove()) removal_update(cit.next());
                     }
                     year = newyear;
-                    Main.autoflush.println("Warning: you will now only be able to add courses for " + year + " to this schedule");
+                    Main.afl.println("Warning: you will now only be able to add courses for " + year + " to this schedule");
                     break;
                 }
             }
-            catch(NumberFormatException nfe) {Main.autoflush.println("Error: you did not enter a valid integer value");}
+            catch(NumberFormatException nfe) {Main.afl.println("Error: you did not enter a valid integer value");}
         }
     }
 
@@ -184,20 +193,20 @@ public class Schedule {
     }
 
     private void add_classes_for_day_to_str(char day, StringBuilder sb) {
-        sb.append(day).append(":(free time)");
+        sb.append(day).append(": (free time)");
         for(int i = 0; i < timesperday.get(day).size(); i++) {
             DayTime dt = timesperday.get(day).get(i);
             Course current = null;
             for(Course c : courses)
                 if(c.has_time(dt)) current = c;
             //now we have the correct course to add, so we add it
-            sb.append('(').append(current.getMajor()).append(' ').append(current.getCourseNum());
+            sb.append(" | (").append(current.getMajor()).append(' ').append(current.getCourseNum());
             sb.append(' ').append(current.getSection()).append(' ').append(dt.get_start_time()).append('-');
             sb.append(dt.get_end_time()).append(')');
             //if we're on last time, or there are more than 15 minutes between this course and the next,
             //add (free time)
             if(i == timesperday.get(day).size() - 1 || (DayTime.military_to_minutes(timesperday.get(day).get(i + 1).get_militarystart()) - DayTime.military_to_minutes(dt.get_militaryend()) > 15))
-                sb.append("(free time)");
+                sb.append(" | (free time)");
         }
         sb.append('\n');
     }
@@ -520,7 +529,7 @@ public class Schedule {
      */
     public boolean clear_schedule() {
         if (courses.isEmpty()) {
-            Main.autoflush.println("Cannot clear empty schedule");
+            Main.afl.println("Cannot clear empty schedule");
             return false;
         }
         courses.clear();

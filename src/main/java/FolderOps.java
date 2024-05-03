@@ -15,50 +15,50 @@ public class FolderOps {
 
     public static void remove_sched() throws IOException {
         if (Main.current_folder.get_scheds().isEmpty()){
-            System.out.println("No schedules to remove\n");
+            Main.afl.println("No schedules to remove\n");
         }
         else {
-            Main.autoflush.println("Enter the number of the schedule you'd like to remove from folder " + Main.current_folder.getName());
+            Main.afl.println("Enter the number of the schedule you'd like to remove from folder " + Main.current_folder.getName());
             Main.current_folder.get_schedules(Main.currentaccnt.getUsername());
             for (int i = 0; i < Main.current_folder.get_scheds().size(); i++) {
-                Main.autoflush.println(i + 1 + ". " + Main.current_folder.get_scheds().get(i));
+                Main.afl.println(i + 1 + ". " + Main.current_folder.get_scheds().get(i));
             }
             int num_scheds = Main.current_folder.get_scheds().size();
             Scanner input = new Scanner(System.in);
             int choice = Integer.parseInt(input.next());
             if (choice < 1 || choice > num_scheds) {
-                Main.autoflush.println("Invalid choice.");
+                Main.afl.println("Invalid choice.");
             } else {
                 choice--;
                 String added_sched = Main.current_folder.get_scheds().get(choice);
                 if (Main.current_folder.get_scheds().contains(added_sched)) {
                     if (Main.current_folder.get_scheds().remove(added_sched)) {
                         Path temp = Files.move(Paths.get("Accounts" + '\\' + Main.currentaccnt.getUsername() + '\\' + Main.current_folder.getName() + '\\' + added_sched + ".csv"), Paths.get("Accounts" + '\\' + Main.currentaccnt.getUsername() + '\\' + added_sched + ".csv"));
-                        Main.autoflush.println("Schedule " + added_sched + " removed from folder " + Main.current_folder.getName() + "\n");
+                        Main.afl.println("Schedule " + added_sched + " removed from folder " + Main.current_folder.getName() + "\n");
                     } else {
-                        Main.autoflush.println("Removal unsuccessful. Sorry.");
+                        Main.afl.println("Removal unsuccessful. Sorry.");
                     }
                 } else {
-                    Main.autoflush.println("Removal unsuccessful. Sorry.");
+                    Main.afl.println("Removal unsuccessful. Sorry.");
                 }
             }
         }
     }
 
     public static void add_sched() throws IOException {
-        Main.autoflush.println("Enter the name number of the schedule you would like to add to the '" + Main.current_folder.getName() + "' folder:");
+        Main.afl.println("Enter the name number of the schedule you would like to add to the '" + Main.current_folder.getName() + "' folder:");
         List<String> curr_scheds = Main.current_folder.get_schedules(Main.currentaccnt.getUsername());
         if (curr_scheds.isEmpty()){
-            Main.autoflush.println("No schedules to add.\n");
+            Main.afl.println("No schedules to add.\n");
         } else {
             for (int i = 0; i < curr_scheds.size(); i++) {
-                Main.autoflush.println(i + 1 + ". " + curr_scheds.get(i));
+                Main.afl.println(i + 1 + ". " + curr_scheds.get(i));
             }
             int num_scheds = curr_scheds.size();
             Scanner input = new Scanner(System.in);
             int choice = Integer.parseInt(input.next());
             while (choice < 1 || choice > num_scheds) {
-                Main.autoflush.println("Invalid choice, please try again.");
+                Main.afl.println("Invalid choice, please try again.");
                 choice = Integer.parseInt(input.next());
             }
             choice--;
@@ -66,24 +66,24 @@ public class FolderOps {
             if (!(Main.current_folder.get_scheds().contains(added_sched))) {
                 Main.current_folder.get_scheds().add(added_sched);
                 Path temp = Files.move(Paths.get("Accounts" + '\\' + Main.currentaccnt.getUsername() + '\\' + added_sched + ".csv"), Paths.get("Accounts" + '\\' + Main.currentaccnt.getUsername() + '\\' + Main.current_folder.getName() + '\\' + added_sched + ".csv"));
-                Main.autoflush.println("Schedule '" + added_sched + "' has been added to folder '" + Main.current_folder.getName() + "'\n");
+                Main.afl.println("Schedule '" + added_sched + "' has been added to folder '" + Main.current_folder.getName() + "'\n");
             } else {
-                Main.autoflush.println("Folder already contains schedule '" + added_sched + "'\n");
+                Main.afl.println("Folder already contains schedule '" + added_sched + "'\n");
             }
         }
     }
 
     public static void print_folder_list() {
         List<String> folders = Main.currentaccnt.get_folders();
-        Main.autoflush.println("List of saved folders:");
+        Main.afl.println("List of saved folders:");
         if (folders.isEmpty()){
-            Main.autoflush.println("No folders saved in account.");
+            Main.afl.println("No folders saved in account.");
         } else {
             for (String folder : folders) {
-                Main.autoflush.println("   - " + folder);
+                Main.afl.println("   - " + folder);
             }
         }
-        Main.autoflush.println();
+        Main.afl.println();
     }
 
     /**
@@ -91,12 +91,12 @@ public class FolderOps {
      * @throws IOException
      */
     public static void create_folder() throws IOException {
-        Main.autoflush.println("Enter the name for your folder:");
+        Main.afl.println("Enter the name for your folder:");
         Scanner scnr = new Scanner(System.in);
         String folder_name = scnr.next();
         Main.currentaccnt.get_folders().add(folder_name);
         Main.current_folder = new Folder(folder_name);
         Main.current_folder.save_folder(Main.currentaccnt.getUsername());
-        Main.autoflush.println("Folder " + folder_name + " created successfully!\n");
+        Main.afl.println("Folder " + folder_name + " created successfully!\n");
     }
 }

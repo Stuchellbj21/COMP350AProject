@@ -1,5 +1,8 @@
 import java.io.File;
 import java.io.IOException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -13,6 +16,14 @@ public class Account {
     private Major major;
     private List<String> schednames;
 
+    private List<Course> wishlist = new ArrayList<>(); //TODO: Initialize a wishlist on an account-basis
+    // will be added after courses have been searched
+    private List<String> preffered_profs;
+
+    private Set<String> majorcourses;
+
+    private Set<String> coursestaken;
+
     private List<String> folders;
 
     public Account() {
@@ -24,6 +35,7 @@ public class Account {
         this.username = username;
         this.passwordhash = password.hashCode();
         schednames = new ArrayList<String>();
+
     }
 
     //Constructor with major
@@ -33,6 +45,12 @@ public class Account {
         this.major = major;
         schednames = new ArrayList<String>();
         folders = new ArrayList<>();
+        coursestaken = new HashSet<>();
+        try {
+            if(major == Major.COMP) majorcourses = StatusSheetScraper.scrape();
+            else majorcourses = new HashSet<>();
+        }
+        catch(Exception e) {Main.afl.println("Error: " + e.getMessage());}
     }
 
     //getters + setters not added yet
@@ -48,6 +66,15 @@ public class Account {
         passwordhash = newpassword.hashCode();
         return true;
     }
+
+
+    public Set<String> get_majorcourses() {return majorcourses;}
+
+    public Set<String> get_coursestaken() {return coursestaken;}
+
+    public boolean already_took(Course c) {return coursestaken.contains(c.short_str(false).substring(0,c.short_str(false).lastIndexOf(' ')));}
+
+    public boolean is_major_course(Course c) {return majorcourses.contains(c.short_str(false).substring(0,c.short_str(false).lastIndexOf(' ')));}
 
     /**
      * Allows the user to change their username
@@ -130,8 +157,7 @@ public class Account {
         //TODO: Database is incorrectly printing out schedules that are in a folder, maybe use old print?
         //----------------------------------------------------
         // DATABASE
-        Main.autoflush.println("Your Schedules: " + Main.currentaccnt.get_schednames());
-
+        Main.afl.println("Your Schedules: " + Main.currentaccnt.get_schednames());
     }
 
     public List<String> get_folders() {
@@ -213,6 +239,20 @@ public class Account {
             courses_added = 0;
         }
         return generated_scheds;
+    }
+
+    public void print_wishlist(){
+        Main.afl.println("Your wishlist:");
+        if(wishlist == null || wishlist.isEmpty()){
+            Main.afl.println("\tNone");
+            return;
+        }
+        for(Course c: wishlist)
+            Main.afl.println("\t- " +c.short_str(true));
+    }
+
+    public boolean has_pref_profs(){
+        return preffered_profs != null && !preffered_profs.isEmpty();
     }
 
     //Make the generated schedules in here
@@ -301,5 +341,41 @@ public class Account {
             }
         }
         return input;
+    }
+
+    public List<Course> get_wishlist(){ return wishlist; }
+
+    public String courses_taken_to_str() {
+        StringBuilder sb = new StringBuilder("Courses Taken:");
+        if(coursestaken == null || coursestaken.isEmpty()) {
+            sb.append("\nNone");
+            return sb.toString();
+        }
+        ArrayList<String> ct = new ArrayList<>(coursestaken);
+        Collections.sort(ct);
+        for(int i = 0; i < ct.size(); i++) {
+            if(i % 5 == 0) sb.append("\n| ");
+            sb.append(ct.get(i)).append(" |");
+            //if we're not the last one and we're not the last one in a row
+            if(i != ct.size()-1 && i % 5 != 4) sb.append(' ');
+        }
+        return sb.toString();
+    }
+
+    public void enter_courses_taken() throws IOException {
+        Main.afl.println(courses_taken_to_str());
+        Main.afl.println("Enter courses taken in the form '<major> <course_number>' or 'done' to finish account creation");
+        while(true) {
+            String[] cc = GeneralUtils.get_course_code("tkn");
+            if(cc[0].equalsIgnoreCase("done")) break;
+            //if not valid input (we already know that it's not "done")
+            if(Validations.valid_course_code(cc)) coursestaken.add(String.join(" ",cc[0],cc[1]));
+        }
+        //by writing to the file at the end and not appending, we ensure that every line written to the file is unique
+        //we ensure this because coursestaken is a set and will only have unique elements in it
+        FileOutputStream fos = new FileOutputStream("Accounts\\" + username + "\\courses_taken.txt");
+        PrintWriter pw = new PrintWriter(fos);
+        for(String s : coursestaken) pw.println(s);
+        pw.close();
     }
 }

@@ -10,7 +10,7 @@ public class Main {
     as well as one info.txt file which stores user information and schedule names.
      */
     public static List<Course> allcourses; //set to null to avoid 'variable may not have been initialized'
-    public static PrintStream autoflush = new PrintStream(System.out, true);
+    public static PrintStream afl = new PrintStream(System.out, true);
     public static Search search = new Search();
 
     //associates password hash with String account name
@@ -32,11 +32,12 @@ public class Main {
     public static void run() throws IOException, SQLException {
         try{Main.db.connect();}
         catch(Exception dbException) {} // todo: change exception
-        try {
-            SaveLoad.load_accounts();}
-        catch (Exception e) {autoflush.println("no accounts to load");}
-        SaveLoad.load_allcourses();
-        autoflush.println("Welcome to Descartes Favorite Scheduling App.... Enjoy");
+        //try {SaveLoad.load_accounts();}
+        //catch (Exception e) {afl.println("no accounts to load");}
+        //moved load_allcourses to account creation so that I could more conveniently remove courses taken
+        afl.println("Welcome to Descartes Favorite Scheduling App.... Enjoy");
+        try{SaveLoad.load_allcourses();}
+        catch(IOException ioe) {afl.println("Error" + ioe.getMessage());}
         Menus.accountMenu();
         try{Main.db.disconnectDB();}
         catch(Exception dbException) {} // todo: change exception
@@ -46,7 +47,7 @@ public class Main {
         try {
             run();
         } catch (IOException | SQLException ioe) {
-            autoflush.println(ioe.getMessage() + "\n" + ioe.getCause());
+            afl.println(ioe.getMessage() + "\n" + ioe.getCause());
         }
     }
 }

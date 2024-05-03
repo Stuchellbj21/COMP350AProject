@@ -4,13 +4,13 @@ import java.util.HashSet;
 public class FilterUtils {
     public static void edit_filters() {
         while(true) {
-            Main.autoflush.println("Active Filters: " + (Main.search.get_active_filters() != null && !Main.search.get_active_filters().isEmpty() ? Main.search.get_active_filters() : "None"));
+            Main.afl.println("Active Filters: " + (Main.search.get_active_filters() != null && !Main.search.get_active_filters().isEmpty() ? Main.search.get_active_filters() : "None"));
             String command = GeneralUtils.input("(a) -> add filter/(m) -> modify filter/(d) -> delete filter/(done) -> end filter editing: ");
             if(command.equalsIgnoreCase("a")) add_filter(false,null);
             else if(command.equalsIgnoreCase("m")) modify_filter();
             else if(command.equalsIgnoreCase("d")) delete_filter();
             else if(command.equalsIgnoreCase("done")) break;
-            else Main.autoflush.println("Error: '" + command + "' not recognized");
+            else Main.afl.println("Error: '" + command + "' not recognized");
         }
     }
 
@@ -24,7 +24,7 @@ public class FilterUtils {
         //if we're not modifying then we use a filter type specified by user
         if(!modify) ft = get_filter_type("add");
         //we only want this statement to fire in the addition case, so if not modify
-        if(!modify && Main.search.get_active_filters().contains(new Filter(ft))) Main.autoflush.println("Error: a " + ft.name().toLowerCase() + " filter is already active");
+        if(!modify && Main.search.get_active_filters().contains(new Filter(ft))) Main.afl.println("Error: a " + ft.name().toLowerCase() + " filter is already active");
         else {
             switch(ft) {
                 case DAYS -> {
@@ -32,7 +32,7 @@ public class FilterUtils {
                     if(days != null) add_or_modify_filter(modify,new DaysFilter(Main.search.get_filtered_results(),days));
                 }
                 case TIME -> {
-                    DayTime time = get_time_for_filter(modify);
+                    DayTime time = GeneralUtils.get_time_for_something(modify);
                     if(time != null) add_or_modify_filter(modify,new TimeFilter(Main.search.get_filtered_results(),time));
                 }
                 case SEMESTER -> {
@@ -49,8 +49,13 @@ public class FilterUtils {
                     if(i != null) add_or_modify_filter(modify,new CreditFilter(Main.search.get_filtered_results(),i));
                 }
                 case PROFESSOR -> add_or_modify_filter(modify,new ProfessorFilter(Main.search.get_filtered_results(),GeneralUtils.input("Enter the name of the professor (in form '<first_name> <last_name>') you would like to filter on: ")));
+                //can only add or remove FULL filter
+                case FULL -> {
+                    if(modify) Main.afl.println("Error: cannot modify FULL filter");
+                    else add_or_modify_filter(modify,new FullFilter());
+                }
             }
-            if(!modify && Main.search.get_active_filters().size() != ogsize) Main.autoflush.println("Filter addition successful");
+            if(!modify && Main.search.get_active_filters().size() != ogsize) Main.afl.println("Filter addition successful");
         }
     }
 
@@ -65,7 +70,7 @@ public class FilterUtils {
         boolean first = true;
         do {
             if(first) first = false;
-            else Main.autoflush.println("Error: invalid credit value");
+            else Main.afl.println("Error: invalid credit value");
             if(!filter_move_forward(modify,FilterType.CREDIT)) return null;
             //setting i equal to input here
         } while(!GeneralUtils.is_numeric(i = GeneralUtils.input("Enter number of credits to filter on: ")) || Integer.parseInt(i) < 0);
@@ -78,7 +83,7 @@ public class FilterUtils {
         boolean first = true;
         do {
             if(first) first = false;
-            else Main.autoflush.println("Error: invalid major value");
+            else Main.afl.println("Error: invalid major value");
             if(!filter_move_forward(modify,FilterType.MAJOR)) return null;
             //setting m equal to input here
         } while(!Major.is_major(m = GeneralUtils.input("Enter major to filter on: ").toUpperCase()));
@@ -102,7 +107,7 @@ public class FilterUtils {
             //if not yes or no: error
             if (!moveforward.equalsIgnoreCase("") && !moveforward.equalsIgnoreCase("yes") &&
                     !moveforward.equalsIgnoreCase("y")) {
-                Main.autoflush.println("Error: invalid input");
+                Main.afl.println("Error: invalid input");
                 continue;
             }
             //if yes return true
@@ -110,36 +115,14 @@ public class FilterUtils {
         }
     }
 
-    public static DayTime get_time_for_filter(boolean modify) {
-        while(true) {
-            if(!filter_move_forward(modify,FilterType.TIME)) return null;
-            String start = GeneralUtils.input("Enter start time in the form XX:XX PM/AM (where X is a digit): ").toUpperCase();
-            if(!DayTime.is_valid_time(start)) {
-                Main.autoflush.println("Error: '" + start + "' is not a valid time");
-                continue;
-            }
-            String end = GeneralUtils.input("Enter end time in the form XX:XX PM/AM (where X is a digit): ").toUpperCase();
-            if(!DayTime.is_valid_time(end)) {
-                Main.autoflush.println("Error: '" + end + "' is not a valid time");
-                continue;
-            }
-            DayTime r = new DayTime(start,end);
-            if(DayTime.military_to_minutes(r.get_militarystart()) >= DayTime.military_to_minutes(r.get_militaryend())) {
-                Main.autoflush.println("Error: start time must be earlier than end time");
-                continue;
-            }
-            return r;
-        }
-    }
-
     public static Set<Character> get_days_for_filter(boolean modify) {
         String[] days;
         while(true) {
             if(!filter_move_forward(modify,FilterType.DAYS)) return null;
-            Main.autoflush.println("Valid Days: M -> Monday, T -> Tuesday, W -> Wednesday, R -> Thursday, F -> Friday");
+            Main.afl.println("Valid Days: M -> Monday, T -> Tuesday, W -> Wednesday, R -> Thursday, F -> Friday");
             days = GeneralUtils.input("Enter whitespace separated characters (see above) for days you would like to filter on: ").toUpperCase().split("\\s+");
             if(days.length < 1) {
-                Main.autoflush.println("Error: no days entered");
+                Main.afl.println("Error: no days entered");
                 continue;
             }
             boolean error = false;
@@ -148,7 +131,7 @@ public class FilterUtils {
                 if(d.length() > 1 || (!d.equalsIgnoreCase("M") && !d.equalsIgnoreCase("T") &&
                         !d.equalsIgnoreCase("W") && !d.equalsIgnoreCase("R") &&
                         !d.equalsIgnoreCase("F"))) {
-                    Main.autoflush.println("Error: '" + d + "' is not a valid day (M,T,W,R,F)");
+                    Main.afl.println("Error: '" + d + "' is not a valid day (M,T,W,R,F)");
                     error = true;
                     break;
                 }
@@ -163,37 +146,37 @@ public class FilterUtils {
 
     public static void modify_filter() {
         if(Main.search.get_active_filters() == null || Main.search.get_active_filters().isEmpty()) {
-            Main.autoflush.println("Error: there are no filters to modify");
+            Main.afl.println("Error: there are no filters to modify");
             return;
         }
         FilterType ft = get_filter_type("modify");
-        if(!Main.search.get_active_filters().contains(new Filter(ft))) Main.autoflush.println("Error: there is no " + ft.name().toLowerCase() + " filter active");
+        if(!Main.search.get_active_filters().contains(new Filter(ft))) Main.afl.println("Error: there is no " + ft.name().toLowerCase() + " filter active");
         else {
             add_filter(true,ft);
-            Main.autoflush.println("Filter modification process successful");
+            Main.afl.println("Filter modification process successful");
         }
     }
 
     public static void delete_filter() {
         if(Main.search.get_active_filters() == null || Main.search.get_active_filters().isEmpty()) {
-            Main.autoflush.println("Error: there are no filters to delete");
+            Main.afl.println("Error: there are no filters to delete");
             return;
         }
         FilterType ft = get_filter_type("delete");
-        if(!Main.search.get_active_filters().contains(new Filter(ft))) Main.autoflush.println("Error: there is no " + ft.name().toLowerCase() + " filter active");
+        if(!Main.search.get_active_filters().contains(new Filter(ft))) Main.afl.println("Error: there is no " + ft.name().toLowerCase() + " filter active");
         else {
             Main.search.deactivate_filter(new Filter(ft));
-            Main.autoflush.println("Filter deletion successful");
+            Main.afl.println("Filter deletion successful");
         }
     }
 
     public static FilterType get_filter_type(String operation) {
-        Main.autoflush.println("Filter types: credit,time,days,professor,name (course name),major,semester");
+        Main.afl.println("Filter types: credit,time,days,professor,name (course name),major,semester,full");
         boolean first = true;
         String ft = "";
         do {
             if(first) first = false;
-            else Main.autoflush.println("Error: '" + ft + "' is not a valid filter type");
+            else Main.afl.println("Error: '" + ft + "' is not a valid filter type");
             //ft for filter type
             ft = GeneralUtils.input("Enter filter type to " + operation + ": ").toUpperCase();
         } while(!FilterType.is_filter_type(ft));

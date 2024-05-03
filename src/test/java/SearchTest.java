@@ -10,23 +10,23 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SearchTest {
     @Test
     public void testSearch() {
-        try{Main.populate_allcourses();}
+        try{SaveLoad.load_allcourses();}
         catch(IOException ioe) {System.out.println(ioe.getMessage() + " " + ioe.getCause());}
         Search s = new Search();
         //System.out.println(s.search(""));
         s.search("comp 220");
-        System.out.println(s.to_str(10));
+        System.out.println(s.to_str(true));
         s.search("comp 222 A");
-        System.out.println(s.to_str(10));
+        System.out.println(s.to_str(true));
         s.search("MWF 2-2:50");
-        System.out.println(s.to_str(10));
+        System.out.println(s.to_str(true));
         s.search("M");
-        System.out.println(s.to_str(10));
+        System.out.println(s.to_str(true));
     }
 
     @Test
     public void testGetWeight() {
-        try{Main.populate_allcourses();}
+        try{SaveLoad.load_allcourses();}
         catch(IOException ioe) {System.out.println(ioe.getMessage() + " " + ioe.getCause());}
         List<DayTime> dts = new ArrayList<>();
         dts.add(new DayTime("9:00 AM","9:50 AM",'f'));
@@ -40,17 +40,17 @@ public class SearchTest {
 
     @Test
     public void testApplyAllFilters() {
-        try{Main.populate_allcourses();}
+        try{SaveLoad.load_allcourses();}
         catch(IOException ioe) {System.out.println(ioe.getMessage() + " " + ioe.getCause());}
         Search s = new Search("writ 101 c");
-        System.out.println(s.to_str(10));
+        System.out.println(s.to_str(true));
         s.activate_new_filter(new DaysFilter(s.get_filtered_results(), Set.of('W','M','F')));
-        System.out.println(s.to_str(10));
+        System.out.println(s.to_str(true));
     }
 
     @Test
     public void test_partial_matching() throws IOException {
-        Main.populate_allcourses();
+        SaveLoad.load_allcourses();
         //TODO: work with this and see what is going on with weights
         Search s = new Search("no time");
         s.search("astr 207 c no time",10,true);

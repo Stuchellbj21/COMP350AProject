@@ -44,7 +44,7 @@ public class SaveLoad {
      *
      * @throws FileNotFoundException
      */
-    public static void close_accounts() throws FileNotFoundException {
+//    public static void close_accounts() throws FileNotFoundException {
 //        PrintWriter pw = new PrintWriter("Accounts\\account_direc.txt");
 //        //Gets a list of the keys of the accounts Map to loop through the map
 //        Set<Integer> keys = Main.accounts.keySet();
@@ -54,15 +54,14 @@ public class SaveLoad {
 //            pw.write(hash_password + ":" + username + "\n"); //Gets the username and password for each account and prints both to the directory file seperated by a colon and ending with a newline
 //        }
 //        pw.close();
-    }
+//    }
 
     /**
      * Reads from File that stores account identification information and stores it in accounts map
      *
      * @throws FileNotFoundException
      */
-    public static void load_accounts() throws FileNotFoundException {
-        Main.allcourses = new ArrayList<>();
+//    public static void load_accounts() throws FileNotFoundException {
 //        //Opens a file to the accoutns directory text file
 //        File accts = new File("Accounts\\account_direc.txt");
 //        Scanner acct_scnr = new Scanner(accts);
@@ -77,7 +76,7 @@ public class SaveLoad {
 //            String account_name = line_reader.next();
 //            Main.accounts.put(int_pass_hash, account_name); //Adds the accounts username and hash password to the accounts Map
 //        }
-    }
+//    }
 
     /**
      * Reads from user's info.txt file and adds all saved schedules to a static list in main
@@ -106,6 +105,7 @@ public class SaveLoad {
     }
 
     public static void load_allcourses() throws IOException {
+        Main.allcourses = new ArrayList<>();
         FileInputStream fis = new FileInputStream("2020-2021.csv");
         Scanner csvscn = new Scanner(fis);
         //accounts = new HashMap<Integer, String>();
@@ -222,5 +222,13 @@ public class SaveLoad {
         }
         infoScan.close();
         fis.close();
+    }
+
+    //load the courses already in the 'courses_taken.txt' file into accounts courses taken.... this will ONLY be called on login
+    public static void load_courses_taken() throws IOException {
+        FileInputStream fis = new FileInputStream("Accounts\\" + Main.currentaccnt.getUsername() + "\\courses_taken.txt");
+        Scanner fscn = new Scanner(fis);
+        while(fscn.hasNextLine()) Main.currentaccnt.get_coursestaken().add(fscn.nextLine().strip());
+        fscn.close();
     }
 }
