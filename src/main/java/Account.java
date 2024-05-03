@@ -280,11 +280,12 @@ public class Account {
     //Make the generated schedules in here
     public void gen_sched_menu() throws IOException, SQLException {
         String semester;
-        String choice = GeneralUtils.input("What semester would you like a schedule generated for?");
+        Main.afl.println("What semester would you like a schedule generated for?");
+        Scanner scn = new Scanner(System.in);
+        String choice = scn.next();
         while (!(choice.equalsIgnoreCase("Fall")) && !(choice.equalsIgnoreCase("Spring"))) {
             Main.afl.println("Invalid semester. Please enter 'Fall' or 'Spring'");
-            choice = GeneralUtils.input("");
-
+            choice = scn.next();
         }
         if (choice.equalsIgnoreCase("Fall")) {
             semester = "Fall";
@@ -340,7 +341,6 @@ public class Account {
                         }
                     }
                 }
-                naming.close(); // close Scanner so file deletion works
                 potential_scheds.remove(sched_num);
                 Main.currentsched.save(Main.currentaccnt.getUsername()); // save to file
                 Main.currentaccnt.save_schedule(Main.currentsched.get_name()); // save to list
@@ -362,7 +362,6 @@ public class Account {
             } else {
                 Main.afl.println("Invalid input. Please enter an integer.");
             }
-            input_scnr.close(); // close Scanner for file deletion
         }
         return input;
     }
