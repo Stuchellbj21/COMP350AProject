@@ -174,41 +174,49 @@ public class Account {
             List<Course> temp = new ArrayList<>();
             Schedule curr_sched = new Schedule(sched_name, semester, year, temp, 0);
             //HUMA addition
-            List<Course> humas = non_prof_search.search("all", 500, false);
-            MajorFilter humas_mf = new MajorFilter(humas,Major.HUMA);
-            int selected = course_select.nextInt(humas.size());
-            Course huma_select = humas.get(selected);
-            while (courses_added == 0) {
-                try {
-                    if (curr_sched.add_course(huma_select)) courses_added += 1;
-                } catch (IllegalArgumentException iae) {
-                    selected = course_select.nextInt(humas.size());
-                    huma_select = humas.get(selected);
+            List<Course> humas = gen_sched_research(non_prof_search,"HUMA",semester,year);
+            try {
+                int selected = course_select.nextInt(humas.size());
+                Course huma_select = humas.get(selected);
+                while (courses_added == 0) {
+                    try {
+                        if (curr_sched.add_course(huma_select)) courses_added += 1;
+                    } catch (IllegalArgumentException iae) {
+                        selected = course_select.nextInt(humas.size());
+                        huma_select = humas.get(selected);
+                    }
                 }
+            }
+            catch(IllegalArgumentException iae) {
+                //there were no huma courses
+                Main.afl.println("no more HUMA courses");
             }
             //Addition of two major related courses
             String acct_major = String.valueOf(Main.currentaccnt.getMajor());
-            List<Course> maj_courses = non_prof_search.search(acct_major, 500, false);
-            MajorFilter maj_crs_mf = new MajorFilter(maj_courses,Major.valueOf(acct_major));
-            selected = course_select.nextInt(maj_courses.size());
-            Course maj_select = maj_courses.get(selected);
-            int majr_courses = 0;
-            if (i % 2 == 0) {
-                majr_courses = 3;
-            } else {
-                majr_courses = 4;
-            }
-            while (courses_added != majr_courses) {
-                try {
-                    if (curr_sched.add_course(maj_select)) courses_added += 1;
-                } catch (IllegalArgumentException iae) {
-                    selected = course_select.nextInt(maj_courses.size());
-                    maj_select = maj_courses.get(selected);
+            List<Course> maj_courses = gen_sched_research(non_prof_search,acct_major,semester,year);
+            try {
+                int selected = course_select.nextInt(maj_courses.size());
+                int majr_courses = 0;
+                if (i % 2 == 0) {
+                    majr_courses = 3;
+                } else {
+                    majr_courses = 4;
+                }
+                //while we haven't added the desired amount and there are courses to add
+                while (courses_added != majr_courses && !maj_courses.isEmpty()) {
+                    try {
+                        if (curr_sched.add_course(maj_courses.remove(selected))) courses_added += 1;
+                    } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+                        selected = course_select.nextInt(maj_courses.size());
+                    }
                 }
             }
+            catch(IllegalArgumentException iae) {
+                //there were no major courses
+                Main.afl.println("no more "+Main.currentaccnt.getMajor().name()+" courses");
+            }
             //Addition a general elective class
-            String add_major = "";
-            Random elective_sel = new Random();
+            /*String add_major = "";
             if (i == 0){
                 add_major = String.valueOf(Major.ART);
             } else if (i == 1) {
@@ -219,25 +227,40 @@ public class Account {
                 add_major = String.valueOf(Major.COMM);
             } else if (i == 4) {
                 add_major = String.valueOf(Major.ENTR);
-            }
-            List<Course> electives = non_prof_search.search(add_major, 500, false);
-            MajorFilter elec_mf = new MajorFilter(electives,Major.valueOf(add_major));
-            selected = course_select.nextInt(electives.size());
-            Course found_select = electives.get(selected);
-            int elec_courses = 5 - majr_courses;
-            while (courses_added != 5) {
-                try {
-                    if (curr_sched.add_course(found_select)) courses_added += 1;
-                } catch (IllegalArgumentException iae) {
-                    selected = course_select.nextInt(electives.size());
-                    found_select = electives.get(selected);
+            }*/
+            List<Course> electives = gen_sched_research(non_prof_search,"all",semester,year);
+            try {
+                int selected = course_select.nextInt(electives.size());
+                while (courses_added != 5 && !electives.isEmpty()) {
+                    try {
+                        if (curr_sched.add_course(electives.remove(selected))) courses_added += 1;
+                    } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+                        selected = course_select.nextInt(electives.size());
+                    }
                 }
+            }
+            catch(IllegalArgumentException iae) {
+                //there were no elective courses
+                Main.afl.println("no more elective courses");
             }
             Main.afl.println(curr_sched.to_str() + "\n");
             generated_scheds.add(curr_sched);
             courses_added = 0;
         }
         return generated_scheds;
+    }
+
+    public List<Course> gen_sched_research(Search s,String searchstr,String sem,int year) {
+        s.reset();
+        //no filters now
+        s.search(searchstr, false);
+        List<Course> ret = s.get_filtered_results();
+        //usually we're searching on a particular major
+        if(!searchstr.equalsIgnoreCase("all")) s.activate_new_filter(new MajorFilter(ret,Major.valueOf(searchstr)));
+        else s.deactivate_filter(new MajorFilter());
+        s.activate_new_filter(new FullFilter(ret));
+        s.activate_new_filter(new SemesterFilter(ret,sem,year));
+        return ret;
     }
 
     public void print_wishlist(){
@@ -261,6 +284,7 @@ public class Account {
         while (!(choice.equalsIgnoreCase("Fall")) && !(choice.equalsIgnoreCase("Spring"))) {
             Main.afl.println("Invalid semester. Please enter 'Fall' or 'Spring'");
             choice = GeneralUtils.input("");
+
         }
         if (choice.equalsIgnoreCase("Fall")) {
             semester = "Fall";
@@ -298,7 +322,8 @@ public class Account {
                 }
                 sched_num--;
                 Main.currentsched = potential_scheds.get(sched_num);
-                Main.afl.println("Please enter a new name for your schedule:");
+
+                Main.afl.println("Please enter a name for your schedule:");
                 Scanner naming = new Scanner(System.in);
                 String sched_name = naming.next();
                 if (sched_name.length() > 15) {
@@ -320,7 +345,7 @@ public class Account {
                 Main.currentsched.save(Main.currentaccnt.getUsername()); // save to file
                 Main.currentaccnt.save_schedule(Main.currentsched.get_name()); // save to list
                 Main.afl.println(Main.currentsched.get_name() + " saved successfully");
-                Main.afl.println("\nWould you like to add any additional scheules (y/n)?");
+                Main.afl.println("\nWould you like to add any additional schedules (y/n)?");
             } else {
                 break;
             }

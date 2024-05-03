@@ -96,7 +96,7 @@ public class Search {
         filteredresults = new ArrayList<>();
         for(int i = 0; i < threshold && i < searchresults.size(); i++) filteredresults.add(searchresults.get(i));
         apply_all_filters();
-        if(!sorted) System.out.println("Searching for 'ALL' gives classes in the order they were loaded.");
+        //if(!sorted) Main.afl.println("Searching for 'ALL' gives classes in the order they were loaded.");
         return filteredresults;
     }
 
@@ -172,7 +172,7 @@ public class Search {
         //if there's a partial match within the course's string, increase the weight slightly
         //initialize p (for present) along with i so we have it at loop scope
         /*for(int i = 0,p = c.toString().toUpperCase().indexOf(s.toUpperCase(),i); i < c.toString().length();) {
-            //System.out.println("i = " + i + " p = " + p);
+            //Main.afl.println("i = " + i + " p = " + p);
             //if the string was found in the remainder of the string, increment weight
             if(p >= 0) w++;
             //if p wasn't found return the current weight value
@@ -256,7 +256,9 @@ public class Search {
                 Main.afl.println(iae.getMessage());
             }
         }
-        Main.search.search(GeneralUtils.input("Enter search string: "), threshold, sorted);
+        String ss = GeneralUtils.input("Enter search string: ");
+        if(ss.equalsIgnoreCase("all") && !sorted) Main.afl.println("Searching for 'ALL' gives classes in the order they were loaded.");
+        Main.search.search(ss, threshold, sorted);
         Main.afl.println(Main.search.to_str(true));
     }
 

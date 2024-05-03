@@ -7,6 +7,11 @@ public class FullFilter extends Filter {
         super(FilterType.FULL);
     }
 
+    public FullFilter(List<Course> courses) {
+        super(FilterType.FULL);
+        apply_to(courses);
+    }
+
     @Override
     public void apply_to(List<Course> courses) {
         List<Course> rm = new ArrayList<>();
