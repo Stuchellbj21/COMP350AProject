@@ -279,7 +279,6 @@ public class Account {
 
     //Make the generated schedules in here
 
-
     /*public int int_input() {
         int input = 0;
         while (true) {
