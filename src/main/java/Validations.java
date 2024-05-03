@@ -67,7 +67,6 @@ public class Validations {
     public static boolean check_username(String userName) {
         try{
             //issue if name conflict with accounts
-            if(Main.currentaccnt != null && new File("Accounts\\" + userName + "\\").exists()) throw new IllegalArgumentException("Error: a schedule with name '" + userName + "' already exists");
             is_valid_name(userName);
         }
         catch(IllegalArgumentException iae) {

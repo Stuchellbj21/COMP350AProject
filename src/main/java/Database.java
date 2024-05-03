@@ -55,12 +55,12 @@ public class Database {
     boolean authenticate(String username, String password) {
         try {
             PreparedStatement ps = conn.prepareStatement("" +
-                    "SELECT username FROM users WHERE passwordHash = ?");
-            ps.setInt(1, password.hashCode());
+                    "SELECT passwordHash FROM users WHERE username = ?");
+            ps.setString(1, username);
             ResultSet rst = ps.executeQuery();
             if (rst.next()) {
-                String temp = rst.getString(1); // grab username
-                if (temp.equals(username)) {
+                int temp = rst.getInt(1); // grab passwordHash
+                if (temp == password.hashCode()) {
                     Main.afl.println("Login successful");
                     return true;
                 }
