@@ -323,6 +323,7 @@ public class Account {
                 }
                 sched_num--;
                 Main.currentsched = potential_scheds.get(sched_num);
+
                 Main.afl.println("Please enter a name for your schedule:");
                 Scanner naming = new Scanner(System.in);
                 String sched_name = naming.next();
