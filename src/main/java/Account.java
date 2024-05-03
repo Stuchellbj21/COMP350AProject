@@ -257,10 +257,12 @@ public class Account {
     //Make the generated schedules in here
     public void gen_sched_menu() throws IOException, SQLException {
         String semester;
-        String choice = GeneralUtils.input("What semester would you like a schedule generated for?");
+        System.out.println("What semester would you like a schedule generated for?");
+        Scanner scn = new Scanner(System.in);
+        String choice = scn.next();
         while (!(choice.equalsIgnoreCase("Fall")) && !(choice.equalsIgnoreCase("Spring"))) {
-            Main.afl.println("Invalid semester. Please enter 'Fall' or 'Spring'");
-            choice = GeneralUtils.input("");
+            System.out.println("Invalid semester. Please enter 'Fall' or 'Spring'");
+            choice = scn.next();
         }
         if (choice.equalsIgnoreCase("Fall")) {
             semester = "Fall";
