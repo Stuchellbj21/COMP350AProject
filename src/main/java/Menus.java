@@ -29,8 +29,8 @@ public class Menus {
         if (Main.db.authenticate(un, pw)) {
             String major = Main.db.get_major(un); // get major from database
             Main.currentaccnt = new Account(un, pw, Major.valueOf(major));
-            MainSaveLoad.load_schedules();
-            MainSaveLoad.load_acct_info(); // todo: Rework load folders with info.txt file
+            SaveLoad.load_schedules();
+            SaveLoad.load_acct_info(); // todo: Rework load folders with info.txt file
             return true;
         } else {
             Main.autoflush.println("Incorrect password or username");
@@ -50,13 +50,13 @@ public class Menus {
             } else if (in.equalsIgnoreCase("login")) {
                 if (login_menu()) {
                     schedule_menu();
-                    MainSaveLoad.account_flush();
+                    SaveLoad.account_flush();
                 }
             } else if (in.equalsIgnoreCase("close")) {
                 if (Main.currentaccnt != null) {
-                    MainSaveLoad.account_flush(); // should not be called when no accounts have been made
+                    SaveLoad.account_flush(); // should not be called when no accounts have been made
                 }
-                MainSaveLoad.close_accounts();
+                SaveLoad.close_accounts();
                 System.exit(0); // kill the program with no errors
             } else {
                 Main.autoflush.println("Error: '" + in + "' is an invalid response");
@@ -115,11 +115,11 @@ public class Menus {
             else if (in.equalsIgnoreCase("ac")) {
                 if (Main.search.get_filtered_results() == null || Main.search.get_filtered_results().isEmpty())
                     Main.autoflush.println("Error: if you wish to add a course, you must add it from search results and you currently have no search results");
-                else MainSchedAddRemove.add_course_to_schedule();
+                else SchedAddRemove.add_course_to_schedule();
             } else if (in.equalsIgnoreCase("rc")) {
                 if (Main.currentsched.get_courses().isEmpty())
                     Main.autoflush.println("Error: the current schedule does not contain any courses for removal");
-                else MainSchedAddRemove.remove_course_from_schedule();
+                else SchedAddRemove.remove_course_from_schedule();
             } else if (in.equalsIgnoreCase("save")) {
                     if (Main.currentsched.get_name().equalsIgnoreCase("blank schedule"))
                         Main.autoflush.println("Error: rename schedule to something other than 'Blank Schedule' before saving");
@@ -133,7 +133,7 @@ public class Menus {
                 Main.currentsched.delete(Main.currentaccnt.getUsername());
                 Main.autoflush.println("schedule deleted successfully");
                 break;
-            } else if (in.equalsIgnoreCase("filter")) MainFilterUtils.edit_filters();
+            } else if (in.equalsIgnoreCase("filter")) FilterUtils.edit_filters();
             else if (in.equalsIgnoreCase("exit"))
                 break; //exit to schedule selection menu -> load schedule, new blank schedule, edit schedule (back to account menu)
             else Main.autoflush.println("Error: '" + in + "' is an invalid response");

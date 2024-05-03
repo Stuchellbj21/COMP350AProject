@@ -1,7 +1,7 @@
 import java.util.Set;
 import java.util.HashSet;
 
-public class MainFilterUtils {
+public class FilterUtils {
     public static void edit_filters() {
         while(true) {
             Main.autoflush.println("Active Filters: " + (Main.search.get_active_filters() != null && !Main.search.get_active_filters().isEmpty() ? Main.search.get_active_filters() : "None"));

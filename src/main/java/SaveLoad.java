@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.HashSet;
 
 
-public class MainSaveLoad {
+public class SaveLoad {
     /**
      * Completes the info.txt file associated with each account by writing password-hash, username, major
      * and schedule names to file in the user's account directory.

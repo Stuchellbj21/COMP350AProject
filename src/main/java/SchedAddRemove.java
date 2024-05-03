@@ -1,4 +1,4 @@
-public class MainSchedAddRemove {
+public class SchedAddRemove {
     public static void add_course_to_schedule() {
         boolean first = true;
         while (true) {

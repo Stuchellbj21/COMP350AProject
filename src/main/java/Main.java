@@ -32,9 +32,10 @@ public class Main {
     public static void run() throws IOException, SQLException {
         try{Main.db.connect();}
         catch(Exception dbException) {} // todo: change exception
-        try {MainSaveLoad.load_accounts();}
+        try {
+            SaveLoad.load_accounts();}
         catch (Exception e) {autoflush.println("no accounts to load");}
-        MainSaveLoad.load_allcourses();
+        SaveLoad.load_allcourses();
         autoflush.println("Welcome to Descartes Favorite Scheduling App.... Enjoy");
         Menus.accountMenu();
         try{Main.db.disconnectDB();}
