@@ -7,7 +7,7 @@ public class Menus {
         //Checks to see if any accounts exist. If not, returns false.
 
 //        if (Main.accounts.isEmpty()) {
-//            System.out.println();
+//            Main.afl.println();
 //            return false;
 //        }
         //-----------------------------
@@ -68,7 +68,7 @@ public class Menus {
 
     public static void schedule_menu() throws SQLException, IOException {
         while (true) {
-            String in = GeneralUtils.input("(load) -> load a schedule/(new) -> create a new blank schedule/(ls) -> list saved schedules/\n(f) -> access folders/(gen) -> generate schesules/(ct) -> add courses already taken/\n(b) -> back to account menu: ");
+            String in = GeneralUtils.input("(load) -> load a schedule/(new) -> create a new blank schedule/(ls) -> list saved schedules/\n(f) -> access folders/(gen) -> generate schedules/(ct) -> add courses already taken/\n(b) -> back to account menu: ");
             if (in.equalsIgnoreCase("load")) {
                 String schedname = GeneralUtils.input("Enter the name of the schedule to load: ");
                 try {

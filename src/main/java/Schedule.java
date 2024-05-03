@@ -403,7 +403,6 @@ public class Schedule {
                 courses.add(new Course(cname, section, major, coursenum, ccredits, numstudents, capacity, prof, cyear, csem, requiredby, daytimes));
                 update_times_per_day();
             }
-            System.out.println(courses);
         }
         fscn.close();
     }
@@ -484,7 +483,6 @@ public class Schedule {
                 courses.add(new Course(cname, section, major, coursenum, ccredits, numstudents, capacity, prof, cyear, csem, requiredby, daytimes));
                 update_times_per_day();
             }
-            System.out.println(courses);
         }
         fscn.close();
     }
@@ -563,13 +561,13 @@ public class Schedule {
      */
     public void printSchedule() {
         //Prints out the header for the schedule
-        System.out.printf("%-13s", "");
-        System.out.printf("%-13s", " Monday");
-        System.out.printf("%-13s", " Tuesday");
-        System.out.printf("%-13s", " Wednesday");
-        System.out.printf("%-13s", " Thursday");
-        System.out.printf("%-13s", " Friday");
-        System.out.println();
+        Main.afl.printf("%-13s", "");
+        Main.afl.printf("%-13s", " Monday");
+        Main.afl.printf("%-13s", " Tuesday");
+        Main.afl.printf("%-13s", " Wednesday");
+        Main.afl.printf("%-13s", " Thursday");
+        Main.afl.printf("%-13s", " Friday");
+        Main.afl.println();
         //Loops through each hour in a school day
         double hour = 8.0;
         for (int k = 0; k < 14; k++) {
@@ -584,7 +582,7 @@ public class Schedule {
                     converted_hour -= 12;
                 }
                 if (curr_day == 0) {
-                    System.out.printf("%12s", (int) converted_hour + ":00 " + time_of_day + "|");
+                    Main.afl.printf("%12s", (int) converted_hour + ":00 " + time_of_day + "|");
                 }
                 //Loops through every course in the list of courses to check for printing
                 String print_for_day = "";
@@ -696,21 +694,21 @@ public class Schedule {
                     }
                 }
                 if (printed) {
-                    System.out.printf("%-13s",print_for_day);
+                    Main.afl.printf("%-13s",print_for_day);
                 }
                 else {
-                    System.out.print("|");
+                    Main.afl.print("|");
                     for (int i = 0; i < 12; i++){
-                        System.out.print(" ");
+                        Main.afl.print(" ");
                     }
                 }
                 curr_day++;
             }
-            System.out.print("||");
-            System.out.println();
+            Main.afl.print("||");
+            Main.afl.println();
             hour++;
         }
-        System.out.println();
+        Main.afl.println();
     }
 
     public boolean delete(String accountname) {

@@ -52,7 +52,7 @@ public class FilterUtils {
                 //can only add or remove FULL filter
                 case FULL -> {
                     if(modify) Main.afl.println("Error: cannot modify FULL filter");
-                    else add_or_modify_filter(modify,new FullFilter());
+                    else add_or_modify_filter(modify,new FullFilter(Main.search.get_filtered_results()));
                 }
             }
             if(!modify && Main.search.get_active_filters().size() != ogsize) Main.afl.println("Filter addition successful");
