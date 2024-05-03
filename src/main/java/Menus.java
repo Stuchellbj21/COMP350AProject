@@ -32,7 +32,7 @@ public class Menus {
             try {SaveLoad.load_courses_taken();}
             catch(IOException ioe) {Main.afl.println("Error: " + ioe.getMessage());}
             SaveLoad.load_schedules();
-            SaveLoad.load_folders(); // todo: Rework load folders with info.txt file
+            SaveLoad.load_acct_info(); // todo: Rework load folders with info.txt file
             return true;
         } else {
             Main.afl.println("Incorrect password or username");
@@ -47,11 +47,12 @@ public class Menus {
             if (in.equalsIgnoreCase("create")) {
                 if (AccountCreation.createAccount()) {
                     //successfully create account and move into schedule menu
-                    sched_or_folder_menu();
+                    schedule_menu();
                 }
             } else if (in.equalsIgnoreCase("login")) {
                 if (login_menu()) {
-                    sched_or_folder_menu();
+                    schedule_menu();
+                    SaveLoad.account_flush();
                 }
             } else if (in.equalsIgnoreCase("close")) {
                 if (Main.currentaccnt != null) {
@@ -67,14 +68,10 @@ public class Menus {
 
     public static void schedule_menu() throws SQLException, IOException {
         while (true) {
-            String in = GeneralUtils.input("(load) -> load a schedule/(new) -> create a new blank schedule/(ls) -> list saved schedules/\n(ct) -> add courses already taken/(b) -> back to account menu: ");
+            String in = GeneralUtils.input("(load) -> load a schedule/(new) -> create a new blank schedule/(ls) -> list saved schedules/\n(f) -> access folders/(gen) -> generate schesules/(ct) -> add courses already taken/\n(b) -> back to account menu: ");
             if (in.equalsIgnoreCase("load")) {
                 String schedname = GeneralUtils.input("Enter the name of the schedule to load: ");
                 try {
-//                    if (new File("Accounts\\" + Main.currentaccnt.getUsername() + "\\" + schedname + (schedname.endsWith(".csv") ? "" : ".csv")).exists()) {
-//                        Main.currentsched.load(Main.currentaccnt.getUsername(), schedname);
-//                        Main.autoflush.println("Schedule '" + schedname + "' loaded successfully");
-//                        in_schedule_menu();
                     if (Main.currentaccnt.get_schednames().contains(schedname)) {
                         Main.currentsched.load(Main.currentaccnt.getUsername(), schedname);
                         Main.afl.println("Schedule '" + schedname + "' loaded successfully"); //todo: go to sched menu?
@@ -92,6 +89,8 @@ public class Menus {
                 Main.afl.println("New blank schedule created");
                 in_schedule_menu();
             }
+            else if (in.equalsIgnoreCase("f")) folder_menu();
+            else if (in.equalsIgnoreCase("gen")) Main.currentaccnt.gen_sched_menu();
             else if (in.equalsIgnoreCase("ls")) Main.currentaccnt.print_schedule_list();
             else if (in.equalsIgnoreCase("ct")) {
                 try{Main.currentaccnt.enter_courses_taken();}
@@ -171,7 +170,7 @@ public class Menus {
             String in = GeneralUtils.input("(load) -> load a folder/(new) -> create a new folder/(lf) -> list of folders/(b) -> back to account menu: \n");
             if (in.equalsIgnoreCase("load")) {
                 String folder_name = GeneralUtils.input("Enter the name of the folder to load: ");
-                if (new File("Accounts\\" + Main.currentaccnt.getUsername() + "\\" + folder_name + '\\' + folder_name + (folder_name.endsWith(".txt") ? "" : ".txt")).exists()) {
+                if (new File("Accounts\\" + Main.currentaccnt.getUsername() + "\\" + folder_name).exists()) {
                     Main.current_folder.load_folder(Main.currentaccnt.getUsername(), folder_name);
                     Main.afl.println("Folder '" + folder_name + "' loaded successfully\n");
                     in_folder_menu();
@@ -210,21 +209,6 @@ public class Menus {
                 FolderOps.delete_folder();
                 break;
             } else Main.afl.println("Error: '" + in + "' is an invalid response");
-        }
-    }
-
-    public static void sched_or_folder_menu() throws IOException, SQLException {
-        while (true) {
-            String in = GeneralUtils.input("Enter (sched) -> schedule menu/(folder) -> folder menu/(exit) -> exit to login");
-            if (in.equals("sched")) {
-                schedule_menu();
-            } else if (in.equals("folder")) {
-                folder_menu();
-            } else if (in.equals("exit")) {
-                break;
-            } else {
-                Main.afl.println("Invalid input, please try again.");
-            }
         }
     }
 }

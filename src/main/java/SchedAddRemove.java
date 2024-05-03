@@ -27,8 +27,11 @@ public class SchedAddRemove {
             int idx = Integer.parseInt(GeneralUtils.input("Enter the index of the course you would like to add: "));
             if(idx < 1) throw new IllegalArgumentException("Error: index must be greater than zero.");
             if(idx > Main.search.get_filtered_results().size()) throw new IllegalArgumentException("Error: that index is too large.");
-            if(Main.currentsched.add_course(Main.search.get_filtered_results().get(idx-1)))
-                Main.afl.println(Main.search.get_filtered_results().get(idx-1).short_str(true) + " has been added to the current schedule");
+            if(Main.currentsched.add_course(Main.search.get_filtered_results().get(idx-1))) {
+                //if in wishlist, remove it from there
+                Main.currentaccnt.get_wishlist().remove(Main.search.get_filtered_results().get(idx-1));
+                Main.afl.println(Main.search.get_filtered_results().get(idx - 1).short_str(true) + " has been added to the current schedule");
+            }
         }
         catch (NumberFormatException nfe) {
             Main.afl.println("Error: you did not enter a valid integer.");
@@ -141,6 +144,15 @@ public class SchedAddRemove {
         }
         DayTime time = GeneralUtils.get_time_for_something(day);
         Extracurricular e = new Extracurricular(time, name);
+
+        for (Extracurricular schedex : Main.currentsched.get_extracurriculars()) {
+            //can't have 2 extracurriculars that have the same name and overlap in time
+            if (schedex.get_name().equalsIgnoreCase(e.get_name()) && schedex.get_time().get_day() == e.get_time().get_day() && schedex.get_time().overlaps(e.get_time())) {
+                Main.afl.println("Error: there can't be multiple instances of extracurricular " + e.get_name() + " that overlap in time");
+                return;
+            }
+        }
+
         for (Course c : Main.currentsched.get_courses()) {
             if (c.times_overlap_with(time)) {
                 Main.afl.println("Error: extracurricular overlaps with a course in schedule");
