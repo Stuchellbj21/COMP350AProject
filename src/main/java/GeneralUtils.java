@@ -2,12 +2,25 @@ import java.util.Scanner;
 
 public class GeneralUtils {
     public static Scanner userin = new Scanner(System.in);
+
     public static String input(String prompt) {
         if (prompt != null) {
             Main.afl.print(prompt);
         }
         //strip the new line off the end and any starting whitespace
         return userin.nextLine().strip();
+    }
+
+    public static int int_input(String prompt) throws NumberFormatException {
+        String intstr = input(prompt);
+        return Integer.parseInt(intstr);
+    }
+
+    public static int get_int_from_user(String prompt) {
+        while(true) {
+            try{return int_input(prompt);}
+            catch(NumberFormatException nfe){Main.afl.println("Invalid input. Please enter an integer.");}
+        }
     }
 
     public static boolean is_numeric(String s) {

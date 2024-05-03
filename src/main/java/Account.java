@@ -163,7 +163,7 @@ public class Account {
         return folders;
     }
 
-    public List<Schedule> random_gen(int year, String semester) {
+    public static List<Schedule> random_gen(int year, String semester) {
         int courses_added = 0;
         Random course_select = new Random();
         List<Schedule> generated_scheds = new ArrayList<>();
@@ -250,7 +250,7 @@ public class Account {
         return generated_scheds;
     }
 
-    public List<Course> gen_sched_research(Search s,String searchstr,String sem,int year) {
+    public static List<Course> gen_sched_research(Search s,String searchstr,String sem,int year) {
         s.reset();
         //no filters now
         s.search(searchstr, false);
@@ -278,93 +278,22 @@ public class Account {
     }
 
     //Make the generated schedules in here
-    public void gen_sched_menu() throws IOException, SQLException {
-        String semester;
-        Main.afl.println("What semester would you like a schedule generated for?");
-        Scanner scn = new Scanner(System.in);
-        String choice = scn.next();
-        while (!(choice.equalsIgnoreCase("Fall")) && !(choice.equalsIgnoreCase("Spring"))) {
-            Main.afl.println("Invalid semester. Please enter 'Fall' or 'Spring'");
-            choice = scn.next();
-        }
-        if (choice.equalsIgnoreCase("Fall")) {
-            semester = "Fall";
-        } else {
-            semester = "Spring";
-        }
 
-        //Provide space inbetween
-        Main.afl.println();
-        List<Schedule> potential_scheds = random_gen(2020, semester);
-        Main.afl.println();
-        Main.afl.println("Would you like to add any of the following schedules (y/n)?");
-        while(true) {
-            Scanner scnr = new Scanner(System.in);
-            String sched_choice = scnr.next();
-            while (!(sched_choice.equalsIgnoreCase("n")) && !(sched_choice.equalsIgnoreCase("y"))) {
-                Main.afl.println("Invalid choice. Please re-enter.");
-                sched_choice = scnr.next();
-            }
-            if (sched_choice.equalsIgnoreCase("y")) {
-                Main.afl.println("Which schedule would you like to add?");
-                for (int i = 0; i < potential_scheds.size(); i++) {
-                    int number = i + 1;
-                    Main.afl.println("   " + number + ". " + potential_scheds.get(i).get_name());
-                }
-                int sched_num = int_input();
-                boolean invalid_choice = true;
-                while (invalid_choice) {
-                    if (!(sched_num >= 1 && sched_num <= potential_scheds.size())) {
-                        Main.afl.println("Choice is out of range. Please re-enter.");
-                        sched_num = int_input();
-                    } else {
-                        invalid_choice = false;
-                    }
-                }
-                sched_num--;
-                Main.currentsched = potential_scheds.get(sched_num);
-
-                Main.afl.println("Please enter a name for your schedule:");
-                Scanner naming = new Scanner(System.in);
-                String sched_name = naming.next();
-                if (sched_name.length() > 15) {
-                    Main.afl.println("Schedule name is too long. Please try again.");
-                    boolean invalid = true;
-                    while (invalid) {
-                        sched_name = naming.next();
-                        if (sched_name.length() <= 15){
-                            invalid = false;
-                            Main.currentsched.setName(sched_name);
-                            Main.afl.println("New schedule name successfully set!");
-                        } else {
-                            Main.afl.println("Schedule name is too long. Please try again.");
-                        }
-                    }
-                }
-                potential_scheds.remove(sched_num);
-                Main.currentsched.save(Main.currentaccnt.getUsername()); // save to file
-                Main.currentaccnt.save_schedule(Main.currentsched.get_name()); // save to list
-                Main.afl.println(Main.currentsched.get_name() + " saved successfully");
-                Main.afl.println("\nWould you like to add any additional schedules (y/n)?");
-            } else {
-                break;
-            }
-        }
-    }
-
-    public int int_input() {
+    /*public int int_input() {
         int input = 0;
         while (true) {
             Scanner input_scnr = new Scanner(System.in);
             if (input_scnr.hasNextInt()) {
                 input = input_scnr.nextInt();
+                input_scnr.close();
                 break;
             } else {
                 Main.afl.println("Invalid input. Please enter an integer.");
             }
+            input_scnr.close();
         }
         return input;
-    }
+    }*/
 
     public List<Course> get_wishlist(){ return wishlist; }
 
