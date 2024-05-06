@@ -5,7 +5,7 @@ Database Instructions:
 2.	Create a folder (within the Windows (C:) folder) named SQlite.
 3.	Drag or copy/paste the scrumptious.db file into the SQlite folder.
 
-Folder and file names are case sensitive: the path should match the latter half of the url stored in the java
+Folder and file names are case-sensitive: the path should match the latter half of the url stored in the java
 program: C://SQLite/scrumptious.db
 
 This should allow the java program and SQL library to access and manipulate the database that is now stored locally on your Windows PC.
