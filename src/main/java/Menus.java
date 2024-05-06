@@ -1,13 +1,15 @@
 import java.io.IOException;
 import java.io.File;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Random;
 
 public class Menus {
     public static boolean login_menu() throws IOException, SQLException {
         //Checks to see if any accounts exist. If not, returns false.
 
 //        if (Main.accounts.isEmpty()) {
-//            System.out.println();
+//            Main.afl.println();
 //            return false;
 //        }
         //-----------------------------
@@ -66,9 +68,66 @@ public class Menus {
         }
     }
 
+    public static void gen_sched_menu() throws IOException, SQLException {
+        String semester;
+        String choice = GeneralUtils.input("What semester would you like a schedule generated for?\n");
+        while (!(choice.equalsIgnoreCase("Fall")) && !(choice.equalsIgnoreCase("Spring"))) {
+            choice = GeneralUtils.input("Invalid semester. Please enter 'Fall' or 'Spring'\n");
+        }
+        if (choice.equalsIgnoreCase("Fall")) {
+            semester = "Fall";
+        } else {
+            semester = "Spring";
+        }
+
+        //Provide space inbetween
+        Main.afl.println();
+        List<Schedule> potential_scheds = Account.random_gen(2020, semester);
+        Main.afl.println();
+        String sched_choice = GeneralUtils.input("Would you like to add any of the following schedules (y/n)?\n");
+        while(true) {
+            while (!(sched_choice.equalsIgnoreCase("n")) && !(sched_choice.equalsIgnoreCase("y"))) {
+                sched_choice = GeneralUtils.input("Invalid choice. Please re-enter.\n");
+            }
+            if (sched_choice.equalsIgnoreCase("y")) {
+                for (int i = 0; i < potential_scheds.size(); i++) {
+                    int number = i + 1;
+                    Main.afl.println("   " + number + ". " + potential_scheds.get(i).get_name());
+                }
+                int sched_num = GeneralUtils.get_int_from_user("Which schedule would you like to add?\n");
+                boolean invalid_choice = true;
+                while (invalid_choice) {
+                    if (!(sched_num >= 1 && sched_num <= potential_scheds.size())) {
+                        sched_num = GeneralUtils.int_input("Choice is out of range. Please re-enter.\n");
+                    } else {
+                        invalid_choice = false;
+                    }
+                }
+                sched_num--;
+                Main.currentsched = potential_scheds.get(sched_num);
+                while(true) {
+                    try {
+                        String sched_name = GeneralUtils.input("Please enter a name for your schedule:\n");
+                        Validations.is_valid_name(sched_name);
+                        Main.currentsched.setName(sched_name);
+                        //Main.afl.println("New schedule name successfully set!");
+                        break;
+                    } catch (IllegalArgumentException iae) {Main.afl.println(iae.getMessage());}
+                }
+                potential_scheds.remove(sched_num);
+                Main.currentsched.save(Main.currentaccnt.getUsername()); // save to file
+                Main.currentaccnt.save_schedule(Main.currentsched.get_name()); // save to list
+                Main.afl.println(Main.currentsched.get_name() + " saved successfully");
+                sched_choice = GeneralUtils.input("\nWould you like to add any additional schedules (y/n)?\n");
+            } else {
+                break;
+            }
+        }
+    }
+
     public static void schedule_menu() throws SQLException, IOException {
         while (true) {
-            String in = GeneralUtils.input("(load) -> load a schedule/(new) -> create a new blank schedule/(ls) -> list saved schedules/\n(f) -> access folders/(gen) -> generate schesules/(ct) -> add courses already taken/\n(b) -> back to account menu: ");
+            String in = GeneralUtils.input("(load) -> load a schedule/(new) -> create a new blank schedule/(ls) -> list saved schedules/\n(f) -> access folders/(gen) -> generate schedules/(ct) -> add courses already taken/\n(b) -> back to account menu: ");
             if (in.equalsIgnoreCase("load")) {
                 String schedname = GeneralUtils.input("Enter the name of the schedule to load: ");
                 try {
@@ -76,7 +135,6 @@ public class Menus {
                         Main.currentsched.load(Main.currentaccnt.getUsername(), schedname);
                         Main.afl.println("Schedule '" + schedname + "' loaded successfully"); //todo: go to sched menu?
                         in_schedule_menu();
-
                     }
                     else Main.afl.println("Error: that schedule does not exist");
                 }
@@ -90,7 +148,7 @@ public class Menus {
                 in_schedule_menu();
             }
             else if (in.equalsIgnoreCase("f")) folder_menu();
-            else if (in.equalsIgnoreCase("gen")) Main.currentaccnt.gen_sched_menu();
+            else if (in.equalsIgnoreCase("gen")) gen_sched_menu();
             else if (in.equalsIgnoreCase("ls")) Main.currentaccnt.print_schedule_list();
             else if (in.equalsIgnoreCase("ct")) {
                 try{Main.currentaccnt.enter_courses_taken();}

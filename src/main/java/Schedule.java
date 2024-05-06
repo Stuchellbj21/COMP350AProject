@@ -69,19 +69,15 @@ public class Schedule {
         //name, semeseter, year, and credits are set in load
         try {load(accountname, name);}
         catch(InputMismatchException | IOException error) {Main.afl.println(error.getMessage() + ' ' + error.getCause());}
-        update_times_per_day();
     }
-    // constructor with name and list of courses
-    public Schedule(String name, ArrayList<Course> courses) {
-        this.name = name;
-        this.courses = courses;
-    }
+
     // full constructor
     public Schedule(String name, String semester, int year, List<Course> courses, int credits) {
         this.name = name;
         this.semester = semester;
         this.year = year;
         this.courses = courses;
+        init_timesperday();
         update_times_per_day();
         this.credits = credits;
     }
@@ -103,7 +99,7 @@ public class Schedule {
 
     public void set_name_with_checks(String accountname) {
         while(true) {
-            String newname = GeneralUtils.input("Enter new schedule name: ");
+            String newname = GeneralUtils.input("Enter schedule name: ");
             try{
                 if(Validations.is_valid_name(newname)) {
                     //don't have to replace existing because is_valid_name already checks to make sure the target doesn't exist
@@ -200,6 +196,14 @@ public class Schedule {
             Course current = null;
             for(Course c : courses)
                 if(c.has_time(dt)) current = c;
+            if(current == null) {
+                Main.afl.println("current is null");
+                Main.afl.println("dt start: " + dt.get_start_time());
+                Main.afl.println("dt end: " + dt.get_end_time());
+                Main.afl.println("dt day: " + dt.get_day());
+                for(Course c : courses) Main.afl.println(c);
+                GeneralUtils.int_input("crash?");
+            }
             //now we have the correct course to add, so we add it
             sb.append(" | (").append(current.getMajor()).append(' ').append(current.getCourseNum());
             sb.append(' ').append(current.getSection()).append(' ').append(dt.get_start_time()).append('-');
@@ -293,19 +297,16 @@ public class Schedule {
     //timesperday should always be initialized via this method.... timesperday should always be null if
     //init hasn't been called
     void init_timesperday() {
-        if(timesperday == null) {
-            timesperday = new HashMap<>();
-            timesperday.put('M',new ArrayList<>());
-            timesperday.put('T',new ArrayList<>());
-            timesperday.put('W',new ArrayList<>());
-            timesperday.put('R',new ArrayList<>());
-            timesperday.put('F',new ArrayList<>());
-        }
+        timesperday = new HashMap<>();
+        timesperday.put('M',new ArrayList<>());
+        timesperday.put('T',new ArrayList<>());
+        timesperday.put('W',new ArrayList<>());
+        timesperday.put('R',new ArrayList<>());
+        timesperday.put('F',new ArrayList<>());
     }
 
     //makes sure all courses in courses are represented in timesperday
     private void update_times_per_day() {
-        init_timesperday();
         for(Course c : courses) {
             for(DayTime dt : c.getTimes()) {
                 //if no list present for a given day, add a new list
@@ -319,7 +320,7 @@ public class Schedule {
 
     //expects timesperday to not be null
     private boolean add_if_unique(DayTime dt) {
-        if(timesperday.get(dt.get_day()) == null || !timesperday.get(dt.get_day()).contains(dt)) {
+        if(timesperday.get(dt.get_day()).isEmpty() || !timesperday.get(dt.get_day()).contains(dt)) {
             timesperday.get(dt.get_day()).add(dt);
             return true;
         }
@@ -328,6 +329,10 @@ public class Schedule {
     }
 
     public void load(String accountname,String fname) throws IOException {
+        //have to init_timesperday here, because if load is used in the wild (outside of a constructor)
+        //it could result in the times of another schedule being in timesperday (the times from the previous)
+        //Main.currentsched
+        init_timesperday();
         FileInputStream fis = new FileInputStream("Accounts" + '\\' + accountname + '\\' + fname + (fname.endsWith(".csv") ? "" : ".csv"));
         Scanner fscn = new Scanner(fis);
         //skip descriptor line
@@ -403,12 +408,12 @@ public class Schedule {
                 courses.add(new Course(cname, section, major, coursenum, ccredits, numstudents, capacity, prof, cyear, csem, requiredby, daytimes));
                 update_times_per_day();
             }
-            System.out.println(courses);
         }
         fscn.close();
     }
 
     public void f_load(String accountname,String fname,String sname) throws IOException {
+        init_timesperday();
         FileInputStream fis = new FileInputStream("Accounts" + '\\' + accountname + '\\' + fname + '\\' + sname + (sname.endsWith(".csv") ? "" : ".csv"));
         Scanner fscn = new Scanner(fis);
         //skip descriptor line
@@ -484,7 +489,6 @@ public class Schedule {
                 courses.add(new Course(cname, section, major, coursenum, ccredits, numstudents, capacity, prof, cyear, csem, requiredby, daytimes));
                 update_times_per_day();
             }
-            System.out.println(courses);
         }
         fscn.close();
     }
@@ -563,13 +567,13 @@ public class Schedule {
      */
     public void printSchedule() {
         //Prints out the header for the schedule
-        System.out.printf("%-13s", "");
-        System.out.printf("%-13s", " Monday");
-        System.out.printf("%-13s", " Tuesday");
-        System.out.printf("%-13s", " Wednesday");
-        System.out.printf("%-13s", " Thursday");
-        System.out.printf("%-13s", " Friday");
-        System.out.println();
+        Main.afl.printf("%-13s", "");
+        Main.afl.printf("%-13s", " Monday");
+        Main.afl.printf("%-13s", " Tuesday");
+        Main.afl.printf("%-13s", " Wednesday");
+        Main.afl.printf("%-13s", " Thursday");
+        Main.afl.printf("%-13s", " Friday");
+        Main.afl.println();
         //Loops through each hour in a school day
         double hour = 8.0;
         for (int k = 0; k < 14; k++) {
@@ -584,7 +588,7 @@ public class Schedule {
                     converted_hour -= 12;
                 }
                 if (curr_day == 0) {
-                    System.out.printf("%12s", (int) converted_hour + ":00 " + time_of_day + "|");
+                    Main.afl.printf("%12s", (int) converted_hour + ":00 " + time_of_day + "|");
                 }
                 //Loops through every course in the list of courses to check for printing
                 String print_for_day = "";
@@ -696,21 +700,21 @@ public class Schedule {
                     }
                 }
                 if (printed) {
-                    System.out.printf("%-13s",print_for_day);
+                    Main.afl.printf("%-13s",print_for_day);
                 }
                 else {
-                    System.out.print("|");
+                    Main.afl.print("|");
                     for (int i = 0; i < 12; i++){
-                        System.out.print(" ");
+                        Main.afl.print(" ");
                     }
                 }
                 curr_day++;
             }
-            System.out.print("||");
-            System.out.println();
+            Main.afl.print("||");
+            Main.afl.println();
             hour++;
         }
-        System.out.println();
+        Main.afl.println();
     }
 
     public boolean delete(String accountname) {
