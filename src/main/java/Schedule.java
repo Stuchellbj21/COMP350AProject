@@ -1,5 +1,7 @@
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class Schedule {
@@ -267,7 +269,37 @@ public class Schedule {
     public void save(String accountname) throws IOException {
         //will save to <schedule name>.csv (may have to remove some punctuation or something)
         //to get things to work right
-        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + '\\' + name + ".csv");
+        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + "\\" + name + ".csv");
+        PrintWriter pw = new PrintWriter(fos);
+        pw.println("name,semester,year,credits");
+        pw.println(name + ',' + semester + ',' + year + ',' + credits + '\n');
+        pw.println("name,section,major,coursenum,credits,numstudents,capacity,professor,year,semester,times(start-end-day-start-end-day-start-end-day-....),requiredby(m1-m2-m3-m4-....)");
+        if(courses.isEmpty()) pw.println("--");
+        else {
+            //name,section,major,coursenum,credits,numstudents,capacity,professor,year,semester,times(start-end-day-start-end-day-start-end-day-....),requiredby(m1-m2-m3-m4-....)
+            for(Course c : courses) {
+                StringBuilder course = new StringBuilder(c.getName()).append(',').append(c.getSection()).append(',').append(c.getMajor().name());
+                course.append(',').append(c.getCourseNum()).append(',').append(c.getCredits()).append(',').append(c.getNumstudents()).append(',');
+                course.append(c.getCapacity()).append(',').append(c.getProfessor()).append(',').append(c.getYear()).append(',').append(c.getSemester());
+                course.append(',');
+                for(DayTime dt : c.getTimes()) {
+                    course.append(dt.get_start_time()).append('-').append(dt.get_end_time()).append('-').append(dt.get_day());
+                    //think we actually want a compare by reference here
+                    if(dt != c.getTimes().getLast()) course.append('-');
+                }
+                course.append(',');
+                for(Major m : c.getRequiredby()) course.append(m.name()).append('-');
+                //don't include last hyphon of course set or last comma if no requiredby
+                pw.println(course.substring(0,course.length()-1));
+            }
+        }
+        pw.close();
+    }
+
+    public void f_save(String accountname, String foldername) throws IOException {
+        //will save to <schedule name>.csv (may have to remove some punctuation or something)
+        //to get things to work right
+        FileOutputStream fos = new FileOutputStream("Accounts\\" + accountname + "\\" + foldername + "\\" + name + ".csv");
         PrintWriter pw = new PrintWriter(fos);
         pw.println("name,semester,year,credits");
         pw.println(name + ',' + semester + ',' + year + ',' + credits + '\n');
