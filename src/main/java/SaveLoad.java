@@ -30,7 +30,7 @@ public class SaveLoad {
         fw.write("Folders:\n");
         for (int i = 0; i < Main.currentaccnt.get_folders().size(); i++) {
             if (i == Main.currentaccnt.get_folders().size()-1){
-                fw.write(Main.currentaccnt.get_folders().get(i) + "\n");
+                fw.write(Main.currentaccnt.get_folders().get(i));
             } else {
                 fw.write(Main.currentaccnt.get_folders().get(i) + ",");
             }

@@ -50,7 +50,6 @@ public class Folder {
     public void load_folder(String account_name,String folder_name) throws FileNotFoundException {
         name = folder_name;
         scheds = get_folder_scheds(account_name);
-        //todo: read from info.txt to load folders upon reopening program
     }
 
     public List<String> get_schedules(String username) {
@@ -114,9 +113,11 @@ public class Folder {
         for (int i = 0; i < scheds_to_del.size(); i++) {
             // I changed this so that the schedules list AND the database are updated
             Main.currentaccnt.delete_schedule(scheds_to_del.get(i));
+            Files.delete(Path.of("Accounts\\" + accountname + "\\" + name + "\\" + scheds_to_del.get(i) + ".csv"));//ADD DELETE FILE
             //Main.currentaccnt.get_schednames().remove(scheds_to_del.get(i));
         }
-        if (new File("Accounts\\" + accountname + "\\" + name).exists()) {
+        File f_file = new File ("Accounts\\" + accountname + "\\" + name);
+        if (f_file.exists()) {
             Files.delete(Path.of("Accounts\\" + accountname + "\\" + name));
         }
         return true;

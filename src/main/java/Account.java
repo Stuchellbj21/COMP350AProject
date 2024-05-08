@@ -140,19 +140,19 @@ public class Account {
     }
 
     public void print_schedule_list() {
-        File account = new File("Accounts\\" + username);
-        Main.afl.println(username + " Schedules:");
-        boolean hasSchedule = false;
-        if (account.listFiles() != null) {
-            for (File f : account.listFiles()) {
-                if (f.getName().endsWith(".csv")) {
-                    //cut off .csv
-                    Main.afl.println("\t- " + f.getName().substring(0, f.getName().length() - 4));
-                    if (!hasSchedule) hasSchedule = true;
-                }
-            }
-        }
-        if (!hasSchedule) Main.afl.println("\tNone");
+//        File account = new File("Accounts\\" + username);
+//        Main.afl.println(username + " Schedules:");
+//        boolean hasSchedule = false;
+//        if (account.listFiles() != null) {
+//            for (File f : account.listFiles()) {
+//                if (f.getName().endsWith(".csv")) {
+//                    //cut off .csv
+//                    Main.afl.println("\t- " + f.getName().substring(0, f.getName().length() - 4));
+//                    if (!hasSchedule) hasSchedule = true;
+//                }
+//            }
+//        }
+//        if (!hasSchedule) Main.afl.println("\tNone");
         //TODO: Database is incorrectly printing out schedules that are in a folder, maybe use old print?
         //----------------------------------------------------
         // DATABASE

@@ -33,7 +33,7 @@ public class FolderOps {
                 String added_sched = Main.current_folder.get_scheds().get(choice);
                 if (Main.current_folder.get_scheds().contains(added_sched)) {
                     if (Main.current_folder.get_scheds().remove(added_sched)) {
-                        Path temp = Files.move(Paths.get("Accounts" + '\\' + Main.currentaccnt.getUsername() + '\\' + Main.current_folder.getName() + '\\' + added_sched + ".csv"), Paths.get("Accounts" + '\\' + Main.currentaccnt.getUsername() + '\\' + added_sched + ".csv"));
+                        Path temp = Files.move(Paths.get("Accounts" + "\\" + Main.currentaccnt.getUsername() + "\\" + Main.current_folder.getName() + "\\" + added_sched + ".csv"), Paths.get("Accounts" + "\\" + Main.currentaccnt.getUsername() + "\\" + added_sched + ".csv"));
                         Main.afl.println("Schedule " + added_sched + " removed from folder " + Main.current_folder.getName() + "\n");
                     } else {
                         Main.afl.println("Removal unsuccessful. Sorry.");
@@ -65,7 +65,7 @@ public class FolderOps {
             String added_sched = curr_scheds.get(choice);
             if (!(Main.current_folder.get_scheds().contains(added_sched))) {
                 Main.current_folder.get_scheds().add(added_sched);
-                Path temp = Files.move(Paths.get("Accounts" + '\\' + Main.currentaccnt.getUsername() + '\\' + added_sched + ".csv"), Paths.get("Accounts" + '\\' + Main.currentaccnt.getUsername() + '\\' + Main.current_folder.getName() + '\\' + added_sched + ".csv"));
+                Path temp = Files.move(Paths.get("Accounts" + "\\" + Main.currentaccnt.getUsername() + "\\" + added_sched + ".csv"), Paths.get("Accounts" + "\\" + Main.currentaccnt.getUsername() + "\\" + Main.current_folder.getName() + "\\" + added_sched + ".csv"));
                 Main.afl.println("Schedule '" + added_sched + "' has been added to folder '" + Main.current_folder.getName() + "'\n");
             } else {
                 Main.afl.println("Folder already contains schedule '" + added_sched + "'\n");
@@ -94,9 +94,14 @@ public class FolderOps {
         Main.afl.println("Enter the name for your folder:");
         Scanner scnr = new Scanner(System.in);
         String folder_name = scnr.next();
-        Main.currentaccnt.get_folders().add(folder_name);
-        Main.current_folder = new Folder(folder_name);
-        Main.current_folder.save_folder(Main.currentaccnt.getUsername());
-        Main.afl.println("Folder " + folder_name + " created successfully!\n");
+        if (Main.currentaccnt.get_folders().contains(folder_name)){
+            Main.afl.println("Cannot have duplicate folder names.\n");
+            Main.afl.println("Unsuccessful folder creation.\n");
+        } else {
+            Main.currentaccnt.get_folders().add(folder_name);
+            Main.current_folder = new Folder(folder_name);
+            Main.current_folder.save_folder(Main.currentaccnt.getUsername());
+            Main.afl.println("Folder " + folder_name + " created successfully!\n");
+        }
     }
 }
