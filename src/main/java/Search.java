@@ -125,7 +125,7 @@ public class Search {
         return sb.toString();
     }
 
-    public String to_str(boolean numbered) {q
+    public String to_str(boolean numbered) {
         StringBuilder sb = new StringBuilder("Courses marked with '☆' are on your wishlist\n").append("Courses marked with '✵' are on your status sheet\n");
         sb.append("Active Filters: ").append(activefilters != null && !activefilters.isEmpty() ? activefilters : "None").append('\n');
         sb.append("Search Results for ").append('\'').append(searchstr).append('\'').append(':');
