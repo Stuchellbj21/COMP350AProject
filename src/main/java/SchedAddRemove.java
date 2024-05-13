@@ -10,13 +10,6 @@ public class SchedAddRemove {
             Main.afl.println("Warning: you will only be able to add courses for " + Main.currentsched.get_semester() + " " + Main.currentsched.get_year());
             //display search results to add from to user
             Main.afl.println(Main.search.to_str(true));
-            /*String how = GeneralUtils.input("Enter 'i' to add a course by index, or enter 'c' to add a course by code and section: ").toLowerCase();
-            if(!how.equalsIgnoreCase("i") && !how.equalsIgnoreCase("c")) {
-                Main.afl.println("Error: invalid input.");
-                continue;
-            }
-            if(how.equalsIgnoreCase("i")) add_course_by_index();
-            else add_course_by_code_and_section();*/
             add_course_by_index();
         }
     }

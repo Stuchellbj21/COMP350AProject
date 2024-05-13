@@ -160,7 +160,7 @@ public class Database {
                 Main.afl.println("All tuples deleted from 'users'");
                 return true;
             }
-            Main.afl.println("'users' table was not cleared");
+            Main.afl.println("'users' table was already empty or was not cleared");
             return false;
 
         } catch (SQLException e) {
@@ -213,10 +213,8 @@ public class Database {
             ps.setString(2, username);
             int rows = ps.executeUpdate();
             if (rows > 0) {
-                Main.afl.println("Succesfully deleted from 'schedules'");
                 return true;
             }
-            Main.afl.println("Deletion from 'schedules' failed ");
             return false;
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -294,39 +292,6 @@ public class Database {
             }
             return scheds;
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    // Prepared statements for 'courses'
-    // have to figure out how to work in the daytimes and required by list
-    private boolean insert_into_courses(String name, char section, String major, int coursenum, int credits, int numstudents, int capacity, String prof, int year, String sem) {
-        try {
-            // generate prepared statement
-            PreparedStatement ps = conn.prepareStatement("" +
-                    "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-            ps.setString(1, name);
-            ps.setString(2, String.valueOf(section));
-            ps.setString(3, major); // check this
-            ps.setInt(4, coursenum);
-            ps.setInt(5, credits);
-            ps.setInt(6, numstudents);
-            ps.setInt(7, capacity);
-            ps.setString(8, prof);
-            ps.setInt(9, year);
-            ps.setString(10, sem);
-
-            // launch statement
-            int rows = ps.executeUpdate();
-            if (rows > 0) {
-                Main.afl.println("Insert into 'courses' was successful");
-                return true;
-            } else {
-                Main.afl.println("Insert into 'courses' failed");
-                return false;
-            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
