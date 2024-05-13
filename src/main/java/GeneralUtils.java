@@ -4,11 +4,13 @@ public class GeneralUtils {
     public static Scanner userin = new Scanner(System.in);
 
     public static String input(String prompt) {
-        if (prompt != null) {
-            Main.afl.print(prompt);
+        while(true) {
+            if (prompt != null) Main.afl.print(prompt);
+            //strip the new line off the end and any starting whitespace
+            String resp = userin.nextLine().strip();
+            if(resp.length() <= 20) return resp;
+            else Main.afl.println("Error: input was too long (valid input is 20 characters or less)");
         }
-        //strip the new line off the end and any starting whitespace
-        return userin.nextLine().strip();
     }
 
     public static int int_input(String prompt) throws NumberFormatException {
