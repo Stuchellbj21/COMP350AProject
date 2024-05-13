@@ -137,7 +137,13 @@ public class SchedAddRemove {
     public static void extracurricular() {
         String name = "";
         name = GeneralUtils.input("Enter the name for the extracurricular activity you choose to add: ");
-        char day = GeneralUtils.input("Enter the day the extracurricular activity will occur: ").toUpperCase().charAt(0);
+        //make string first since want to check if they put in to long a string (str should only be 1 char long)
+        String d = GeneralUtils.input("Enter the day the extracurricular activity will occur: ").toUpperCase();
+        if(d.length() != 1) {
+            Main.afl.println("Error: input should be 1 character long ('M', 'T', 'W', 'R', or 'F')");
+            return;
+        }
+        char day = d.charAt(0);
         if (day != 'M' && day != 'T' && day != 'W' && day != 'R' && day != 'F') {
             Main.afl.println("Error: invalid day given");
             return;
