@@ -176,7 +176,8 @@ public class Course {
         //do I have to do an n^2? It seems like it
         //should return false if there are no times listed
         for(DayTime thisdt : this.times) {
-            for(DayTime otherdt : other.times) if(thisdt.equals(otherdt) || thisdt.overlaps(otherdt)) return true;
+            for(DayTime otherdt : other.times)
+                if(thisdt.equals(otherdt) || thisdt.overlaps(otherdt)) return true;
         }
         return false;
     }

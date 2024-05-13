@@ -1,7 +1,6 @@
 import java.io.File;
 import java.io.IOException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.*;
@@ -258,7 +257,7 @@ public class Account {
         //usually we're searching on a particular major
         if(!searchstr.equalsIgnoreCase("all")) s.activate_new_filter(new MajorFilter(ret,Major.valueOf(searchstr)));
         else s.deactivate_filter(new MajorFilter());
-        s.activate_new_filter(new FullFilter(ret));
+        s.activate_new_filter(new OpenFilter(ret));
         s.activate_new_filter(new SemesterFilter(ret,sem,year));
         return ret;
     }

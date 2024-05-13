@@ -1,14 +1,14 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class FullFilter extends Filter {
+public class OpenFilter extends Filter {
     //filter out full courses
-    public FullFilter() {
-        super(FilterType.FULL);
+    public OpenFilter() {
+        super(FilterType.OPEN);
     }
 
-    public FullFilter(List<Course> courses) {
-        super(FilterType.FULL);
+    public OpenFilter(List<Course> courses) {
+        super(FilterType.OPEN);
         apply_to(courses);
     }
 

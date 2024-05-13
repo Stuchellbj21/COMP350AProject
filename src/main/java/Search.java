@@ -55,7 +55,7 @@ public class Search {
         set_search_str(ss);
         //if user wants to see all classes, show them all classes  |  if user enters all, the
         //results will always be sorted
-        if(searchstr.equalsIgnoreCase("all")) return search_all(threshold,sorted);
+        if(searchstr.equalsIgnoreCase("all")) return search_all(threshold);
         HashMap<Course,Integer> coursetoweight = new HashMap<>();
         for(Course c : Main.allcourses) coursetoweight.put(c,get_weight(c)); //now we have weighted courses
         //want ordering by weight, so use treemap
@@ -67,37 +67,35 @@ public class Search {
                 weighttocourse.get(coursetoweight.get(c)).add(c);
             }
         searchresults.clear();
-        int n = 0;
+        //don't actually want threshold to come into play here
+        //want to add all results to search results, then filter, then add to filtered results until threshold
         for(Integer i : weighttocourse.descendingKeySet()) {
             //sort bin if wanted
             if(sorted) {
-                Collections.sort(weighttocourse.get(i), bysection);
-                Collections.sort(weighttocourse.get(i), bycoursenum);
-                Collections.sort(weighttocourse.get(i), bymajor);
+                weighttocourse.get(i).sort(bysection);
+                weighttocourse.get(i).sort(bycoursenum);
+                weighttocourse.get(i).sort(bymajor);
             }
-            //add all courses up to threshold to results
-            for(Course c : weighttocourse.get(i)) {
-                //only add the course to search results if the course wasn't already taken by
-                //the current user
-                if(!Main.currentaccnt.already_took(c)) {
-                    if(n++ >= threshold) break;
-                    searchresults.add(c);
-                }
-            }
+            //add all untaken courses to search results
+            for(Course c : weighttocourse.get(i))
+                if(!Main.currentaccnt.already_took(c)) searchresults.add(c);
         }
-        //filter results and return
-        filteredresults = new ArrayList<>(searchresults);
-        apply_all_filters();
-        return searchresults;
+        //filter results and add up to threshold courses to filtered results
+        fill_filteredresults(threshold);
+        return filteredresults;
     }
 
-    public List<Course> search_all(int threshold,boolean sorted) {
+    public List<Course> search_all(int threshold) {
         searchresults = new ArrayList<>(Main.allcourses);
-        filteredresults = new ArrayList<>();
-        for(int i = 0; i < threshold && i < searchresults.size(); i++) filteredresults.add(searchresults.get(i));
-        apply_all_filters();
-        //if(!sorted) Main.afl.println("Searching for 'ALL' gives classes in the order they were loaded.");
+        fill_filteredresults(threshold);
         return filteredresults;
+    }
+
+    //fill the filtered results up to threshold, needs searchresults to be set already
+    private void fill_filteredresults(int threshold) {
+        filteredresults.clear();
+        List<Course> allfiltered = apply_all_filters();
+        for(int i = 0; i < threshold && i < allfiltered.size(); i++) filteredresults.add(allfiltered.get(i));
     }
 
     public void set_search_str(String ss) {
@@ -120,15 +118,16 @@ public class Search {
         if(filteredresults == null || filteredresults.isEmpty()) return sb.append("None").toString();
         for(Course c : filteredresults)
             if(Main.currentaccnt.get_wishlist().contains(c)) {
-                sb.append('\n').append(c + "*");
+                sb.append('\n').append(c).append("*");
             } else{
                     sb.append('\n').append(c);
         }
         return sb.toString();
     }
 
-    public String to_str(boolean numbered) {
-        StringBuilder sb = new StringBuilder("Active Filters: ").append(activefilters != null && !activefilters.isEmpty() ? activefilters : "None").append('\n');
+    public String to_str(boolean numbered) {q
+        StringBuilder sb = new StringBuilder("Courses marked with '☆' are on your wishlist\n").append("Courses marked with '✵' are on your status sheet\n");
+        sb.append("Active Filters: ").append(activefilters != null && !activefilters.isEmpty() ? activefilters : "None").append('\n');
         sb.append("Search Results for ").append('\'').append(searchstr).append('\'').append(':');
         if(filteredresults == null || filteredresults.isEmpty()) return sb.append("\nNone").toString();
         //give results up to threshold
@@ -184,7 +183,12 @@ public class Search {
         return w;*/
     }
 
-    public void apply_all_filters() {for(Filter f : activefilters) f.apply_to(filteredresults);}
+    public List<Course> apply_all_filters() {
+        //don't want to actually modify the underlying search results, so make a copy
+        ArrayList<Course> sr = new ArrayList<>(searchresults);
+        for(Filter f : activefilters) f.apply_to(sr);
+        return sr;
+    }
 
     public List<Course> activate_new_filter(Filter f) {
         if(activefilters.add(f)) f.apply_to(filteredresults);
@@ -217,7 +221,6 @@ public class Search {
         if(!activefilters.remove(f)) return filteredresults;
         //otherwise, perform new search, apply all filters, and return
         search(searchstr);
-        apply_all_filters();
         return filteredresults;
     }
 

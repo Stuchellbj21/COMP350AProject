@@ -50,9 +50,9 @@ public class FilterUtils {
                 }
                 case PROFESSOR -> add_or_modify_filter(modify,new ProfessorFilter(Main.search.get_filtered_results(),GeneralUtils.input("Enter the name of the professor (in form '<first_name> <last_name>') you would like to filter on: ")));
                 //can only add or remove FULL filter
-                case FULL -> {
-                    if(modify) Main.afl.println("Error: cannot modify FULL filter");
-                    else add_or_modify_filter(modify,new FullFilter(Main.search.get_filtered_results()));
+                case OPEN -> {
+                    if(modify) Main.afl.println("Error: cannot modify OPEN filter");
+                    else add_or_modify_filter(modify,new OpenFilter(Main.search.get_filtered_results()));
                 }
             }
             if(!modify && Main.search.get_active_filters().size() != ogsize) Main.afl.println("Filter addition successful");
@@ -171,7 +171,7 @@ public class FilterUtils {
     }
 
     public static FilterType get_filter_type(String operation) {
-        Main.afl.println("Filter types: credit,time,days,professor,name (course name),major,semester,full");
+        Main.afl.println("Filter types: credit,time,days,professor,name (course name),major,semester,open");
         boolean first = true;
         String ft = "";
         do {
