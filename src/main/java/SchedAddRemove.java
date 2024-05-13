@@ -1,5 +1,7 @@
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SchedAddRemove {
     public static void add_course_to_schedule() {
@@ -21,8 +23,11 @@ public class SchedAddRemove {
             if(idx < 1) throw new IllegalArgumentException("Error: index must be greater than zero.");
             if(idx > Main.search.get_filtered_results().size()) throw new IllegalArgumentException("Error: that index is too large.");
             if(Main.currentsched.add_course(Main.search.get_filtered_results().get(idx-1))) {
-                //if in wishlist, remove it from there
-                Main.currentaccnt.get_wishlist().remove(Main.search.get_filtered_results().get(idx-1));
+                //make sure the thing is added to the undo stack
+                Main.currentsched.get_undocoursestack().push(Main.search.get_filtered_results().get(idx-1));
+                //if wishlist contains items and the added course is in wishlist, remove it from there
+                if(Main.currentaccnt.get_wishlist() != null && !Main.currentaccnt.get_wishlist().isEmpty())
+                    remove_all_from_wishlist(Main.search.get_filtered_results().get(idx-1));
                 Main.afl.println(Main.search.get_filtered_results().get(idx - 1).short_str(true) + " has been added to the current schedule");
             }
         }
@@ -32,6 +37,19 @@ public class SchedAddRemove {
         catch (IllegalArgumentException iae) {
             Main.afl.println(iae.getMessage());
         }
+    }
+
+    public static void remove_all_from_wishlist(Course add) {
+        List<Course> rm = new ArrayList<>();
+        //every course that matches the added course must be removed from the wishlist, we don't care about
+        //semester or section
+        for(Course course : Main.currentaccnt.get_wishlist()) {
+            //chop off section, don't care about it (-2)
+            String coursestr = course.short_str(false).substring(0, course.short_str(false).length() - 2);
+            String addstr = add.short_str(false).substring(0, add.short_str(false).length() - 2);
+            if(coursestr.equalsIgnoreCase(addstr)) rm.add(course);
+        }
+        Main.currentaccnt.get_wishlist().removeAll(rm);
     }
 
     //old add
@@ -102,18 +120,20 @@ public class SchedAddRemove {
             yon = GeneralUtils.input("Would you like to specify a section? (y/n): ").toUpperCase();
             if (yon.equals("Y")) {
                 cpd = GeneralUtils.input("Enter the class section you would like to add to your wishlist: ").toUpperCase();
+                //assuming there will be no courses with over 15 sections/15 variants
                 findcourse.search(coursecode + " " + cpd,15);
                 for (int i = 0; i < findcourse.get_filtered_results().size(); i++) {
                     String course = findcourse.get_filtered_results().get(i).getMajor() + " " + findcourse.get_filtered_results().get(i).getCourseNum();
                     if (course.equals(coursecode) && findcourse.get_filtered_results().get(i).getSection() == cpd.charAt(0)) {
                         Main.currentaccnt.get_wishlist().add(findcourse.get_filtered_results().get(i));
                         Main.afl.println("course added to wishlist");
-                        break;
+                        //break; remove break so that all courses with same section and
+                        //course code will be added to wishlist
                     }
                 }
             }
             else if(yon.equals("N")){
-                findcourse.search(coursecode + " ",15);
+                findcourse.search(coursecode,15);
                 for (int i = 0; i < findcourse.get_filtered_results().size(); i++) {
                     String course = findcourse.get_filtered_results().get(i).getMajor() + " " + findcourse.get_filtered_results().get(i).getCourseNum();
                     if (course.equals(coursecode)) {
