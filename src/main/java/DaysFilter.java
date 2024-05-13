@@ -29,6 +29,7 @@ public class DaysFilter extends Filter {
         // add removed to remove list and remove all at once to avoid concurrent modification error
         ArrayList<Course> toremove = new ArrayList<>();
         for (Course c : courses) {
+            //remove courses that have no times listed
             if(c.getTimes() == null || c.getTimes().isEmpty()) {
                 toremove.add(c);
                 continue;
