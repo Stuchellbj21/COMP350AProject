@@ -35,7 +35,7 @@ public class Main {
         //try {SaveLoad.load_accounts();}
         //catch (Exception e) {afl.println("no accounts to load");}
         //moved load_allcourses to account creation so that I could more conveniently remove courses taken
-        afl.println("Welcome to Descartes Favorite Scheduling App.... Enjoy");
+        afl.println("Welcome to Scrumptious Schedules!");
         try{SaveLoad.load_allcourses();}
         catch(IOException ioe) {afl.println("Error" + ioe.getMessage());}
         Menus.accountMenu();
