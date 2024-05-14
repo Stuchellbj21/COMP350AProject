@@ -184,7 +184,7 @@ public class SchedAddRemove {
 
     public static void revert_change() {
         if (Main.currentsched.get_undocoursestack().isEmpty()) {
-            Main.afl.println("Error: no course has been added to undo its addition");
+            Main.afl.println("Error: no course additions recorded");
         } else {
             Course temp = Main.currentsched.get_undocoursestack().pop();
             Main.currentsched.remove_course(temp);

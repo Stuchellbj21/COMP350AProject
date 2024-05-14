@@ -252,7 +252,11 @@ public class Schedule {
     public boolean remove_course(Course course) {
         if(courses.isEmpty()) throw new InputMismatchException("Error: cannot remove a course from an empty schedule");
         if(!courses.contains(course)) throw new InputMismatchException("Error: your schedule does not contain " + course.short_str(false) + " course");
-        courses.remove(course);
+        if(courses.remove(course)) {
+            if(!undocoursestack.isEmpty())
+                Main.afl.println("all course addition records removed (removing a course clears course addition records)");
+            undocoursestack.clear();
+        }
         removal_update(course);
         return true;
     }
