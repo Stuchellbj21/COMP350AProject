@@ -113,7 +113,8 @@ public class DayTime implements Comparable<DayTime> {
     }
 
     public boolean overlaps(DayTime other) {
-        return day == other.day && ((this.militarystart >= other.militarystart && this.militarystart <= other.militaryend) || (this.militaryend >= other.militarystart && this.militaryend <= other.militaryend));
+        //check both ways
+        return day == other.day && (((this.militarystart >= other.militarystart && this.militarystart <= other.militaryend) || (this.militaryend >= other.militarystart && this.militaryend <= other.militaryend)) || ((other.militarystart >= this.militarystart && other.militarystart <= this.militaryend) || (other.militaryend >= this.militarystart && other.militaryend <= this.militaryend)));
     }
 
     @Override
